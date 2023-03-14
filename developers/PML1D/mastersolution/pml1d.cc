@@ -90,16 +90,16 @@ void plotExp(unsigned int N, unsigned int M, double T, std::string filename) {
   Eigen::VectorXd sigma(N + 1);
   Eigen::VectorXd gamma(N + 1);
   for (unsigned int i = 0; i <= N; ++i) {
-    const double x = -1.0 - L + i * h; // Sampling point
+    const double x = -1.0 - L + i * h;  // Sampling point
     sigma[i] = c_sigma(x);
     gamma[i] = c_gamma(x);
   }
   // Sampling initial data on equidistant mesh
   Eigen::VectorXd zeta_0(2 * N + 1);
   for (unsigned int i = 0; i < N; ++i) {
-    const double x = -1.0 - L + i * h;     // Sampling point
-    zeta_0[i] = f_sol(x, 0.0);             // Initial value for u
-    zeta_0[i + N + 1] = f_v0(x + 0.5 * h); // Initial value for v
+    const double x = -1.0 - L + i * h;      // Sampling point
+    zeta_0[i] = f_sol(x, 0.0);              // Initial value for u
+    zeta_0[i + N + 1] = f_v0(x + 0.5 * h);  // Initial value for v
   }
   zeta_0[N] = f_sol(1.0 + L, 0.0);
   // Monitor function storing basis expansion coefficient vectors
@@ -176,4 +176,4 @@ std::vector<double> trackEnergy(const Eigen::VectorXd &zeta_0,
 }
 /* SAM_LISTING_END_2 */
 
-} // namespace PML1D
+}  // namespace PML1D

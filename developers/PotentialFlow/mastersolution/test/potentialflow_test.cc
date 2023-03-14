@@ -55,4 +55,4 @@ TEST(PotentialFlow, linsol) {
   }
   EXPECT_NEAR(errmax, 0.0, 1.0E-6);
 }
-} // namespace PotentialFlow::test
+}  // namespace PotentialFlow::test

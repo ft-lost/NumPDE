@@ -6,9 +6,9 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 
-#include "advectionsupg.h"
-
 #include <Eigen/Core>
 #include <iostream>
 
-int main(int /*argc*/, char ** /*argv*/) { return 0; }
+#include "advectionsupg.h"
+
+int main(int /*argc*/, char** /*argv*/) { return 0; }

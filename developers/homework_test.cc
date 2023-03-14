@@ -1,17 +1,15 @@
 /**
  * @file XXX_test.cc
  * @brief NPDE homework XXX code
- * @author 
- * @date 
+ * @author
+ * @date
  * @copyright Developed at SAM, ETH Zurich
  */
-
-#include "../XXX.h"
 
 #include <gtest/gtest.h>
 
 #include <Eigen/Core>
 
-namespace XXX::test {
+#include "../XXX.h"
 
-}  // namespace XXX::test
+namespace XXX::test {}  // namespace XXX::test

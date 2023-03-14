@@ -10,7 +10,7 @@
 
 #include "pml1d.h"
 
-int main(int /*argc*/, char ** /*argv*/) {
+int main(int /*argc*/, char** /*argv*/) {
   PML1D::tabulateExp1();
   PML1D::plotExp(200, 200, 4.0);
   return 0;

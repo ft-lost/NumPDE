@@ -51,16 +51,16 @@ std::vector<Eigen::VectorXd> solve(unsigned N, unsigned M, double T) {
   Eigen::VectorXd sigma(N + 1);
   Eigen::VectorXd gamma(N + 1);
   for (unsigned int i = 0; i <= N; ++i) {
-    const double x = -1.0 - L + i * h; // Sampling point
+    const double x = -1.0 - L + i * h;  // Sampling point
     sigma[i] = c_sigma(x);
     gamma[i] = c_gamma(x);
   }
   // Sampling initial data on equidistant mesh
   Eigen::VectorXd zeta_0(2 * N + 1);
   for (unsigned int i = 0; i < N; ++i) {
-    const double x = -1.0 - L + i * h; // Sampling point
-    zeta_0[i] = f_sol(x, 0.0);         // Initial value for u
-    zeta_0[i + N + 1] = 0;             // Initial value for v
+    const double x = -1.0 - L + i * h;  // Sampling point
+    zeta_0[i] = f_sol(x, 0.0);          // Initial value for u
+    zeta_0[i + N + 1] = 0;              // Initial value for v
   }
   zeta_0[N] = f_sol(1.0 + L, 0.0);
   // Object for keeping track of approximate solution
@@ -81,13 +81,13 @@ TEST(PML1D, wave) {
   const double T = 0.5;
   const double tau = T / M;
   const auto zetas = solve(N, M, T);
-  Eigen::VectorXd ref_sol(N + 1); // Contains sampled exact solution
+  Eigen::VectorXd ref_sol(N + 1);  // Contains sampled exact solution
   double Linf_err = 0;
   for (unsigned int k = 1; k <= M; ++k) {
     const double t = k * tau;
     // Sample solution in nodes of the mesh
     for (unsigned int i = 0; i <= N; ++i) {
-      const double x = -1.0 - L + i * h; // Sampling point
+      const double x = -1.0 - L + i * h;  // Sampling point
       ref_sol[i] = f_sol(x, t);
     }
     // Select index range of nodea lying in the interval [-1,1]
@@ -111,4 +111,4 @@ TEST(PML1D, boundarynodes) {
   }
 }
 
-} // namespace PML1D::test
+}  // namespace PML1D::test

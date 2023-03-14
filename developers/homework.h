@@ -8,6 +8,4 @@
 
 #include <Eigen/Core>
 
-namespace XXX {
-
-}  // namespace XXX
+namespace XXX {}  // namespace XXX

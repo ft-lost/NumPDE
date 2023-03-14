@@ -148,4 +148,4 @@ TEST(AdvectionSUPG, quadfun) {
   EXPECT_TRUE(checkBilinearForm(v, u, w, grad_u, grad_w));
 }
 
-} // namespace AdvectionSUPG::test
+}  // namespace AdvectionSUPG::test

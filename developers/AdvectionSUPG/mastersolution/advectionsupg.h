@@ -24,23 +24,24 @@ namespace AdvectionSUPG {
 /** @brief Element matrix provider for streamline-upwind finite-element method
    for for pure advection using quadratic Lagrangian finite elements.
  */
-template <class MESHFUNCTION_V> class SUAdvectionElemMatrixProvider {
-public:
+template <class MESHFUNCTION_V>
+class SUAdvectionElemMatrixProvider {
+ public:
   using ElemMat = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
   SUAdvectionElemMatrixProvider(const SUAdvectionElemMatrixProvider &) = delete;
   SUAdvectionElemMatrixProvider(SUAdvectionElemMatrixProvider &&) noexcept =
       default;
-  SUAdvectionElemMatrixProvider &
-  operator=(const SUAdvectionElemMatrixProvider &) = delete;
-  SUAdvectionElemMatrixProvider &
-  operator=(SUAdvectionElemMatrixProvider &&) = delete;
+  SUAdvectionElemMatrixProvider &operator=(
+      const SUAdvectionElemMatrixProvider &) = delete;
+  SUAdvectionElemMatrixProvider &operator=(SUAdvectionElemMatrixProvider &&) =
+      delete;
   SUAdvectionElemMatrixProvider(MESHFUNCTION_V &v, bool use_delta = true);
   virtual bool isActive(const lf::mesh::Entity & /*cell*/) { return true; }
   ElemMat Eval(const lf::mesh::Entity &cell);
   virtual ~SUAdvectionElemMatrixProvider() = default;
 
-private:
+ private:
   // six-point quadrature rule
   const lf::quad::QuadRule qr_{lf::quad::make_TriaQR_P6O4()};
   // A mesh function object providing the velocity field
@@ -145,6 +146,6 @@ SUAdvectionElemMatrixProvider<MESHFUNCTION_V>::Eval(
 }
 /* SAM_LISTING_END_2 */
 
-} // namespace AdvectionSUPG
+}  // namespace AdvectionSUPG
 
-#endif // #ifndef ADVSUPG_H_H
+#endif  // #ifndef ADVSUPG_H_H

@@ -15,8 +15,8 @@ Eigen::SparseMatrix<double> initializeA(unsigned int M) {
   // Iterate over all interior nodes of the mesh and apply the stencil and
   // initialize the matrix in column-wise order, from top to bottom in every
   // column, which is most efficient for the CCS storage format.
-  for (int i = 0; i < M; ++i) {   // "vertical" loop
-    for (int j = 0; j < M; ++j) { // "horizontal" loop
+  for (int i = 0; i < M; ++i) {    // "vertical" loop
+    for (int j = 0; j < M; ++j) {  // "horizontal" loop
       // Index of the current node
       const int k = i * M + j;
       // Self-interaction weight
@@ -61,9 +61,8 @@ Eigen::SparseMatrix<double> initializeA(unsigned int M) {
 /* SAM_LISTING_END_1 */
 
 /* SAM_LISTING_BEGIN_2 */
-Eigen::VectorXd
-initializeRHSVector(const std::function<double(double, double)> &g,
-                    unsigned int M) {
+Eigen::VectorXd initializeRHSVector(
+    const std::function<double(double, double)> &g, unsigned int M) {
   // Mesh width
   const double h = 1.0 / (M + 1);
   // Off-center entry of stencil
@@ -71,27 +70,28 @@ initializeRHSVector(const std::function<double(double, double)> &g,
   Eigen::VectorXd phi = Eigen::VectorXd::Zero(M * M);
   // Four corner points
   phi[0] = w * (g(0.0, 0.0) + g(0.0, h) + g(h, 0.0) + g(2 * h, 0.0) +
-                g(0.0, 2 * h)); // Bottom left corner
-  phi[M - 1] = w * (g(1.0, 0.0) + g(1.0 - h, 0.0) + g(1.0, h) +
-                    g(1.0 - 2 * h, 0.0) + g(1.0, 2 * h)); // Bottom right corner
+                g(0.0, 2 * h));  // Bottom left corner
+  phi[M - 1] =
+      w * (g(1.0, 0.0) + g(1.0 - h, 0.0) + g(1.0, h) + g(1.0 - 2 * h, 0.0) +
+           g(1.0, 2 * h));  // Bottom right corner
   phi[M * (M - 1)] =
       w * (g(0.0, 1.0) + g(0.0, 1.0 - h) + g(h, 1.0) + g(2 * h, 1.0) +
-           g(0.0, 1.0 - 2 * h)); // Top left corner
+           g(0.0, 1.0 - 2 * h));  // Top left corner
   phi[M * M - 1] =
       w * (g(1.0, 1.0) + g(1.0, 1.0 - h) + g(1.0 - h, 1.0) +
-           g(1.0, 1.0 - 2 * h) + g(1.0 - 2 * h, 1.0)); // Top right corner
+           g(1.0, 1.0 - 2 * h) + g(1.0 - 2 * h, 1.0));  // Top right corner
   for (unsigned int l = 1; l < M - 1; ++l) {
     phi[l] = w * (g(h * l, 0.0) + g((l + 1) * h, 0.0) +
-                  g((l + 2) * h, 0.0)); // bottom
-    phi[M * l] =
-        w * (g(0.0, l * h) + g(0.0, (l + 1) * h) + g(0.0, (l + 2) * h)); // left
+                  g((l + 2) * h, 0.0));  // bottom
+    phi[M * l] = w * (g(0.0, l * h) + g(0.0, (l + 1) * h) +
+                      g(0.0, (l + 2) * h));  // left
     phi[M * (l + 1) - 1] = w * (g(1.0, l * h) + g(1.0, (l + 1) * h) +
-                                g(1.0, (l + 2) * h)); // right
+                                g(1.0, (l + 2) * h));  // right
     phi[M * (M - 1) + l] =
-        w * (g(h * l, 1.0) + g((l + 1) * h, 1.0) + g((l + 2) * h, 1.0)); // top
+        w * (g(h * l, 1.0) + g((l + 1) * h, 1.0) + g((l + 2) * h, 1.0));  // top
   }
   return phi;
 }
 /* SAM_LISTING_END_2 */
 
-} // namespace PotentialFlow
+}  // namespace PotentialFlow

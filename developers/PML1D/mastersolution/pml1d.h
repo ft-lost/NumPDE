@@ -49,9 +49,9 @@ Eigen::VectorXd solve1DWavePML(
        0.5 * (zeta.segment(N + 1, N - 1) + zeta.segment(N + 2, N - 1)), 0.0)
           .finished();
   // Discretization parameters
-  const double L = L_default;         // default width of PML layer
-  const double h = (2.0 + 2 * L) / N; // meshwidth
-  const double tau = T / M;           // size of timestep
+  const double L = L_default;          // default width of PML layer
+  const double h = (2.0 + 2 * L) / N;  // meshwidth
+  const double tau = T / M;            // size of timestep
   // I. Initialize sparse matrices $\cob{\VA,\VR\in\bbR^{2N+1,2N+1}}$.
   Eigen::SparseMatrix<double> A(2 * N + 1, 2 * N + 1);
   Eigen::SparseMatrix<double> R(2 * N + 1, 2 * N + 1);
@@ -121,12 +121,11 @@ Eigen::VectorXd solve1DWavePML(
     // $\cob{2N+1}$
     Eigen::VectorXd beta = -R * zeta;
     beta[0] += 0.5 * h * v0[0];
-    for (unsigned int i = 1; i < N; ++i)
-      beta[i] += h * v0[i];
+    for (unsigned int i = 1; i < N; ++i) beta[i] += h * v0[i];
     beta[N] += 0.5 * h * v0[N];
     Eigen::VectorXd zeta_old = zeta;
-    zeta = solver.solve(beta); // $\cob{\vec{\zetabf}^{(k+1)}}$
-    rec(zeta);                 // Provide state vector to monitor object
+    zeta = solver.solve(beta);  // $\cob{\vec{\zetabf}^{(k+1)}}$
+    rec(zeta);                  // Provide state vector to monitor object
   }
   return zeta;
 }
@@ -183,16 +182,16 @@ std::pair<double, double> computeErrorWave1D(FUNCTOR_DATA &&f_v0,
   Eigen::VectorXd sigma(N + 1);
   Eigen::VectorXd gamma(N + 1);
   for (unsigned int i = 0; i <= N; ++i) {
-    const double x = -1.0 - L + i * h; // Sampling point
+    const double x = -1.0 - L + i * h;  // Sampling point
     sigma[i] = c_sigma(x);
     gamma[i] = c_gamma(x);
   }
   // Sampling initial data on equidistant mesh
   Eigen::VectorXd zeta_0(2 * N + 1);
   for (unsigned int i = 0; i < N; ++i) {
-    const double x = -1.0 - L + i * h;     // Sampling point
-    zeta_0[i] = f_sol(x, 0.0);             // Initial value for u
-    zeta_0[i + N + 1] = f_v0(x + 0.5 * h); // Initial value for v
+    const double x = -1.0 - L + i * h;      // Sampling point
+    zeta_0[i] = f_sol(x, 0.0);              // Initial value for u
+    zeta_0[i + N + 1] = f_v0(x + 0.5 * h);  // Initial value for v
   }
   zeta_0[N] = f_sol(1.0 + L, 0.0);
   // Object for keeping track of approximate solution
@@ -208,12 +207,12 @@ std::pair<double, double> computeErrorWave1D(FUNCTOR_DATA &&f_v0,
   double L2_err = 0.0;
   double Linf_err = 0.0;
   assert(zetas.size() == M + 1);
-  Eigen::VectorXd sol(N + 1); // Contains sampled exact solution
+  Eigen::VectorXd sol(N + 1);  // Contains sampled exact solution
   for (unsigned int k = 1; k <= M; ++k) {
     const double t = k * tau;
     // Sample solution in nodes of the mesh
     for (unsigned int i = 0; i <= N; ++i) {
-      const double x = -1.0 - L + i * h; // Sampling point
+      const double x = -1.0 - L + i * h;  // Sampling point
       sol[i] = f_sol(x, t);
     }
     // Select index range of nodea lying in the interval [-1,1]
@@ -235,5 +234,5 @@ void tabulateExp1(void);
 void plotExp(unsigned int N, unsigned int M, double T,
              std::string filename = "pml1d.m");
 
-} // namespace PML1D
+}  // namespace PML1D
 #endif

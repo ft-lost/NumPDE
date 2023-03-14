@@ -23,6 +23,4 @@
 namespace AdvectionSUPG {
 // Implementation of SUAdvectionElemMatrixProvider
 
-
-
 }  // namespace AdvectionSUPG
