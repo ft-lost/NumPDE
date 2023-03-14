@@ -12,7 +12,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
-
+#include <array>
 namespace EmbeddedRKSSM {
 
 /**
