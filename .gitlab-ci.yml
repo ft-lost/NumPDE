@@ -1,0 +1,43 @@
+# Run this workflow every time a new commit pushed to your repository
+stages:   
+  - format       # List of stages for jobs, and their order of execution
+  - build
+  - test
+  - deploy
+
+variables:
+  DEPS_DIR: $CI_PROJECT_DIR/deps
+  HUNTER_ROOT: $CI_PROJECT_DIR/hunter
+  
+
+# compilation on macos
+compile-macos-release-job:
+    stage: build
+    variables:
+      COMPILER: "clang++"
+      BUILD_TYPE: "Release"
+      CXXFLAGS: "-Werror=#warnings"
+      GIT_CHECKOUT: "true"
+    tags:
+        - macos
+    script:
+       - mkdir $CI_PROJECT_DIR/build
+       - cd $CI_PROJECT_DIR/build 
+       - cmake .. 
+       - cd homeworks
+       - make -j8
+        
+clang-format-test-job:
+    stage: format
+    variables:
+      GIT_CHECKOUT: "true"
+    tags: 
+      - macos
+    script:
+      - echo "Checking if the code is well formated"
+
+      - clang-format --version
+      - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/developers/
+
+#TDOO: Run these commands also for linux
+#TODO: Run the write a job that tests all the codes in build
