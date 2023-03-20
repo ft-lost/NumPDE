@@ -33,14 +33,21 @@ compile-developers-release-job:
     tags:
         - macos
     script:
+       
        - mkdir $CI_PROJECT_DIR/build
        - cd $CI_PROJECT_DIR/build 
        - cmake .. 
+       - echo "Building developer folder"
        - cd developers
        - make -j8
-    artifacts:
-      paths :
-        - build/developers
+       - cd $CI_PROJECT_DIR/build 
+       - echo "Testing developer folder master solutions"
+       - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
+    # Ideally testing and building are separated jobs, but the builded folders seem to be to large to be uploaded,
+    # in the future the scripts may be able to be separated, for now testing and building will be done in one job
+    #artifacts:
+     # paths :
+      #  - build/developers
 
 #TDOO: Run these commands also for linux
 test-developer-job:
@@ -49,5 +56,5 @@ test-developer-job:
     - macos
   script:
     - echo "Testing developer folder"
-    - echo "TODO write a test script"
+    - echo "As of right now testing is done while building"
 
