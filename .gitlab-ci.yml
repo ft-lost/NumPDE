@@ -18,7 +18,6 @@ clang-format-job:
       - macos
     script:
       - echo "Checking if the code is well formated"
-
       - clang-format --version
       - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/developers/
 
