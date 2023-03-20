@@ -38,7 +38,9 @@ compile-developers-release-job:
        - cmake .. 
        - cd developers
        - make -j8
- 
+    artifacts:
+      paths :
+        - build/developers
 
 #TDOO: Run these commands also for linux
 test-developer-job:
