@@ -3,6 +3,6 @@
 hunter_config(lehrfempp
   URL "https://github.com/craffael/lehrfempp/archive/9f73009add67095f656a67a456950edab41fb4d0.tar.gz"
   SHA1 "a01729ad4a75ec880b6b0619228ddc16475a497c"
+  CMAKE_ARGS LF_REDIRECT_ASSERTS=Off
 )
-
 hunter_config(Eigen VERSION 3.3.9)
