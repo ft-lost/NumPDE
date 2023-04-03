@@ -15,7 +15,7 @@ clang-format-job:
     variables:
       GIT_CHECKOUT: "true"
     tags: 
-      - macos
+      - mac
     script:
       - echo "Checking if the code is well formated"
       - clang-format --version
@@ -30,7 +30,7 @@ compile-developers-release-job:
       CXXFLAGS: "-Werror=#warnings"
       GIT_CHECKOUT: "true"
     tags:
-        - macos
+        - mac
     script:
        
        - mkdir $CI_PROJECT_DIR/build
@@ -53,7 +53,7 @@ compile-developers-release-job:
 test-developer-job:
   stage: test
   tags:
-    - macos
+    - mac
   script:
     - echo "Testing developer folder"
     - echo "As of right now testing is done while building"
