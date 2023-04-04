@@ -16,7 +16,6 @@ clang-format-job:
       GIT_CHECKOUT: "true"
     tags: 
       - mac
-      - linux
     script:
       - echo "Checking if the code is well formated"
       - clang-format --version
@@ -77,7 +76,6 @@ test-developer-job:
   stage: test
   tags:
     - mac
-    - linux
   script:
     - echo "Testing developer folder"
     - echo "As of right now testing is done while building"
