@@ -15,7 +15,7 @@ clang-format-job:
     variables:
       GIT_CHECKOUT: "true"
     tags: 
-      - mac
+      - linux
     script:
       - echo "Checking if the code is well formated"
       - clang-format --version
@@ -40,7 +40,7 @@ compile-developers-release-job-mac:
        - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
        - echo "Building developer folder"
        - cd developers
-       - make -j8
+       - make -j4
        - cd $CI_PROJECT_DIR/build 
        - echo "Testing developer folder master solutions"
        - chmod +x $CI_PROJECT_DIR/scripts/ci/test_developers.sh
@@ -54,10 +54,11 @@ compile-developers-release-job-mac:
 compile-developers-debug-job-linux:
     stage: build
     variables:
-      COMPILER: "g++-8"
+      COMPILER: "g++"
       BUILD_TYPE: "Debug"
       CXXFLAGS: "--Werror=cpp"
       GIT_CHECKOUT: "true"
+
     tags:
         - linux
     script:
@@ -66,10 +67,11 @@ compile-developers-debug-job-linux:
        - cd $CI_PROJECT_DIR/build 
        - export CXX=$COMPILER
        - echo $CXX
+       - SET (CMAKE_CXX_COMPILER_WORKS 1) # Skips checking the compiler
        - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
        - echo "Building developer folder"
        - cd developers
-       - make -j8
+       - make -j4
 
 #TDOO: Run these commands also for linux
 test-developer-job:
