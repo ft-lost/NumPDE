@@ -61,7 +61,7 @@ compile-developers-debug-job-linux:
     tags:
         - linux
     script:
-       
+       - echo Create a build folder
        - mkdir $CI_PROJECT_DIR/build
        - cd $CI_PROJECT_DIR/build 
        - export CXX=$COMPILER
