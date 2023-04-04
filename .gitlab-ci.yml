@@ -35,6 +35,8 @@ compile-developers-release-job:
        
        - mkdir $CI_PROJECT_DIR/build
        - cd $CI_PROJECT_DIR/build 
+       - export CXX=$COMPILER
+       - echo $CXX
        - cmake .. 
        - echo "Building developer folder"
        - cd developers
