@@ -67,7 +67,7 @@ compile-developers-debug-job-linux:
        - cd $CI_PROJECT_DIR/build 
        - export CXX=$COMPILER
        - echo $CXX
-       - SET (CMAKE_CXX_COMPILER_WORKS 1) # Skips checking the compiler
+       - set(CMAKE_CXX_COMPILER_WORKS 1) # Skips checking the compiler
        - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
        - echo "Building developer folder"
        - cd developers
