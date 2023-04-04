@@ -40,7 +40,7 @@ compile-developers-release-job-mac:
        - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
        - echo "Building developer folder"
        - cd developers
-       - make -j4
+       - make -j 4
        - cd $CI_PROJECT_DIR/build 
        - echo "Testing developer folder master solutions"
        - chmod +x $CI_PROJECT_DIR/scripts/ci/test_developers.sh
@@ -71,7 +71,7 @@ compile-developers-debug-job-linux:
        - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
        - echo "Building developer folder"
        - cd developers
-       - make -j4
+       - make -j 4
 
 #TDOO: Run these commands also for linux
 test-developer-job:
