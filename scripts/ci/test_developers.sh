@@ -54,5 +54,5 @@ task() {
 set -e
 for d in ./developers/*/ ;
 do
-  task $d #parallelizing did not work, can be modified at a later stage
+  task $d & #parallelizing did not work, can be modified at a later stage
 done
