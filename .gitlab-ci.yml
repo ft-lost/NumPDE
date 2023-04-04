@@ -56,7 +56,7 @@ compile-developers-debug-job-linux:
     variables:
       COMPILER: "g++"
       BUILD_TYPE: "Debug"
-      CXXFLAGS: "--Werror=cpp"
+      CXXFLAGS: "-Werror=cpp"
       GIT_CHECKOUT: "true"
 
     tags:
