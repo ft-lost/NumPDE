@@ -54,7 +54,7 @@ compile-developers-release-job-mac:
 compile-developers-debug-job-linux:
     stage: build
     variables:
-      COMPILER: "g++"
+      COMPILER: "g++-8"
       BUILD_TYPE: "Debug"
       CXXFLAGS: "--Werror=cpp"
       GIT_CHECKOUT: "true"
