@@ -22,7 +22,7 @@ clang-format-job:
       - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/developers/
 
 # compilation on macos
-compile-developers-release-job:
+compile-developers-release-job-mac:
     stage: build
     variables:
       COMPILER: "clang++"
@@ -37,7 +37,7 @@ compile-developers-release-job:
        - cd $CI_PROJECT_DIR/build 
        - export CXX=$COMPILER
        - echo $CXX
-       - cmake .. 
+       - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=BUILD_TYPE -Wdev
        - echo "Building developer folder"
        - cd developers
        - make -j8
@@ -50,6 +50,26 @@ compile-developers-release-job:
     #artifacts:
      # paths :
       #  - build/developers
+
+compile-developers-debug-job-linux:
+    stage: build
+    variables:
+      COMPILER: "g++"
+      BUILD_TYPE: "Debug"
+      CXXFLAGS: "--Werror=cpp"
+      GIT_CHECKOUT: "true"
+    tags:
+        - linux
+    script:
+       
+       - mkdir $CI_PROJECT_DIR/build
+       - cd $CI_PROJECT_DIR/build 
+       - export CXX=$COMPILER
+       - echo $CXX
+       - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=BUILD_TYPE -Wdev
+       - echo "Building developer folder"
+       - cd developers
+       - make -j8
 
 #TDOO: Run these commands also for linux
 test-developer-job:
