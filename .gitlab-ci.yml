@@ -26,7 +26,7 @@ compile-developers-release-job-mac:
     stage: build
     variables:
       COMPILER: "clang++"
-      BUILD_TYPE: "Release"
+      BUILD_TYPE: "Debug"
       CXXFLAGS: "-Werror=#warnings"
       GIT_CHECKOUT: "true"
     tags:
