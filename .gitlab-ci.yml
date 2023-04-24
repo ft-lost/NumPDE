@@ -33,27 +33,21 @@ compile-developers-release-job-mac:
         - mac
     script:
        
-       - mkdir $CI_PROJECT_DIR/build
-       - cd $CI_PROJECT_DIR/build 
+       - mkdir $CI_PROJECT_DIR/build_release
+       - cd $CI_PROJECT_DIR/build_release
        - export CXX=$COMPILER
        - echo $CXX
        - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
 
-
        - echo "Building developer folder"
        - cd developers
        - make -j 4
-       - cd $CI_PROJECT_DIR/build 
 
+    cache:
+      key : developers-release-mac
+      paths : 
+        - $CI_PROJECT_DIR/build_release/developers/
        
-       - echo "Testing developer folder master solutions"
-       - chmod +x $CI_PROJECT_DIR/scripts/ci/test_developers.sh
-       - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
-    # Ideally testing and building are separated jobs, but the builded folders seem to be to large to be uploaded,
-    # in the future the scripts may be able to be separated, for now testing and building will be done in one job
-    #artifacts:
-     # paths :
-      #  - build/developers
 
 compile-developers-debug-job-linux:
     stage: build
@@ -67,8 +61,8 @@ compile-developers-debug-job-linux:
         - linux
     script:
        - echo Create a build folder
-       - mkdir $CI_PROJECT_DIR/build
-       - cd $CI_PROJECT_DIR/build 
+       - mkdir $CI_PROJECT_DIR/build_debug
+       - cd $CI_PROJECT_DIR/build_debug
        - export CXX=$COMPILER
        - echo $CXX
 
@@ -76,13 +70,35 @@ compile-developers-debug-job-linux:
        - echo "Building developer folder"
        - cd developers
        - make -j 4
+    cache:
+      key : developers-debug-linux
+      paths : 
+        - $CI_PROJECT_DIR/build_debug/developers/
 
-#TDOO: Run these commands also for linux
-test-developer-job:
+test-developer-release-job-mac:
   stage: test
   tags:
     - mac
   script:
-    - echo "Testing developer folder"
-    - echo "As of right now testing is done while building"
+       - echo "Testing developer folder master solutions"
+       - cd $CI_PROJECT_DIR/build_release
+       - chmod +x $CI_PROJECT_DIR/scripts/ci/test_developers.sh
+       - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
+  cache:
+    key : developers-release-mac
+    paths : 
+      - $CI_PROJECT_DIR/build_release/developers/
 
+test-developer-debug-job-linux:
+  stage: test
+  tags:
+    - linux
+  script:
+       - echo "Testing developer folder master solutions"
+       - cd $CI_PROJECT_DIR/build_debug 
+       - chmod +x $CI_PROJECT_DIR/scripts/ci/test_developers.sh
+       - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
+  cache:
+    key : developers-debug-linux
+    paths : 
+      - $CI_PROJECT_DIR/build_debug/developers/
