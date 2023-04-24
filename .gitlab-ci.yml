@@ -22,19 +22,19 @@ clang-format-job:
       - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/developers/
 
 # compilation on macos
-compile-developers-release-job-mac:
+compile-developers-job-mac:
     stage: build
     variables:
       COMPILER: "clang++"
-      BUILD_TYPE: "Debug"
+      BUILD_TYPE: "Release"
       CXXFLAGS: "-Werror=#warnings"
       GIT_CHECKOUT: "true"
     tags:
         - mac
     script:
        
-       - mkdir $CI_PROJECT_DIR/build_release
-       - cd $CI_PROJECT_DIR/build_release
+       - mkdir $CI_PROJECT_DIR/build_mac
+       - cd $CI_PROJECT_DIR/build_mac
        - export CXX=$COMPILER
        - echo $CXX
        - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
@@ -44,12 +44,12 @@ compile-developers-release-job-mac:
        - make -j 4
 
     cache:
-      key : developers-release-mac
+      key : developers-mac
       paths : 
-        - $CI_PROJECT_DIR/build_release/developers/
+        - $CI_PROJECT_DIR/build_mac/developers/
        
 
-compile-developers-debug-job-linux:
+compile-developers-job-linux:
     stage: build
     variables:
       COMPILER: "g++"
@@ -61,8 +61,8 @@ compile-developers-debug-job-linux:
         - linux
     script:
        - echo Create a build folder
-       - mkdir $CI_PROJECT_DIR/build_debug
-       - cd $CI_PROJECT_DIR/build_debug
+       - mkdir $CI_PROJECT_DIR/build_linux
+       - cd $CI_PROJECT_DIR/build_linux
        - export CXX=$COMPILER
        - echo $CXX
 
@@ -71,34 +71,34 @@ compile-developers-debug-job-linux:
        - cd developers
        - make -j 4
     cache:
-      key : developers-debug-linux
+      key : developers-linux
       paths : 
-        - $CI_PROJECT_DIR/build_debug/developers/
+        - $CI_PROJECT_DIR/build_linux/developers/
 
-test-developer-release-job-mac:
+test-developer-job-mac:
   stage: test
   tags:
     - mac
   script:
        - echo "Testing developer folder master solutions"
-       - cd $CI_PROJECT_DIR/build_release
+       - cd $CI_PROJECT_DIR/build_mac
        - chmod +x $CI_PROJECT_DIR/scripts/ci/test_developers.sh
        - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
   cache:
-    key : developers-release-mac
+    key : developers-mac
     paths : 
-      - $CI_PROJECT_DIR/build_release/developers/
+      - $CI_PROJECT_DIR/build_mac/developers/
 
-test-developer-debug-job-linux:
+test-developer-job-linux:
   stage: test
   tags:
     - linux
   script:
        - echo "Testing developer folder master solutions"
-       - cd $CI_PROJECT_DIR/build_debug 
+       - cd $CI_PROJECT_DIR/build_linux
        - chmod +x $CI_PROJECT_DIR/scripts/ci/test_developers.sh
        - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
   cache:
-    key : developers-debug-linux
+    key : developers-linux
     paths : 
-      - $CI_PROJECT_DIR/build_debug/developers/
+      - $CI_PROJECT_DIR/build_linux/developers/
