@@ -61,6 +61,7 @@ compile-developers-job-linux:
         - linux
     script:
        - if [ ! -d $CI_PROJECT_DIR/build_linux ]; then echo Directory $CI_PROJECT_DIR/build_linux exists; else mkdir $CI_PROJECT_DIR/build_linux; fi #Workaround because we are using cache could be cleaner when using artifacts 
+       - mkdir $CI_PROJECT_DIR/build_linux
        - cd $CI_PROJECT_DIR/build_linux
        - export CXX=$COMPILER
        - echo $CXX
