@@ -7,6 +7,13 @@
  */
 
 #include "semilagrangian.h"
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <string>
+
+#define CSV_FORMAT Eigen::IOFormat(Eigen::IOFormat(Eigen::FullPrecision, Eigen::DontAlignCols, ", ", "\n"))
+
 
 namespace SemiLagrangian {
 
@@ -29,7 +36,6 @@ Eigen::MatrixXd findGrid(int M) {
   return grid;
 }
 
-/* SAM_LISTING_BEGIN_1 */
 double evalFEfunction(const Eigen::Vector2d& x, const Eigen::VectorXd& u) {
 #if SOLUTION
   int N = u.size();  // assume dofs on boundary already removed
@@ -72,47 +78,6 @@ double evalFEfunction(const Eigen::Vector2d& x, const Eigen::VectorXd& u) {
   return 0.0;
 #endif
 }
-/* SAM_LISTING_END_1 */
-
-/* SAM_LISTING_BEGIN_2 */
-Eigen::VectorXd semiLagrangePureTransport(int M, int K, double T) {
-  int N = (M - 1) * (M - 1);  // internal dofs
-
-  // Coordinates of nodes of the grid
-  Eigen::MatrixXd grid = findGrid(M);
-  Eigen::VectorXd u(N);
-
-#if SOLUTION
-  // initial condition
-  auto u0 = [](const Eigen::Vector2d& x) {
-    Eigen::Vector2d x0 = x - Eigen::Vector2d(0.25, 0.5);
-    return x0.norm() < 0.25 ? std::pow(std::cos(2. * M_PI * x0.norm()), 2)
-                            : 0.0;
-  };
-  // Lambda function giving velocity
-  auto velocity = [](const Eigen::Vector2d& x) {
-    return (Eigen::Vector2d() << -(x(1) - 0.5), x(0) - 0.5).finished();
-  };
-
-  // Interpolate intial data
-  for (int i = 0; i < grid.cols(); ++i) {
-    u(i) = u0(grid.col(i));
-  }
-
-  // timestepping
-  double tau = T / K;
-  for (int i = 0; i < K; ++i) {
-    Eigen::VectorXd rhs = semiLagrangeSource(u, tau, velocity);
-    u = rhs * (M * M);  // inverse of diagonal matrix
-  }
-#else
-  //====================
-  // Your code goes here
-  //====================
-#endif
-  return u;
-}
-/* SAM_LISTING_END_2 */
 
 void testFloorAndDivision() {
   int M = 80;
@@ -131,6 +96,37 @@ void testFloorAndDivision() {
   std::cout << "Backward transformation (fmod): "
             << std::floor(x(1) / h) * h + (std::fmod(x(1), h) / h) * h
             << std::endl;
+}
+
+void SemiLagrangeVis(int M , int K , double T){
+  std::vector<Eigen::VectorXd> u_t; // u_t will store the solution at every timestep
+  // Create a recorder that can be passed to semiLagrangePureTransport
+  auto rec= [&u_t](const Eigen::VectorXd & u){u_t.push_back(u);};
+  semiLagrangePureTransport(M , K , T , rec); // Solve the pure transport equation
+  Eigen::VectorXd t = Eigen::VectorXd::LinSpaced(K,0,T);
+  Eigen::VectorXd lin = Eigen::VectorXd::LinSpaced(M , 0 , 1);
+  // Create Csv file out of u_h
+  std::ofstream solution_file;
+  solution_file.open("solution.csv");
+  // Write the solution into a csv file
+  for (auto& solution : u_t) {
+    solution_file << solution.transpose().format(CSV_FORMAT) << std::endl;
+  }
+  solution_file.close();
+
+    std::ostringstream oss;
+    oss << "python3 " CURRENT_SOURCE_DIR
+           "/make_gif.py " CURRENT_BINARY_DIR
+           "/solution.csv " CURRENT_BINARY_DIR "/ "
+            << M << " " << K << " " << T;
+
+    std::string ostring = oss.str();
+    const char* arguments = ostring.c_str() ;
+    // Generating gif
+    std::cout << "Creating gif" << std::endl;
+    std::system("mkdir " CURRENT_BINARY_DIR "/img"); // Creates the directory which will hold the images
+
+    std::system(arguments); // Executes the pythong plotting
 }
 
 }  // namespace SemiLagrangian

@@ -14,6 +14,7 @@
 
 namespace SemiLagrangian {
 
+/* SAM_LISTING_BEGIN_1 */
 /**
  * @brief Evaluates the solution of the transport problem using the solution
  * formula and Heun's method
@@ -24,7 +25,6 @@ namespace SemiLagrangian {
  * @param u0 initial condition
  * @return u(x,t)
  */
-/* SAM_LISTING_BEGIN_1 */
 template <typename FUNCTOR_V, typename FUNCTOR_U0>
 double solveTransport(const Eigen::Vector2d& x, int K, double t, FUNCTOR_V&& v,
                       FUNCTOR_U0&& u0) {
@@ -67,6 +67,7 @@ double evalFEfunction(const Eigen::Vector2d& x, const Eigen::VectorXd& u);
  */
 Eigen::MatrixXd findGrid(int M);
 
+/* SAM_LISTING_BEGIN_2 */
 /**
  * @brief Evaluates the source term of the semi-lagrangian scheme.
  * @param u_old FE basis coefficients of the solution at the previous timestep
@@ -74,7 +75,6 @@ Eigen::MatrixXd findGrid(int M);
  * @param velocity velociy field
  * @return RHS-vector of the scheme
  */
-/* SAM_LISTING_BEGIN_2 */
 template <typename FUNCTOR>
 Eigen::VectorXd semiLagrangeSource(const Eigen::VectorXd& u_old, double tau,
                                    FUNCTOR&& velocity) {
@@ -123,11 +123,62 @@ Eigen::VectorXd semiLagrangeSource(const Eigen::VectorXd& u_old, double tau,
  * @param M number of cells in one direction
  * @param K total number of equidistant timesteps
  * @param T final time
+ * @param rec takes in an Eigen::VectorXd as argument and stores for later visualizations
  * @return FE Basis coefficients of the approximate solution at final time
  */
-Eigen::VectorXd semiLagrangePureTransport(int M, int K, double T);
+
+/* SAM_LISTING_BEGIN_3 */
+template <typename RECORDER = std::function<void(const Eigen::VectorXd &)>>
+Eigen::VectorXd semiLagrangePureTransport(int M, int K, double T, RECORDER &&rec = [](const Eigen::VectorXd &) ->void{}){
+  int N = (M - 1) * (M - 1);  // internal dofs
+
+  // Coordinates of nodes of the grid
+  Eigen::MatrixXd grid = findGrid(M);
+  Eigen::VectorXd u(N);
+
+#if SOLUTION
+  // initial condition
+  auto u0 = [](const Eigen::Vector2d& x) {
+    Eigen::Vector2d x0 = x - Eigen::Vector2d(0.25, 0.5);
+    return x0.norm() < 0.25 ? std::pow(std::cos(2. * M_PI * x0.norm()), 2)
+                            : 0.0;
+  };
+  // Lambda function giving velocity
+  auto velocity = [](const Eigen::Vector2d& x) {
+    return (Eigen::Vector2d() << -(x(1) - 0.5), x(0) - 0.5).finished();
+  };
+
+  // Interpolate intial data
+  for (int i = 0; i < grid.cols(); ++i) {
+    u(i) = u0(grid.col(i));
+  }
+
+  // timestepping
+  double tau = T / K;
+  for (int i = 0; i < K; ++i) {
+    Eigen::VectorXd rhs = semiLagrangeSource(u, tau, velocity);
+    u = rhs * (M * M);  // inverse of diagonal matrix
+    rec(u);
+  }
+#else
+  //====================
+  // Your code goes here
+  //====================
+#endif
+  return u;
+}
+/* SAM_LISTING_END_3 */
 
 void testFloorAndDivision();
+
+
+/**
+ * @brief Visualizes the pure transport problem.
+ * @param M number of cells in one direction
+ * @param K total number of equidistant timesteps
+ * @param T final time
+ */
+void SemiLagrangeVis(int M , int K , double T);
 
 }  // namespace SemiLagrangian
 
