@@ -32,8 +32,7 @@ compile-developers-job-mac:
     tags:
         - mac
     script:
-       - if [ ! -d $CI_PROJECT_DIR/build_mac ]; then echo Directory $CI_PROJECT_DIR/build_mac already exists; else mkdir $CI_PROJECT_DIR/build_mac; fi #Workaround because we are using cache could be cleaner when using artifacts 
-       - mkdir $CI_PROJECT_DIR/build_mac
+       - mkdir -p $CI_PROJECT_DIR/build_mac 
        - cd $CI_PROJECT_DIR/build_mac
        - export CXX=$COMPILER
        - echo $CXX
@@ -60,8 +59,7 @@ compile-developers-job-linux:
     tags:
         - linux
     script:
-       - if [ ! -d $CI_PROJECT_DIR/build_linux ]; then echo Directory $CI_PROJECT_DIR/build_linux exists; else mkdir $CI_PROJECT_DIR/build_linux; fi #Workaround because we are using cache could be cleaner when using artifacts 
-       - mkdir $CI_PROJECT_DIR/build_linux
+       - mkdir -p  $CI_PROJECT_DIR/build_linux
        - cd $CI_PROJECT_DIR/build_linux
        - export CXX=$COMPILER
        - echo $CXX
