@@ -7,13 +7,15 @@
  */
 
 #include "semilagrangian.h"
-#include <vector>
+
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 
-#define CSV_FORMAT Eigen::IOFormat(Eigen::IOFormat(Eigen::FullPrecision, Eigen::DontAlignCols, ", ", "\n"))
-
+#define CSV_FORMAT \
+  Eigen::IOFormat( \
+      Eigen::IOFormat(Eigen::FullPrecision, Eigen::DontAlignCols, ", ", "\n"))
 
 namespace SemiLagrangian {
 
@@ -98,13 +100,14 @@ void testFloorAndDivision() {
             << std::endl;
 }
 
-void SemiLagrangeVis(int M , int K , double T){
-  std::vector<Eigen::VectorXd> u_t; // u_t will store the solution at every timestep
+void SemiLagrangeVis(int M, int K, double T) {
+  std::vector<Eigen::VectorXd>
+      u_t;  // u_t will store the solution at every timestep
   // Create a recorder that can be passed to semiLagrangePureTransport
-  auto rec= [&u_t](const Eigen::VectorXd & u){u_t.push_back(u);};
-  semiLagrangePureTransport(M , K , T , rec); // Solve the pure transport equation
-  Eigen::VectorXd t = Eigen::VectorXd::LinSpaced(K,0,T);
-  Eigen::VectorXd lin = Eigen::VectorXd::LinSpaced(M , 0 , 1);
+  auto rec = [&u_t](const Eigen::VectorXd& u) { u_t.push_back(u); };
+  semiLagrangePureTransport(M, K, T, rec);  // Solve the pure transport equation
+  Eigen::VectorXd t = Eigen::VectorXd::LinSpaced(K, 0, T);
+  Eigen::VectorXd lin = Eigen::VectorXd::LinSpaced(M, 0, 1);
   // Create Csv file out of u_h
   std::ofstream solution_file;
   solution_file.open("solution.csv");
@@ -114,19 +117,19 @@ void SemiLagrangeVis(int M , int K , double T){
   }
   solution_file.close();
 
-    std::ostringstream oss;
-    oss << "python3 " CURRENT_SOURCE_DIR
-           "/make_gif.py " CURRENT_BINARY_DIR
-           "/solution.csv " CURRENT_BINARY_DIR "/ "
-            << M << " " << K << " " << T;
+  std::ostringstream oss;
+  oss << "python3 " CURRENT_SOURCE_DIR "/make_gif.py " CURRENT_BINARY_DIR
+         "/solution.csv " CURRENT_BINARY_DIR "/ "
+      << M << " " << K << " " << T;
 
-    std::string ostring = oss.str();
-    const char* arguments = ostring.c_str() ;
-    // Generating gif
-    std::cout << "Creating gif" << std::endl;
-    std::system("mkdir " CURRENT_BINARY_DIR "/img"); // Creates the directory which will hold the images
+  std::string ostring = oss.str();
+  const char* arguments = ostring.c_str();
+  // Generating gif
+  std::cout << "Creating gif" << std::endl;
+  std::system("mkdir " CURRENT_BINARY_DIR
+              "/img");  // Creates the directory which will hold the images
 
-    std::system(arguments); // Executes the pythong plotting
+  std::system(arguments);  // Executes the pythong plotting
 }
 
 }  // namespace SemiLagrangian
