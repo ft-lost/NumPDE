@@ -76,5 +76,5 @@ void prepTriMesh(
     file << "];" << std::endl;
   }
 }
-  
+
 }  // namespace PrepTriMesh

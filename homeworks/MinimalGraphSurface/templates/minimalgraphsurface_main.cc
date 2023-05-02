@@ -15,6 +15,6 @@ int main(int argc, char** argv) {
   std::string meshfile = CURRENT_SOURCE_DIR "/../meshes/square.msh";
   if (argc > 1) meshfile = argv[1];
   std::string vtkfile = "graphminsurf.vtk";
-  MinimalGraphSurface::graphMinSurfVis(meshfile,vtkfile);
+  MinimalGraphSurface::graphMinSurfVis(meshfile, vtkfile);
   return 0;
 }
