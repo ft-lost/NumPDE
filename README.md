@@ -16,8 +16,8 @@ Currently, only UNIX based operating systems are supported. Moreover, you need t
 ## Getting started
 This section is suited only for your own computer. To build the codes on the student computers of ETH see below. Open a terminal and type
 ```
-git clone git@github.com:erickschulz/NPDECODES.git
-cd NPDECODES/
+git clone https://gitlab.math.ethz.ch/ralfh/NPDERepo.git
+cd NPDERepo/
 mkdir build
 cd build/
 cmake ..
@@ -27,7 +27,7 @@ This will install LehrFEM++ and its dependencies into a folder `~/.hunter/`. To 
 cd homeworks/TestQuadratureRules/
 make
 ```
-This will build from the source files in `NPDECODES/homeworks/TestQuadratureRules/`, where the subfolder `mysolution/` contains templates to be changed by the students. Recompilation is done by invoking `make` again. The following executables are generated:
+This will build from the source files in `NPDECRepo/homeworks/TestQuadratureRules/`, where the subfolder `mysolution/` contains templates to be changed by the students. Recompilation is done by invoking `make` again. The following executables are generated:
 * `./TestQuadratureRules_mastersolution`: Runs the mastersolution.
 * `./TestQuadratureRules_test_mastersolution`: Runs unit tests on all important functions of the mastersolution.
 * `./TestQuadratureRules_mysolution`: Runs the students code, i.e. the one in `mysolution/`.
@@ -61,15 +61,15 @@ ssh -X <nethz_username>@slab1.ethz.ch
 where `<nethz_username>` has the be replaced by your ETH username. To set up your local repository on the student computers, type:
 ```
 cd /tmp
-git clone git@github.com:erickschulz/NPDECODES.git
-mv NPDECODES ~
-cd ~/NPDECODES
+git clone https://gitlab.math.ethz.ch/ralfh/NPDERepo.git
+mv NPDERepo ~
+cd ~/NPDERepo
 mkdir build
 cd build
 export HUNTER_ROOT=/opt/libs/NumPDE
 cmake ..
 ```
-The first four lines are due to limited resources on the student computers. Setting the environment variable `HUNTER_ROOT` tells CMake where to look for the preinstalled libraries. This environment variable is local to your terminal, i.e. has to be redefined if you start a new terminal. Apart from this, you can use the folder `~/NPDECODES` in the same way you would for the approach in the previous section. However, you have only very little memory available on the student computers. We therefore recommend to only build one problem at a time.
+The first four lines are due to limited resources on the student computers. Setting the environment variable `HUNTER_ROOT` tells CMake where to look for the preinstalled libraries. This environment variable is local to your terminal, i.e. has to be redefined if you start a new terminal. Apart from this, you can use the folder `~/NPDERepo` in the same way you would for the approach in the previous section. However, you have only very little memory available on the student computers. We therefore recommend to only build one problem at a time.
 
 ## FAQ
 
