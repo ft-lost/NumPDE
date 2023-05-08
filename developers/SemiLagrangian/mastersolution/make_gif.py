@@ -8,10 +8,12 @@ from numpy import genfromtxt
 def create_frame(x, y , solution, t):
     fig = plt.figure()
     ax = plt.axes(projection="3d")
-
+    ax.set_xlim3d(left=0 , right=1)
+    ax.set_ylim3d(bottom=0 , top=1)
+    ax.set_zlim3d(bottom=0 , top=1)
     ax.plot_surface(x, y , solution , cmap='viridis')
     ax.set_title("Transport at {} seconds".format(t))
-    plt.savefig(output_dir + f"/img/img_{t}.png", transparent=False, facecolor="white")
+    plt.savefig(output_dir + f"/img/img_{t}.eps", transparent=False, facecolor="white" , format="eps")
     plt.close()
 
 
@@ -33,7 +35,7 @@ for i, t in enumerate(time_steps):
 # Gather all the frames
 frames = []
 for t in time_steps:
-    image = imageio.v2.imread(output_dir + f'img/img_{t}.png')
+    image = imageio.v2.imread(output_dir + f'img/img_{t}.eps')
     frames.append(image)
 # Now we create the final gif
 imageio.mimsave(output_dir + 'solution.gif', # output gif

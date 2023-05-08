@@ -59,13 +59,13 @@ class UpwindLagrangianElementVectorProvider {
   Eigen::Vector3d Eval(const lf::mesh::Entity& entity);
 
   /**
-   * @brief If true, then an element is takein into account during assembly
+   * @brief If true, then an element is taken into account during assembly
    */
   bool isActive(const lf::mesh::Entity& /* entity */) const { return true; }
 
  private:
   /**
-   * @brief computes the bullback of the identity function on K,
+   * @brief computes the pullback of the identity function on K,
    * i.e. the local coordinates of a point in K
    * @param x point at which the pullback is evaluated (not necessarily in K)
    * @return (\Phi^* Id)(x)

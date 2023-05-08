@@ -24,7 +24,7 @@ int main() {
   };
 
   SemiLagrangian::SemiLagrangeVis(
-      40, 160, T);  // Creates the visualization for M = 160 and K = 160
+      160, 160, T);  // Creates the visualization for M = 160 and K = 160
 
   // Error table header
   std::cout << "M"
@@ -32,7 +32,7 @@ int main() {
             << "K"
             << "\t"
             << "error" << std::endl;
-
+  return 0;
   // Compute error tables
   for (int M = 10; M <= 640; M *= 2) {
     // Number of dofs
