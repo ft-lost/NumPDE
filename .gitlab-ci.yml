@@ -32,8 +32,8 @@ compile-developers-job-mac:
     tags:
         - mac
     script:
-       
-       - mkdir $CI_PROJECT_DIR/build_mac
+       - mkdir -p $CI_PROJECT_DIR/build_mac #-p builds if not there and does nothing otherwise
+
        - cd $CI_PROJECT_DIR/build_mac
        - export CXX=$COMPILER
        - echo $CXX
@@ -60,8 +60,8 @@ compile-developers-job-linux:
     tags:
         - linux
     script:
-       - echo Create a build folder
-       - mkdir $CI_PROJECT_DIR/build_linux
+       - mkdir -p $CI_PROJECT_DIR/build_linux #-p builds if not there and does nothing otherwise
+
        - cd $CI_PROJECT_DIR/build_linux
        - export CXX=$COMPILER
        - echo $CXX
