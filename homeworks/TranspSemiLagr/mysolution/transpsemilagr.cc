@@ -10,7 +10,7 @@
 namespace TranspSemiLagr {
 
 void enforce_zero_boundary_conditions(
-    std::shared_ptr<const lf::uscalfe::UniformScalarFESpace<double>> fe_space,
+    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
     lf::assemble::COOMatrix<double>& A, Eigen::VectorXd& b) {
   lf::mesh::utils::MeshFunctionGlobal mf_zero{
       [](const Eigen::Vector2d& /*x*/) { return 0.0; }};
@@ -30,7 +30,7 @@ void enforce_zero_boundary_conditions(
 
 /* SAM_LISTING_BEGIN_1 */
 Eigen::VectorXd solverot(
-    std::shared_ptr<const lf::uscalfe::UniformScalarFESpace<double>> fe_space,
+    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
     Eigen::VectorXd u0_vector, int N, double T) {
   //====================
   // Your code goes here
@@ -41,7 +41,7 @@ Eigen::VectorXd solverot(
 
 /* SAM_LISTING_BEGIN_2 */
 Eigen::VectorXd solvetrp(
-    std::shared_ptr<const lf::uscalfe::UniformScalarFESpace<double>> fe_space,
+    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
     Eigen::VectorXd u0_vector, int N, double T) {
   //====================
   // Your code goes here

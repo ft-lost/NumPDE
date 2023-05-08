@@ -20,7 +20,7 @@ namespace TranspSemiLagr::test {
 
 // verifies that the vector u of nodal values satisfies zero boundary conditions
 void verify_zero_bc(
-    std::shared_ptr<const lf::uscalfe::UniformScalarFESpace<double>> fe_space,
+    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
     const Eigen::VectorXd& u) {
   auto mesh_p = fe_space->Mesh();
   const auto& dof_h = fe_space->LocGlobMap();
@@ -49,7 +49,8 @@ TEST(ReactionStep, boundary_conditions) {
   auto c_function = [](Eigen::VectorXd x) { return x(0) + x(1); };
 
   verify_zero_bc(fe_space, u0_vector);
-  Eigen::VectorXd u_new = reaction_step(fe_space, u0_vector, c_function, 1.0);
+  ReactionStep reaction(fe_space , c_function);
+  Eigen::VectorXd u_new = reaction.step(u0_vector, 1.0);
   verify_zero_bc(fe_space, u_new);
 }
 
@@ -69,7 +70,8 @@ TEST(SemiLagrStep, boundary_conditions) {
   };
 
   verify_zero_bc(fe_space, u0_vector);
-  Eigen::VectorXd u_new = semiLagr_step(fe_space, u0_vector, v, 1.0);
+  SemiLagrStep semiLagr(fe_space , v);
+  Eigen::VectorXd u_new = semiLagr.step(u0_vector, 1.0);
   verify_zero_bc(fe_space, u_new);
 }
 
@@ -133,9 +135,10 @@ TEST(ReactionStep, exact_solution_constant_c) {
   Eigen::VectorXd u1_vector = lf::fe::NodalProjection(
       *fe_space, lf::mesh::utils::MeshFunctionGlobal(u1_function));
 
+  ReactionStep reaction(fe_space , c_function);
   // apply 100 reaction steps with time step 0.01
   for (int i = 0; i < 100; ++i) {
-    u0_vector = reaction_step(fe_space, u0_vector, c_function, 0.01);
+    u0_vector = reaction.step(u0_vector, 0.01);
   }
   EXPECT_NEAR((u0_vector - u1_vector).norm(), 0.0, 1.0E-3);
 }
@@ -164,9 +167,11 @@ TEST(ReactionStep, exact_solution_linear_c) {
   Eigen::VectorXd u1_vector = lf::fe::NodalProjection(
       *fe_space, lf::mesh::utils::MeshFunctionGlobal(u1_function));
 
+
+  ReactionStep reaction(fe_space , c_function);
   // apply 100 reaction steps with time step 0.01
   for (int i = 0; i < 100; ++i) {
-    u0_vector = reaction_step(fe_space, u0_vector, c_function, 0.01);
+    u0_vector = reaction.step(u0_vector, 0.01);
   }
   EXPECT_NEAR((u0_vector - u1_vector).norm(), 0.0, 1.0E-3);
 }

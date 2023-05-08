@@ -101,6 +101,7 @@ void testFloorAndDivision() {
 }
 
 void SemiLagrangeVis(int M, int K, double T) {
+#if SOLUTION
   std::vector<Eigen::VectorXd>
       u_t;  // u_t will store the solution at every timestep
   // Create a recorder that can be passed to semiLagrangePureTransport
@@ -130,6 +131,12 @@ void SemiLagrangeVis(int M, int K, double T) {
               "/img");  // Creates the directory which will hold the images
 
   std::system(arguments);  // Executes the pythong plotting
+
+#else
+  //====================
+  // Your code goes here
+  //====================
+#endif
 }
 
 }  // namespace SemiLagrangian

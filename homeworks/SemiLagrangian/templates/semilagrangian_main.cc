@@ -13,7 +13,7 @@
 
 int main() {
   // Define problem parameters
-  double T = M_PI / 2.;
+  double T = M_PI / 2;
   auto v = [](const Eigen::Vector2d& x) {
     return Eigen::Vector2d(-(x(1) - 0.5), x(0) - 0.5);
   };
@@ -22,6 +22,9 @@ int main() {
     return x0.norm() < 0.25 ? std::pow(std::cos(2. * M_PI * x0.norm()), 2)
                             : 0.0;
   };
+
+  SemiLagrangian::SemiLagrangeVis(
+      160, 160, T);  // Creates the visualization for M = 160 and K = 160
 
   // Error table header
   std::cout << "M"
@@ -37,7 +40,6 @@ int main() {
     Eigen::MatrixXd grid = SemiLagrangian::findGrid(M);
     for (int K = 10; K <= 640; K *= 2) {
       Eigen::VectorXd u = SemiLagrangian::semiLagrangePureTransport(M, K, T);
-
       Eigen::VectorXd u_ex(N);
       for (int i = 0; i < grid.cols(); ++i) {
         Eigen::Vector2d x = grid.col(i);
@@ -47,5 +49,6 @@ int main() {
       std::cout << M << "\t" << K << "\t" << err << std::endl;
     }
   }
+
   return 0;
 }

@@ -32,7 +32,7 @@ int main() {
             << "K"
             << "\t"
             << "error" << std::endl;
-  return 0;
+
   // Compute error tables
   for (int M = 10; M <= 640; M *= 2) {
     // Number of dofs
