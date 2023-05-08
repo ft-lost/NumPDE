@@ -41,7 +41,7 @@ Eigen::VectorXd solverot(
     return (Eigen::Vector2d() << -x(1) + 3.0 * x(0) * x(0), x(0)).finished();
   };
 
-  SemiLagrStep semiLagr(fe_space , v);
+  SemiLagrStep semiLagr(fe_space, v);
   // approximate solution based on N uniform time steps.
   for (int i = 0; i < N; ++i) {
     u0_vector = semiLagr.step(u0_vector, tau);
@@ -71,8 +71,8 @@ Eigen::VectorXd solvetrp(
   };
   auto c = [](Eigen::Vector2d x) { return -6.0 * x(0); };
 
-  SemiLagrStep semiLagr(fe_space , v);
-  ReactionStep reaction(fe_space , c);
+  SemiLagrStep semiLagr(fe_space, v);
+  ReactionStep reaction(fe_space, c);
   // Strang splitting scheme
   //-----------------------
   // first SemiLagr half step:

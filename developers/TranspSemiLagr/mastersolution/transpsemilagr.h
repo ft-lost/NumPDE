@@ -61,7 +61,7 @@ class SemiLagrStep {
     // Assemble left hand side A = A_lm + tau*A_s
     // stiffness matrix tau*A_s
     lf::assemble::COOMatrix<double> A = A_lm_;
-    #if SOLUTION
+#if SOLUTION
     lf::uscalfe::ReactionDiffusionElementMatrixProvider
         stiffness_element_matrix_provider(
             fe_space_, lf::mesh::utils::MeshFunctionConstant(tau),
@@ -86,12 +86,12 @@ class SemiLagrStep {
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
     solver.compute(A_sparse);
     return solver.solve(b);
-    #else
-        //====================
-        // Your code goes here
-        //====================
-        return Eigen::VectorXd::Ones(u0_vector.size());
-    #endif
+#else
+    //====================
+    // Your code goes here
+    //====================
+    return Eigen::VectorXd::Ones(u0_vector.size());
+#endif
   }
 
  private:
@@ -128,8 +128,9 @@ class ReactionStep {
  public:
   ReactionStep(
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
-      FUNCTOR c) : fe_space_(fe_space) , c_(c) {
-    #if SOLUTION
+      FUNCTOR c)
+      : fe_space_(fe_space), c_(c) {
+#if SOLUTION
     // Assemble matrix $A_{m,c}$
     LumpedMassElementMatrixProvider mass_element_matrix_provider_c(c_);
     lf::assemble::COOMatrix<double> mass_matrix_c(
@@ -149,15 +150,15 @@ class ReactionStep {
         mass_element_matrix_provider_1, mass_matrix_1);
     mass_matrix_1_sparse_ = mass_matrix_1.makeSparse();
 
-  #else
+#else
     //====================
     // Your code goes here
     //====================
-  #endif
+#endif
   };
 
   Eigen::VectorXd step(const Eigen::VectorXd& u0_vector, double tau) {
-  #if SOLUTION
+#if SOLUTION
     // The explicit midpoint rule computes the solution to $y' = f(y)$ as
     // $y* = y_n + tau/2*f(y_n)$
     // $y_{n+1} =   y_n + tau*f(y*)$
@@ -180,19 +181,19 @@ class ReactionStep {
 
     // update to $y_{n+1}$
     return u0_vector + tau * k2;
-  #else
+#else
     //====================
     // Your code goes here
     //====================
     return Eigen::VectorXd::Ones(u0_vector.size());
-  #endif
+#endif
   }
 
  private:
-    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space_;
-    FUNCTOR c_;
-    Eigen::SparseMatrix<double> mass_matrix_c_sparse_;
-    Eigen::SparseMatrix<double> mass_matrix_1_sparse_;
+  std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space_;
+  FUNCTOR c_;
+  Eigen::SparseMatrix<double> mass_matrix_c_sparse_;
+  Eigen::SparseMatrix<double> mass_matrix_1_sparse_;
 };
 /* SAM_LISTING_END_1 */
 
