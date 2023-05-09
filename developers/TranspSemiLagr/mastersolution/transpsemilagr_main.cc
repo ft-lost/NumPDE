@@ -17,13 +17,9 @@
 
 #include "transpsemilagr.h"
 
-void visSolution();
 int main() {
-
   TranspSemiLagr::visSLSolution();
-
   TranspSemiLagr::vistrp();
 
   return 0;
 }
-

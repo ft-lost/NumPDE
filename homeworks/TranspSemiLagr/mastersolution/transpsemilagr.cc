@@ -5,7 +5,13 @@
  * @date November 2020
  * @copyright Developed at SAM, ETH Zurich
  */
+
 #include "transpsemilagr.h"
+
+#include <lf/io/io.h>
+#include <lf/mesh/hybrid2d/hybrid2d.h>
+#include <lf/mesh/utils/utils.h>
+#include <lf/uscalfe/uscalfe.h>
 
 namespace TranspSemiLagr {
 
@@ -84,5 +90,71 @@ Eigen::VectorXd solvetrp(
 
 }
 /* SAM_LISTING_END_2 */
+
+/* SAM_LISTING_BEGIN_3 */
+void visSLSolution() {
+
+  // The equation is solved on the test mesh circle.msh
+  auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
+  lf::io::GmshReader reader(std::move(mesh_factory),
+                            CURRENT_SOURCE_DIR "/../meshes/circle.msh");
+  auto mesh_p = reader.mesh();
+
+  // construct linear finite element space
+  auto fe_space =
+      std::make_shared<const lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_p);
+
+  // initial conditions:
+  const auto u0 = [](const Eigen::Vector2d& x) {
+    const double r2 = x(1) * x(1) + x(0) * x(0);
+    return (1 - r2) * x(0) / sqrt(r2);
+  };
+
+  const Eigen::VectorXd u0_vector = lf::fe::NodalProjection(
+      *fe_space, lf::mesh::utils::MeshFunctionGlobal(u0));
+
+  const Eigen::VectorXd sol_rot_20 =
+      TranspSemiLagr::solverot(fe_space, u0_vector, 5, 0.2);
+
+  const lf::fe::MeshFunctionFE mf_sol_rot_20(fe_space, sol_rot_20);
+
+  lf::io::VtkWriter vtk_writer_rot_20(mesh_p, "./rot_20_sl.vtk");
+  vtk_writer_rot_20.WritePointData("rot_20_sl", mf_sol_rot_20);
+
+};
+/* SAM_LISTING_END_3 */
+
+/* SAM_LISTING_BEGIN_4 */
+void vistrp() {
+
+  // The equation is solved on the test mesh circle.msh
+  auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
+  lf::io::GmshReader reader(std::move(mesh_factory),
+                            CURRENT_SOURCE_DIR "/../meshes/circle.msh");
+  auto mesh_p = reader.mesh();
+
+  // construct linear finite element space
+  auto fe_space =
+      std::make_shared<const lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_p);
+
+  // initial conditions:
+  const auto u0 = [](const Eigen::Vector2d& x) {
+    const double r2 = x(1) * x(1) + x(0) * x(0);
+    return (1 - r2) * x(0) / sqrt(r2);
+  };
+
+  const Eigen::VectorXd u0_vector = lf::fe::NodalProjection(
+      *fe_space, lf::mesh::utils::MeshFunctionGlobal(u0));
+
+  const Eigen::VectorXd sol_rot_20 =
+      TranspSemiLagr::solvetrp(fe_space, u0_vector, 5, 0.2);
+
+  const lf::fe::MeshFunctionFE mf_sol_rot_20(fe_space, sol_rot_20);
+
+  lf::io::VtkWriter vtk_writer_rot_20(mesh_p, "./rot_20_trp.vtk");
+  vtk_writer_rot_20.WritePointData("rot_20_trp", mf_sol_rot_20);
+
+};
+/* SAM_LISTING_END_4 */
 
 }  // namespace TranspSemiLagr

@@ -5,7 +5,13 @@
  * @date November 2020
  * @copyright Developed at SAM, ETH Zurich
  */
+
 #include "transpsemilagr.h"
+
+#include <lf/io/io.h>
+#include <lf/mesh/hybrid2d/hybrid2d.h>
+#include <lf/mesh/utils/utils.h>
+#include <lf/uscalfe/uscalfe.h>
 
 namespace TranspSemiLagr {
 
@@ -49,5 +55,21 @@ Eigen::VectorXd solvetrp(
   return (T + N) * Eigen::VectorXd::Ones(u0_vector.size());
 }
 /* SAM_LISTING_END_2 */
+
+/* SAM_LISTING_BEGIN_3 */
+void visSLSolution() {
+  //====================
+  // Your code goes here
+  //====================
+};
+/* SAM_LISTING_END_3 */
+
+/* SAM_LISTING_BEGIN_4 */
+void vistrp() {
+  //====================
+  // Your code goes here
+  //====================
+};
+/* SAM_LISTING_END_4 */
 
 }  // namespace TranspSemiLagr

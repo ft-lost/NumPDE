@@ -71,8 +71,8 @@ class SemiLagrStep {
     lf::assemble::AssembleMatrixLocally(0, fe_space_->LocGlobMap(),
                                         fe_space_->LocGlobMap(),
                                         stiffness_element_matrix_provider, A);
-    // warp u0 into a mesh function (required by the Vector provider) \& assemble
-    // rhs.
+    // warp u0 into a mesh function (required by the Vector provider) \&
+    // assemble rhs.
     auto u0_mf = lf::fe::MeshFunctionFE(fe_space_, u0_vector);
     UpwindLagrangianElementVectorProvider vector_provider(
         v_, tau, fe_space_->Mesh(), u0_mf);

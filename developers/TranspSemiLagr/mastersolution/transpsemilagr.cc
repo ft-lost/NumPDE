@@ -6,11 +6,12 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 
+#include "transpsemilagr.h"
+
 #include <lf/io/io.h>
 #include <lf/mesh/hybrid2d/hybrid2d.h>
 #include <lf/mesh/utils/utils.h>
 #include <lf/uscalfe/uscalfe.h>
-#include "transpsemilagr.h"
 
 namespace TranspSemiLagr {
 
@@ -111,7 +112,7 @@ void visSLSolution() {
   // The equation is solved on the test mesh circle.msh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   lf::io::GmshReader reader(std::move(mesh_factory),
-                            "./../meshes/circle.msh");
+                            CURRENT_SOURCE_DIR "/../meshes/circle.msh");
   auto mesh_p = reader.mesh();
 
   // construct linear finite element space
@@ -134,7 +135,7 @@ void visSLSolution() {
 
   lf::io::VtkWriter vtk_writer_rot_20(mesh_p, "./rot_20_sl.vtk");
   vtk_writer_rot_20.WritePointData("rot_20_sl", mf_sol_rot_20);
-  
+
 #else
   //====================
   // Your code goes here
@@ -150,7 +151,7 @@ void vistrp() {
   // The equation is solved on the test mesh circle.msh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   lf::io::GmshReader reader(std::move(mesh_factory),
-                            "./../meshes/circle.msh");
+                            CURRENT_SOURCE_DIR "/../meshes/circle.msh");
   auto mesh_p = reader.mesh();
 
   // construct linear finite element space
@@ -173,7 +174,7 @@ void vistrp() {
 
   lf::io::VtkWriter vtk_writer_rot_20(mesh_p, "./rot_20_trp.vtk");
   vtk_writer_rot_20.WritePointData("rot_20_trp", mf_sol_rot_20);
-  
+
 #else
   //====================
   // Your code goes here
@@ -181,6 +182,5 @@ void vistrp() {
 #endif
 };
 /* SAM_LISTING_END_4 */
-
 
 }  // namespace TranspSemiLagr
