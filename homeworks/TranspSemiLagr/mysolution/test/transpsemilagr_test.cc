@@ -49,7 +49,7 @@ TEST(ReactionStep, boundary_conditions) {
   auto c_function = [](Eigen::VectorXd x) { return x(0) + x(1); };
 
   verify_zero_bc(fe_space, u0_vector);
-  ReactionStep reaction(fe_space , c_function);
+  ReactionStep reaction(fe_space, c_function);
   Eigen::VectorXd u_new = reaction.step(u0_vector, 1.0);
   verify_zero_bc(fe_space, u_new);
 }
@@ -70,7 +70,7 @@ TEST(SemiLagrStep, boundary_conditions) {
   };
 
   verify_zero_bc(fe_space, u0_vector);
-  SemiLagrStep semiLagr(fe_space , v);
+  SemiLagrStep semiLagr(fe_space, v);
   Eigen::VectorXd u_new = semiLagr.step(u0_vector, 1.0);
   verify_zero_bc(fe_space, u_new);
 }
@@ -135,7 +135,7 @@ TEST(ReactionStep, exact_solution_constant_c) {
   Eigen::VectorXd u1_vector = lf::fe::NodalProjection(
       *fe_space, lf::mesh::utils::MeshFunctionGlobal(u1_function));
 
-  ReactionStep reaction(fe_space , c_function);
+  ReactionStep reaction(fe_space, c_function);
   // apply 100 reaction steps with time step 0.01
   for (int i = 0; i < 100; ++i) {
     u0_vector = reaction.step(u0_vector, 0.01);
@@ -167,8 +167,7 @@ TEST(ReactionStep, exact_solution_linear_c) {
   Eigen::VectorXd u1_vector = lf::fe::NodalProjection(
       *fe_space, lf::mesh::utils::MeshFunctionGlobal(u1_function));
 
-
-  ReactionStep reaction(fe_space , c_function);
+  ReactionStep reaction(fe_space, c_function);
   // apply 100 reaction steps with time step 0.01
   for (int i = 0; i < 100; ++i) {
     u0_vector = reaction.step(u0_vector, 0.01);

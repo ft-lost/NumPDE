@@ -17,6 +17,7 @@
 
 #include "transpsemilagr.h"
 
+void visSolution();
 int main() {
   // The equation is solved on the test mesh circle.msh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
@@ -28,6 +29,7 @@ int main() {
   auto fe_space =
       std::make_shared<const lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_p);
 
+  visSolution();
   // initial conditions:
   // const auto u0 = [](const Eigen::Vector2d& x){ return 1-(x(0)* x(0) +
   // x(1)*x(1));};
@@ -73,3 +75,9 @@ int main() {
 
   return 0;
 }
+
+void visSolution() {
+  //====================
+  // Your code goes here
+  //====================
+};

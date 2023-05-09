@@ -13,7 +13,7 @@
 
 int main() {
   // Define problem parameters
-  double T = M_PI / 2;
+  double T = 8 * M_PI / 2;
   auto v = [](const Eigen::Vector2d& x) {
     return Eigen::Vector2d(-(x(1) - 0.5), x(0) - 0.5);
   };
@@ -25,7 +25,7 @@ int main() {
 
   SemiLagrangian::SemiLagrangeVis(
       160, 160, T);  // Creates the visualization for M = 160 and K = 160
-
+  return 0;
   // Error table header
   std::cout << "M"
             << "\t"

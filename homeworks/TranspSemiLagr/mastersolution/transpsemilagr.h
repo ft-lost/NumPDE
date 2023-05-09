@@ -121,7 +121,8 @@ class ReactionStep {
  public:
   ReactionStep(
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
-      FUNCTOR c) : fe_space_(fe_space) , c_(c) {
+      FUNCTOR c)
+      : fe_space_(fe_space), c_(c) {
     // Assemble matrix $A_{m,c}$
     LumpedMassElementMatrixProvider mass_element_matrix_provider_c(c_);
     lf::assemble::COOMatrix<double> mass_matrix_c(
@@ -169,10 +170,10 @@ class ReactionStep {
   }
 
  private:
-    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space_;
-    FUNCTOR c_;
-    Eigen::SparseMatrix<double> mass_matrix_c_sparse_;
-    Eigen::SparseMatrix<double> mass_matrix_1_sparse_;
+  std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space_;
+  FUNCTOR c_;
+  Eigen::SparseMatrix<double> mass_matrix_c_sparse_;
+  Eigen::SparseMatrix<double> mass_matrix_1_sparse_;
 };
 /* SAM_LISTING_END_1 */
 

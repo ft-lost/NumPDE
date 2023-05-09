@@ -17,6 +17,7 @@
 
 #include "transpsemilagr.h"
 
+void visSolution();
 int main() {
   // The equation is solved on the test mesh circle.msh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
@@ -28,6 +29,7 @@ int main() {
   auto fe_space =
       std::make_shared<const lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_p);
 
+  visSolution();
   // initial conditions:
   // const auto u0 = [](const Eigen::Vector2d& x){ return 1-(x(0)* x(0) +
   // x(1)*x(1));};
@@ -73,3 +75,32 @@ int main() {
 
   return 0;
 }
+
+void visSolution() {
+  // The equation is solved on the test mesh circle.msh
+  auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
+  lf::io::GmshReader reader(std::move(mesh_factory),
+                            CURRENT_SOURCE_DIR "/../meshes/circle.msh");
+  auto mesh_p = reader.mesh();
+
+  // construct linear finite element space
+  auto fe_space =
+      std::make_shared<const lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_p);
+
+  // initial conditions:
+  const auto u0 = [](const Eigen::Vector2d& x) {
+    const double r2 = x(1) * x(1) + x(0) * x(0);
+    return (1 - r2) * x(0) / sqrt(r2);
+  };
+
+  const Eigen::VectorXd u0_vector = lf::fe::NodalProjection(
+      *fe_space, lf::mesh::utils::MeshFunctionGlobal(u0));
+
+  const Eigen::VectorXd sol_rot_20 =
+      TranspSemiLagr::solverot(fe_space, u0_vector, 20, 1.0);
+
+  const lf::fe::MeshFunctionFE mf_sol_rot_20(fe_space, sol_rot_20);
+
+  lf::io::VtkWriter vtk_writer_rot_20(mesh_p, CURRENT_BINARY_DIR "rot_20.vtk");
+  vtk_writer_rot_20.WritePointData("rot_20", mf_sol_rot_20);
+};

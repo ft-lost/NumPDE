@@ -61,10 +61,10 @@ class SemiLagrStep {
     // Assemble left hand side A = A_lm + tau*A_s
     // stiffness matrix tau*A_s
     lf::assemble::COOMatrix<double> A = A_lm_;
-        //====================
-        // Your code goes here
-        //====================
-        return Eigen::VectorXd::Ones(u0_vector.size());
+    //====================
+    // Your code goes here
+    //====================
+    return Eigen::VectorXd::Ones(u0_vector.size());
   }
 
  private:
@@ -101,7 +101,8 @@ class ReactionStep {
  public:
   ReactionStep(
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
-      FUNCTOR c) : fe_space_(fe_space) , c_(c) {
+      FUNCTOR c)
+      : fe_space_(fe_space), c_(c) {
     //====================
     // Your code goes here
     //====================
@@ -115,10 +116,10 @@ class ReactionStep {
   }
 
  private:
-    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space_;
-    FUNCTOR c_;
-    Eigen::SparseMatrix<double> mass_matrix_c_sparse_;
-    Eigen::SparseMatrix<double> mass_matrix_1_sparse_;
+  std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space_;
+  FUNCTOR c_;
+  Eigen::SparseMatrix<double> mass_matrix_c_sparse_;
+  Eigen::SparseMatrix<double> mass_matrix_1_sparse_;
 };
 /* SAM_LISTING_END_1 */
 
