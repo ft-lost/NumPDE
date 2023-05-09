@@ -39,6 +39,8 @@ void enforce_zero_boundary_conditions(
  * @param tau time step size
  * @return nodal values of the approximated solution at current time step
  */
+
+/* SAM_LISTING_BEGIN_1 */
 template <typename FUNCTOR>
 class SemiLagrStep {
  public:
@@ -49,7 +51,7 @@ class SemiLagrStep {
         v_(v),
         A_lm_(fe_space->LocGlobMap().NumDofs(),
               fe_space->LocGlobMap().NumDofs()) {
-    // lumped mass matrix A_lm
+    // lumped mass matrix $A_lm$
     LumpedMassElementMatrixProvider lumped_mass_element_matrix_provider(
         [](Eigen::Vector2d /*x*/) { return 1.0; });
     lf::assemble::AssembleMatrixLocally(
@@ -58,8 +60,8 @@ class SemiLagrStep {
   };
 
   Eigen::VectorXd step(const Eigen::VectorXd& u0_vector, double tau) {
-    // Assemble left hand side A = A_lm + tau*A_s
-    // stiffness matrix tau*A_s
+    // Assemble left hand side $A = A_lm + tau*A_s$
+    // stiffness matrix $tau*A_s$
     lf::assemble::COOMatrix<double> A = A_lm_;
 #if SOLUTION
     lf::uscalfe::ReactionDiffusionElementMatrixProvider
@@ -69,7 +71,7 @@ class SemiLagrStep {
     lf::assemble::AssembleMatrixLocally(0, fe_space_->LocGlobMap(),
                                         fe_space_->LocGlobMap(),
                                         stiffness_element_matrix_provider, A);
-    // warp u0 into a mesh function (required by the Vector provider) & assemble
+    // warp u0 into a mesh function (required by the Vector provider) \& assemble
     // rhs.
     auto u0_mf = lf::fe::MeshFunctionFE(fe_space_, u0_vector);
     UpwindLagrangianElementVectorProvider vector_provider(
@@ -99,6 +101,7 @@ class SemiLagrStep {
   FUNCTOR v_;
   lf::assemble::COOMatrix<double> A_lm_;
 };
+/* SAM_LISTING_END_1 */
 
 /**
  * @brief approximates the solution to the first model problem specified in the
@@ -122,7 +125,8 @@ Eigen::VectorXd solverot(
  * @param c coefficient function in the variational evolution problem
  * @param tau time step size
  */
-/* SAM_LISTING_BEGIN_1 */
+
+/* SAM_LISTING_BEGIN_2 */
 template <typename FUNCTOR>
 class ReactionStep {
  public:
@@ -195,7 +199,7 @@ class ReactionStep {
   Eigen::SparseMatrix<double> mass_matrix_c_sparse_;
   Eigen::SparseMatrix<double> mass_matrix_1_sparse_;
 };
-/* SAM_LISTING_END_1 */
+/* SAM_LISTING_END_2 */
 
 /**
  * @brief approximates the solution to the second model problem specified in the
@@ -210,5 +214,9 @@ class ReactionStep {
 Eigen::VectorXd solvetrp(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
     Eigen::VectorXd u0_vector, int N, double T);
+
+void visSLSolution();
+
+void vistrp();
 
 }  // namespace TranspSemiLagr
