@@ -15,5 +15,4 @@ int main(int /*argc*/, char** /*argv*/) {
   AdvectionSUPG::cvgL2SUPG();
 
   return 0;
-
 }

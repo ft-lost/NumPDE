@@ -34,6 +34,7 @@ void enforce_boundary_conditions(
 
   lf::mesh::utils::AllCodimMeshDataSet<bool> bd_flags(fe_space->Mesh(), false);
 
+#if SOLUTION
   // Loop over all edges
   for (const auto& edge : fe_space->Mesh()->Entities(1)) {
     LF_ASSERT_MSG(edge->RefEl() == lf::base::RefEl::kSegment(),
@@ -60,7 +61,12 @@ void enforce_boundary_conditions(
       bd_flags(*point) = true;
     }
   }
-
+#else
+// Hint: Fill bd_flags
+// ========================================
+// Your code here
+// ========================================
+#endif
   auto flag_values{lf::fe::InitEssentialConditionFromFunction(
       *fe_space, bd_flags, mf_g_Gamma_in)};
 
@@ -75,10 +81,11 @@ void enforce_boundary_conditions(
 // Implementation of SUAdvectionElemMatrixProvider
 Eigen::VectorXd solveRotSUPG(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO2<double>> fe_space) {
+#if SOLUTION
   // Velocity field
   auto vf = [](Eigen::Vector2d x) -> Eigen::Vector2d { return {-x[1], x[0]}; };
   lf::mesh::utils::MeshFunctionGlobal mf_v(vf);
-  // Initialize the
+  // Initialize the Matrix provider
   SUAdvectionElemMatrixProvider elmat_builder(mf_v);
   // Build the lhs Matrix
   lf::assemble::COOMatrix<double> A(fe_space->LocGlobMap().NumDofs(),
@@ -97,17 +104,24 @@ Eigen::VectorXd solveRotSUPG(
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
   solver.compute(A_sparse);
   return solver.solve(b);
+#else
+  // ========================================
+  // Your code here
+  // ========================================
+  return Eigen::VectorXd::Zero(fe_space->LocGlobMap().NumDofs());
+#endif
 };
 /* SAM_LISTING_END_1 */
 
 /* SAM_LISTING_BEGIN_2 */
 void cvgL2SUPG() {
+#if SOLUTION
   // Generate triangular mesh of the unit square
   auto mesh_p = lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0);
   // Construction of a mesh hierarchy requires a factory object
   std::unique_ptr<lf::mesh::hybrid2d::MeshFactory> mesh_factory_ptr =
       std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-      
+
   //  Initialize still flat MESH HIERARCHY containing a single mesh
   lf::refinement::MeshHierarchy multi_mesh(mesh_p, std::move(mesh_factory_ptr));
   // Initialize a vector that will hold all the approximated solutions
@@ -145,10 +159,15 @@ void cvgL2SUPG() {
     // Print the error in console
     std::cout << fe_space->LocGlobMap().NumDofs() << std::setw(20) << "|"
               << err[i] << std::endl;
-    if (i == 4) {
+    if (i == 6) {
       visSolution(fe_space, u_h[i]);
     }
   }
+#else
+  // ========================================
+  // Your code here
+  // ========================================
+#endif
 };
 /* SAM_LISTING_BEGIN_2 */
 

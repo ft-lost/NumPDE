@@ -140,6 +140,22 @@ SUAdvectionElemMatrixProvider<MESHFUNCTION_V>::Eval(
 }
 /* SAM_LISTING_END_2 */
 
+/**
+ * @brief implements the solution of a pure transport problem , relies on
+ * SUAdvectionElemMatrixProvider
+ * @param fe_space shared pointer to the finite element space the pde is solved
+ * on
+ * @return the vector of expansion coefficients of the finite-element solution
+ * with respect to the standard nodal basis of S_0^2(M)
+ */
+Eigen::VectorXd solveRotSUPG(
+    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO2<double>> fe_space);
+
+void cvgL2SUPG();
+
+void visSolution(
+    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO2<double>> fe_space,
+    Eigen::VectorXd &u);
 }  // namespace AdvectionSUPG
 
 #endif  // #ifndef ADVSUPG_H_H
