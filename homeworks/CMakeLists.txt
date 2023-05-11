@@ -8,6 +8,7 @@ get_custom_test_targets()
 
 add_subdirectory(1DWaveAbsorbingBC)
 add_subdirectory(AdvectionFV2D) # under construction
+add_subdirectory(AdvectionSUPG)
 add_subdirectory(AvgValBoundary)
 add_subdirectory(BoundaryWave)
 add_subdirectory(BurgersEquation)
