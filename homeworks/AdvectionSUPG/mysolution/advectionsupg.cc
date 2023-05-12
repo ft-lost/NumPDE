@@ -65,7 +65,7 @@ void cvgL2SUPG() {
   // Your code here
   // ========================================
 };
-/* SAM_LISTING_BEGIN_2 */
+/* SAM_LISTING_END_2 */
 
 void visSolution(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO2<double>> fe_space,

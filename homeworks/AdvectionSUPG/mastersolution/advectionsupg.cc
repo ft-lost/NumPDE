@@ -102,13 +102,9 @@ Eigen::VectorXd solveRotSUPG(
 /* SAM_LISTING_BEGIN_2 */
 void cvgL2SUPG() {
   // Generate triangular mesh of the unit square
-  auto mesh_p = lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0);
-  // Construction of a mesh hierarchy requires a factory object
-  std::unique_ptr<lf::mesh::hybrid2d::MeshFactory> mesh_factory_ptr =
-      std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
+  lf::mesh::utils::TPTriagMeshBuilder builder(std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2));
+  builder.setBottomLeftCorner(Eigen::Vector2d{0.,0.}).setTopRightCorner(Eigen::Vector2d{1.,1.});
 
-  //  Initialize still flat MESH HIERARCHY containing a single mesh
-  lf::refinement::MeshHierarchy multi_mesh(mesh_p, std::move(mesh_factory_ptr));
   // Initialize a vector that will hold all the approximated solutions
   std::vector<Eigen::VectorXd> u_h(8);
   // Initialize a vector that will hold all the approximated solutions
@@ -126,21 +122,21 @@ void cvgL2SUPG() {
             << "L2 Error" << std::endl;
 
   // Perform 7 steps of regular refinement and error calculation
-  for (int i = 0; i < 7; i++) {
+  for (int i = 0; i < 8; i++) {
     // Refine mesh
-    multi_mesh.RefineRegular();
+    builder.setNumXCells(10*pow(2,i)).setNumYCells(10*pow(2,i));
     // Get the mesh
-    const auto mesh = multi_mesh.getMesh(i);
+    auto mesh_p = builder.Build();
     // Set up finite element space
     auto fe_space = std::make_shared<lf::uscalfe::FeSpaceLagrangeO2<double>>(
-        multi_mesh.getMesh(i));
+        mesh_p);
     // Compute the solution
     u_h[i] = AdvectionSUPG::solveRotSUPG(fe_space);
 
     const lf::fe::MeshFunctionFE mf_sol(fe_space, u_h[i]);
     // Compute the error
     err[i] = std::sqrt(lf::fe::IntegrateMeshFunction(
-        *mesh, lf::mesh::utils::squaredNorm(mf_sol - mf_u), 4));
+        *mesh_p, lf::mesh::utils::squaredNorm(mf_sol - mf_u), 4));
     // Print the error in console
     std::cout << fe_space->LocGlobMap().NumDofs() << std::setw(20) << "|"
               << err[i] << std::endl;
@@ -149,7 +145,7 @@ void cvgL2SUPG() {
     }
   }
 };
-/* SAM_LISTING_BEGIN_2 */
+/* SAM_LISTING_END_2 */
 
 void visSolution(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO2<double>> fe_space,
