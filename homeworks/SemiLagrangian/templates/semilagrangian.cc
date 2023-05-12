@@ -8,6 +8,15 @@
 
 #include "semilagrangian.h"
 
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#define CSV_FORMAT \
+  Eigen::IOFormat( \
+      Eigen::IOFormat(Eigen::FullPrecision, Eigen::DontAlignCols, ", ", "\n"))
+
 namespace SemiLagrangian {
 
 Eigen::MatrixXd findGrid(int M) {
@@ -29,29 +38,12 @@ Eigen::MatrixXd findGrid(int M) {
   return grid;
 }
 
-/* SAM_LISTING_BEGIN_1 */
 double evalFEfunction(const Eigen::Vector2d& x, const Eigen::VectorXd& u) {
   //====================
   // Your code goes here
   //====================
   return 0.0;
 }
-/* SAM_LISTING_END_1 */
-
-/* SAM_LISTING_BEGIN_2 */
-Eigen::VectorXd semiLagrangePureTransport(int M, int K, double T) {
-  int N = (M - 1) * (M - 1);  // internal dofs
-
-  // Coordinates of nodes of the grid
-  Eigen::MatrixXd grid = findGrid(M);
-  Eigen::VectorXd u(N);
-
-  //====================
-  // Your code goes here
-  //====================
-  return u;
-}
-/* SAM_LISTING_END_2 */
 
 void testFloorAndDivision() {
   int M = 80;
@@ -70,6 +62,12 @@ void testFloorAndDivision() {
   std::cout << "Backward transformation (fmod): "
             << std::floor(x(1) / h) * h + (std::fmod(x(1), h) / h) * h
             << std::endl;
+}
+
+void SemiLagrangeVis(int M, int K, double T) {
+  //====================
+  // Your code goes here
+  //====================
 }
 
 }  // namespace SemiLagrangian

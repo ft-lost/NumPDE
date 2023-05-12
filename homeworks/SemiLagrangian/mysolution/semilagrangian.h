@@ -22,7 +22,7 @@ namespace SemiLagrangian {
  * @param t time
  * @param v velocity field (time independent)
  * @param u0 initial condition
- * @return u(x,t)
+ * @return $u(x,t)$
  */
 /* SAM_LISTING_BEGIN_1 */
 template <typename FUNCTOR_V, typename FUNCTOR_U0>
@@ -84,11 +84,38 @@ Eigen::VectorXd semiLagrangeSource(const Eigen::VectorXd& u_old, double tau,
  * @param M number of cells in one direction
  * @param K total number of equidistant timesteps
  * @param T final time
+ * @param rec takes in an Eigen::VectorXd as argument and stores for later
+ * visualizations
  * @return FE Basis coefficients of the approximate solution at final time
  */
-Eigen::VectorXd semiLagrangePureTransport(int M, int K, double T);
+
+/* SAM_LISTING_BEGIN_3 */
+template <typename RECORDER = std::function<void(const Eigen::VectorXd&)>>
+Eigen::VectorXd semiLagrangePureTransport(
+    int M, int K, double T,
+    RECORDER&& rec = [](const Eigen::VectorXd&) -> void {}) {
+  int N = (M - 1) * (M - 1);  // internal dofs
+
+  // Coordinates of nodes of the grid
+  Eigen::MatrixXd grid = findGrid(M);
+  Eigen::VectorXd u(N);
+
+  //====================
+  // Your code goes here
+  //====================
+  return u;
+}
+/* SAM_LISTING_END_3 */
 
 void testFloorAndDivision();
+
+/**
+ * @brief Visualizes the pure transport problem.
+ * @param M number of cells in one direction
+ * @param K total number of equidistant timesteps
+ * @param T final time
+ */
+void SemiLagrangeVis(int M, int K, double T);
 
 }  // namespace SemiLagrangian
 
