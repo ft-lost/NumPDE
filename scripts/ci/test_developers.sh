@@ -3,32 +3,31 @@
 
 task() {
     if [[ $d =~ /AdvectionSUPG/ ]]; then #takes very long to check results
-      continue
+      return
     fi
 
     if [[ $d =~ /SemiLagrangian/ ]]; then #takes very long to check result
-      continue
+      return
     fi
 
     if [[ $d =~ /UnstableBVP/ ]]; then #takes very long to check results
-      continue
+      return
     fi
 
     if [[ $d =~ /TranspSemiLagr/ ]]; then #takes very long to check results
-      continue
+      return
     fi
 
     if [[ $d =~ /StableEvaluationAtAPoint/ ]]; then #takes very long to check results
-      continue
+      return
     fi
 
     if [[ $d =~ /ElectrostaticForce/ ]]; then #takes very long to check results
-      continue
+      return
     fi
 
     if [[ $d =~ /CMakeFiles/ ]]; then #should not be checked
-      continue
-
+      return
     fi
 
         cd "$d"
