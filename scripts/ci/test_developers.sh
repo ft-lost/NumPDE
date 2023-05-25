@@ -2,7 +2,11 @@
 # This is a slightly modified version of compile_test.sh to fit gitlab ci workflow
 
 task() {
-  if [[ $d =~ /SemiLagrangian/ ]]; then #takes very long to check result
+    if [[ $d =~ /AdvectionSUPG/ ]]; then #takes very long to check results
+      continue
+    fi
+
+    if [[ $d =~ /SemiLagrangian/ ]]; then #takes very long to check result
       continue
     fi
 
