@@ -117,8 +117,10 @@ Eigen::VectorXd solveRotSUPG(
 void cvgL2SUPG() {
 #if SOLUTION
   // Generate triangular mesh of the unit square
-  lf::mesh::utils::TPTriagMeshBuilder builder(std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2));
-  builder.setBottomLeftCorner(Eigen::Vector2d{0.,0.}).setTopRightCorner(Eigen::Vector2d{1.,1.});
+  lf::mesh::utils::TPTriagMeshBuilder builder(
+      std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2));
+  builder.setBottomLeftCorner(Eigen::Vector2d{0., 0.})
+      .setTopRightCorner(Eigen::Vector2d{1., 1.});
 
   // Initialize a vector that will hold all the approximated solutions
   std::vector<Eigen::VectorXd> u_h(8);
@@ -139,12 +141,12 @@ void cvgL2SUPG() {
   // Perform 7 steps of regular refinement and error calculation
   for (int i = 0; i < 8; i++) {
     // Refine mesh
-    builder.setNumXCells(10*pow(2,i)).setNumYCells(10*pow(2,i));
+    builder.setNumXCells(10 * pow(2, i)).setNumYCells(10 * pow(2, i));
     // Get the mesh
     auto mesh_p = builder.Build();
     // Set up finite element space
-    auto fe_space = std::make_shared<lf::uscalfe::FeSpaceLagrangeO2<double>>(
-        mesh_p);
+    auto fe_space =
+        std::make_shared<lf::uscalfe::FeSpaceLagrangeO2<double>>(mesh_p);
     // Compute the solution
     u_h[i] = AdvectionSUPG::solveRotSUPG(fe_space);
 
