@@ -26,6 +26,7 @@
 
 namespace AdvectionSUPG {
 
+/* SAM_LISTING_BEGIN_9 */
 void enforce_boundary_conditions(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO2<double>> fe_space,
     lf::assemble::COOMatrix<double>& A, Eigen::VectorXd& b) {
@@ -33,11 +34,10 @@ void enforce_boundary_conditions(
       [](const Eigen::Vector2d& x) { return std::pow(sin(M_PI * x(0)), 2); }};
 
   lf::mesh::utils::AllCodimMeshDataSet<bool> bd_flags(fe_space->Mesh(), false);
-
-// Hint: Fill bd_flags
-// ========================================
-// Your code here
-// ========================================
+  // Hint: Fill bd_flags
+  // ========================================
+  // Your code here
+  // ========================================
   auto flag_values{lf::fe::InitEssentialConditionFromFunction(
       *fe_space, bd_flags, mf_g_Gamma_in)};
 
@@ -47,9 +47,9 @@ void enforce_boundary_conditions(
       },
       A, b);
 };
+/* SAM_LISTING_END_9 */
 
 /* SAM_LISTING_BEGIN_1 */
-// Implementation of SUAdvectionElemMatrixProvider
 Eigen::VectorXd solveRotSUPG(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO2<double>> fe_space) {
   // ========================================
@@ -67,13 +67,14 @@ void cvgL2SUPG() {
 };
 /* SAM_LISTING_END_2 */
 
+/* SAM_LISTING_BEGIN_8 */
 void visSolution(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO2<double>> fe_space,
     Eigen::VectorXd& u) {
   const lf::fe::MeshFunctionFE mf_sol(fe_space, u);
-
   lf::io::VtkWriter vtk_writer(fe_space->Mesh(), "./solution.vtk");
   vtk_writer.WritePointData("solution", mf_sol);
 }
+/* SAM_LISTING_END_8 */
 
 }  // namespace AdvectionSUPG
