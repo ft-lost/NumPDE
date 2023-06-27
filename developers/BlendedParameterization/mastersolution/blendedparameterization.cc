@@ -1,6 +1,6 @@
 /**
  * @file BlendedParameterization.cc
- * @brief NPDE homework BendedParameterization code
+ * @brief NPDE homework BlendedParameterization code
  * @author R. Hiptmair
  * @date January 2018
  * @copyright Developed at SAM, ETH Zurich
@@ -38,9 +38,8 @@ matrix_t evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
   matrix_t lclMat(3, 3);
   lclMat.setZero();
   matrix_t xi(2, 3);  // coordinates of midpoints of curves
-  xi.col(0) << 0.5, 0.;
-  xi.col(1) = 0.5, 0.5;
-  xi.col(2) = 0., 0.5;
+  xi << 0.5, 0.5 , 0., 0.5 , 0.5 , 0.5;
+
   // (constant) gradients of barycentric coordinate function on the reference
   // element, which are the preimages of the local shape functions under
   // pullback

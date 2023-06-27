@@ -1,3 +1,6 @@
+
+#ifndef BLENDED_PARAMETRIZATION_H
+#define BLENDED_PARAMETRIZATION_H
 /**
  * @file blendedparameterization.h
  * @brief NPDE homework BlendedParameterization code
@@ -6,13 +9,14 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 
+
+
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <cmath>
 #include <iostream>
 #include <limits>
 
-#include "MeshTriangleUnitSquareEigen.hpp"
 
 namespace BlendedParameterization {
 // fundamental types
@@ -52,3 +56,5 @@ matrix_t evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
                          const Curve& gamma20);
 
 }  // namespace BlendedParameterization
+
+#endif //BLENDED_PARAMETRIZATION_H
