@@ -18,6 +18,14 @@
 #include <lf/mesh/utils/utils.h>
 #include <lf/mesh/utils/mesh_function_global.h>
 
+/**
+ *
+ * @param fe_space finite elemt space
+ * @param A LHS Finite element disc. Matrix in Triplet format
+ * @param b RHS vector from Galerkin disc.
+ * this function enforces the south boundary of the unit square to have a constant value of 1
+ * and the east boundary  of the unit square to have a constant value of 2
+ */
 void enforce_boundary_conditions(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
     lf::assemble::COOMatrix<double>& A, Eigen::VectorXd& b) {
@@ -100,11 +108,16 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   // For testing purposes
-  auto mesh = lf::mesh::test_utils::GenerateHybrid2DTestMesh(4, 1);
+  // read in mesh and set up finite element space
+  auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
+  lf::io::GmshReader reader(std::move(mesh_factory),
+                            CURRENT_SOURCE_DIR "/../meshes/square.msh");
+  auto mesh = reader.mesh();
+  // obtain dofh for lagrangian finite element space
   auto fe_space =
       std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh);
   const lf::assemble::DofHandler &dofh{fe_space->LocGlobMap()};
-  const lf::base::size_type N_dofs(dofh.NumDofs());
+  const int N_dofs = dofh.NumDofs();
 
   lf::assemble::COOMatrix<double> A(N_dofs, N_dofs);
 
@@ -130,7 +143,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
   Eigen::VectorXd rhs = Eigen::VectorXd::Zero(N_dofs);
   enforce_boundary_conditions(fe_space , A , rhs);
-  Eigen::SparseMatrix<double> A_crs = A.makeSparse();
+  const Eigen::SparseMatrix<double> A_crs = A.makeSparse();
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
   solver.compute(A_crs);
   Eigen::VectorXd u = solver.solve(rhs);

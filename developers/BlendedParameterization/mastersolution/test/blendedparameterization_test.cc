@@ -44,11 +44,12 @@ TEST(BlendedParameterization, TestGalerkin) {
   const lf::assemble::DofHandler &dofh{fe_space->LocGlobMap()};
   const lf::base::size_type N_dofs(dofh.NumDofs());
 
-  // compute galerkin matrix for d(x) = sin(|x|)x using the implemented class
+  //Using the implemented function in blendedparametrization.cc to compute the lhs Matrix
   lf::assemble::COOMatrix<double> A(N_dofs, N_dofs);
-
   BlendedParametrizationElementMatrixProvider elmat_builder;
   lf::assemble::AssembleMatrixLocally(0, dofh, dofh, elmat_builder, A);
+
+
   // compute galerkin matrix using ReactionDiffusionElementMatrixProvider
   lf::assemble::COOMatrix<double> B(N_dofs, N_dofs);
   auto alpha = [](Eigen::Vector2d x) -> Eigen::Matrix2d { return Eigen::MatrixXd::Identity(2,2); };
@@ -74,8 +75,5 @@ TEST(BlendedParameterization, TestGalerkin) {
     }
   }
 }
-
-
-
 
 }  // namespace BlendedParameterization::test
