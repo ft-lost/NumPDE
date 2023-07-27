@@ -46,8 +46,8 @@ namespace solavgboundary {
  */
 template <typename FUNC_ALPHA, typename FUNC_GAMMA, typename FUNC_BETA>
 lf::assemble::COOMatrix<double> compGalerkinMatrix(
-    const lf::assemble::DofHandler &dofh, FUNC_ALPHA &&alpha,
-    FUNC_GAMMA &&gamma, FUNC_BETA &&beta) {
+    const lf::assemble::DofHandler& dofh, FUNC_ALPHA&& alpha,
+    FUNC_GAMMA&& gamma, FUNC_BETA&& beta) {
   // obtain mesh and set up fe_space (p.w. linear Lagrangian FEM)
   auto mesh = dofh.Mesh();
   auto fe_space =
@@ -72,30 +72,32 @@ lf::assemble::COOMatrix<double> compGalerkinMatrix(
   lf::uscalfe::MassEdgeMatrixProvider edgemat_builder(
       fe_space, std::move(mf_beta), bd_flags);
   lf::assemble::AssembleMatrixLocally(1, dofh, dofh, edgemat_builder, A);
-  return  A;
+  return A;
 }
 
-
 Eigen::SparseMatrix<double> augmentMatrix(
-    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_spc, const Eigen::VectorXd& c);
+    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_spc,
+    const Eigen::VectorXd& c);
 
 /**
  *
  * @tparam FESPACE Finite Element Space type
  * @param fe_test finite Element Space
- * @return The vector c defined by \Vc_i & = \int_{\partial \Omega} b^N_i \;\dS \;\bcom\samnl
+ * @return The vector c defined by \Vc_i & = \int_{\partial \Omega} b^N_i \;\dS
+ * \;\bcom\samnl
  */
 /* SAM_LISTING_BEGIN_1 */
 template <typename FESPACE>
-Eigen::VectorXd computeCVector(const FESPACE& fe_test){
+Eigen::VectorXd computeCVector(const FESPACE& fe_test) {
   Eigen::VectorXd sol;
 #if SOLUTION
-  const lf::assemble::DofHandler *dofh = &fe_test->LocGlobMap();
+  const lf::assemble::DofHandler* dofh = &fe_test->LocGlobMap();
   int N_dofs = dofh->NumDofs();
   auto const_one = [](const Eigen::Vector2d& /*x*/) -> double { return 1.0; };
   auto const_zero = [](const Eigen::Vector2d& /*x*/) -> double { return 0.0; };
-  Eigen::SparseMatrix<double> B = compGalerkinMatrix(*dofh, const_zero, const_zero, const_one).makeSparse();
-  sol = B * Eigen::VectorXd::Constant(N_dofs , 1.);
+  Eigen::SparseMatrix<double> B =
+      compGalerkinMatrix(*dofh, const_zero, const_zero, const_one).makeSparse();
+  sol = B * Eigen::VectorXd::Constant(N_dofs, 1.);
 
 #else
   //====================
@@ -106,12 +108,10 @@ Eigen::VectorXd computeCVector(const FESPACE& fe_test){
 }
 /* SAM_LISTING_END_1 */
 
-Eigen::VectorXd solveTestProblem(const lf::assemble::DofHandler &dofh);
+Eigen::VectorXd solveTestProblem(const lf::assemble::DofHandler& dofh);
 
 void visSolution(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
-    Eigen::VectorXd& u,
-    const std::string&& filename);
+    Eigen::VectorXd& u, const std::string&& filename);
 }  // namespace solavgboundary
-#endif //SOLAVGBOUNDARY_H
-
+#endif  // SOLAVGBOUNDARY_H
