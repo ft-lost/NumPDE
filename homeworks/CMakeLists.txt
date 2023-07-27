@@ -86,3 +86,6 @@ add_subdirectory(UpwindFiniteVolume) # Under construction
 add_subdirectory(UpwindQuadrature)
 add_subdirectory(WaveABC2D)
 add_subdirectory(ZienkiewiczZhuEstimator)
+add_subdirectory(SolAvgBoundary)
+add_subdirectory(BlendedParameterization)
+add_subdirectory(IMEXRKSSM)

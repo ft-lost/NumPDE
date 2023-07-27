@@ -1,0 +1,3 @@
+Phi hat subscript ij , sollte nur j sein.
+vec{u} wird wieder verwendet, neuer Varaible Name sollte eingeführt werden oder superscripts hinzufügen.
+sinh(u), könnte nochmal definiert werden.
