@@ -208,10 +208,10 @@ void IMEXTimestep::compTimestep(
 #if SOLUTION
   // Define the functions f and g !!!PAY ATTENTION TO THE SIGNS!!!
   auto f = [this, r](const Eigen::VectorXd& /*x*/) -> Eigen::VectorXd {
-    return -solver_M_.solve( r);
+    return -solver_M_.solve(r);
   };
   auto g = [this](const Eigen::VectorXd& x) -> Eigen::VectorXd {
-    return MInvphi_-MInvA_ * x;
+    return MInvphi_ - MInvA_ * x;
   };
 
   const Eigen::MatrixXd Id_N = Eigen::MatrixXd::Identity(N, N);
@@ -231,7 +231,7 @@ void IMEXTimestep::compTimestep(
     }
     tmp += a_hat(i + 1, i) * k_hat.col(i);
 
-    tmp += a(i,i)*MInvphi_;
+    tmp += a(i, i) * MInvphi_;
 
     u = (Id_N + tau * a(i, i) * MInvA_).lu().solve(y + tau * tmp);
     k.col(i) = g(u);
