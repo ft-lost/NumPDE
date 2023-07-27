@@ -6,34 +6,34 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 
-#include <gtest/gtest.h>
+#include "../blendedparameterization.h"
 
+#include <gtest/gtest.h>
 #include <lf/mesh/test_utils/test_meshes.h>
 #include <lf/uscalfe/uscalfe.h>
 
 #include <Eigen/Core>
 
-#include "../blendedparameterization.h"
-
 namespace BlendedParameterization::test {
 class BlendedParametrizationElementMatrixProvider {
-  public:
-   BlendedParametrizationElementMatrixProvider() = default;
-   bool isActive(const lf::mesh::Entity &) { return true; }
-   Eigen::MatrixXd Eval(const lf::mesh::Entity &cell){
-      LF_ASSERT_MSG(cell.RefEl() == lf::base::RefEl::kTria(), "Only implemented for Triangles");
-      auto geo_p = cell.Geometry();
-      Eigen::MatrixXd coords = lf::geometry::Corners(*geo_p);
-      const BlendedParameterization::coord_t a0 = coords.col(0);
-      const BlendedParameterization::coord_t a1 = coords.col(1);
-      const BlendedParameterization::coord_t a2 = coords.col(2);
+ public:
+  BlendedParametrizationElementMatrixProvider() = default;
+  bool isActive(const lf::mesh::Entity &) { return true; }
+  Eigen::MatrixXd Eval(const lf::mesh::Entity &cell) {
+    LF_ASSERT_MSG(cell.RefEl() == lf::base::RefEl::kTria(),
+                  "Only implemented for Triangles");
+    auto geo_p = cell.Geometry();
+    Eigen::MatrixXd coords = lf::geometry::Corners(*geo_p);
+    const BlendedParameterization::coord_t a0 = coords.col(0);
+    const BlendedParameterization::coord_t a1 = coords.col(1);
+    const BlendedParameterization::coord_t a2 = coords.col(2);
 
-      const BlendedParameterization::Segment gamma01(a0, a1);
-      const BlendedParameterization::Segment gamma12(a1, a2);
-      const BlendedParameterization::Segment gamma20(a2, a0);
+    const BlendedParameterization::Segment gamma01(a0, a1);
+    const BlendedParameterization::Segment gamma12(a1, a2);
+    const BlendedParameterization::Segment gamma20(a2, a0);
 
-      return BlendedParameterization::evalBlendLocMat(gamma01, gamma12, gamma20);
-   }
+    return BlendedParameterization::evalBlendLocMat(gamma01, gamma12, gamma20);
+  }
 };
 
 TEST(BlendedParameterization, TestGalerkin) {
@@ -44,15 +44,17 @@ TEST(BlendedParameterization, TestGalerkin) {
   const lf::assemble::DofHandler &dofh{fe_space->LocGlobMap()};
   const lf::base::size_type N_dofs(dofh.NumDofs());
 
-  //Using the implemented function in blendedparametrization.cc to compute the lhs Matrix
+  // Using the implemented function in blendedparametrization.cc to compute the
+  // lhs Matrix
   lf::assemble::COOMatrix<double> A(N_dofs, N_dofs);
   BlendedParametrizationElementMatrixProvider elmat_builder;
   lf::assemble::AssembleMatrixLocally(0, dofh, dofh, elmat_builder, A);
 
-
   // compute galerkin matrix using ReactionDiffusionElementMatrixProvider
   lf::assemble::COOMatrix<double> B(N_dofs, N_dofs);
-  auto alpha = [](Eigen::Vector2d x) -> Eigen::Matrix2d { return Eigen::MatrixXd::Identity(2,2); };
+  auto alpha = [](Eigen::Vector2d x) -> Eigen::Matrix2d {
+    return Eigen::MatrixXd::Identity(2, 2);
+  };
   lf::mesh::utils::MeshFunctionGlobal mf_alpha{alpha};
   auto zero = [](Eigen::Vector2d x) -> double { return 0.; };
   lf::mesh::utils::MeshFunctionGlobal mf_zero{zero};

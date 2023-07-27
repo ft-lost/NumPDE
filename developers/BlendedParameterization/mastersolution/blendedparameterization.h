@@ -9,14 +9,11 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 
-
-
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <cmath>
 #include <iostream>
 #include <limits>
-
 
 namespace BlendedParameterization {
 // fundamental types
@@ -57,4 +54,4 @@ matrix_t evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
 
 }  // namespace BlendedParameterization
 
-#endif //BLENDED_PARAMETRIZATION_H
+#endif  // BLENDED_PARAMETRIZATION_H

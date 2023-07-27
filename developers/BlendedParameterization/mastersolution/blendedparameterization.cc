@@ -38,7 +38,7 @@ matrix_t evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
   matrix_t lclMat(3, 3);
   lclMat.setZero();
   matrix_t xi(2, 3);  // coordinates of midpoints of curves
-  xi << 0.5, 0.5 , 0., 0.5 , 0.5 , 0.5;
+  xi << 0.5, 0.5, 0., 0.5, 0.5, 0.5;
 
   // (constant) gradients of barycentric coordinate function on the reference
   // element, which are the preimages of the local shape functions under

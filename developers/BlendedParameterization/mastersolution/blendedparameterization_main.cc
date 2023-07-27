@@ -6,25 +6,26 @@
  * @ copyright Developed at SAM, ETH Zurich
  */
 
-#include "blendedparameterization.h"
-#include "MeshTriangleUnitSquareEigen.hpp"
-
 #include <lf/assemble/assemble.h>
-#include <lf/mesh/test_utils/test_meshes.h>
-#include <lf/uscalfe/uscalfe.h>
-#include <lf/io/io.h>
 #include <lf/fe/fe.h>
 #include <lf/fe/fe_tools.h>
-#include <lf/mesh/utils/utils.h>
+#include <lf/io/io.h>
+#include <lf/mesh/test_utils/test_meshes.h>
 #include <lf/mesh/utils/mesh_function_global.h>
+#include <lf/mesh/utils/utils.h>
+#include <lf/uscalfe/uscalfe.h>
+
+#include "MeshTriangleUnitSquareEigen.hpp"
+#include "blendedparameterization.h"
 
 /**
  *
  * @param fe_space finite elemt space
  * @param A LHS Finite element disc. Matrix in Triplet format
  * @param b RHS vector from Galerkin disc.
- * this function enforces the south boundary of the unit square to have a constant value of 1
- * and the east boundary  of the unit square to have a constant value of 2
+ * this function enforces the south boundary of the unit square to have a
+ * constant value of 1 and the east boundary  of the unit square to have a
+ * constant value of 2
  */
 void enforce_boundary_conditions(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
@@ -71,9 +72,10 @@ void enforce_boundary_conditions(
 class BlendedParametrizationElementMatrixProvider {
  public:
   BlendedParametrizationElementMatrixProvider() = default;
-  bool isActive(const lf::mesh::Entity &) { return true; }
-  Eigen::MatrixXd Eval(const lf::mesh::Entity &cell){
-    LF_ASSERT_MSG(cell.RefEl() == lf::base::RefEl::kTria(), "Only implemented for Triangles");
+  bool isActive(const lf::mesh::Entity&) { return true; }
+  Eigen::MatrixXd Eval(const lf::mesh::Entity& cell) {
+    LF_ASSERT_MSG(cell.RefEl() == lf::base::RefEl::kTria(),
+                  "Only implemented for Triangles");
     auto geo_p = cell.Geometry();
     const Eigen::MatrixXd coords = lf::geometry::Corners(*geo_p);
     const BlendedParameterization::coord_t a0 = coords.col(0);
@@ -116,7 +118,7 @@ int main(int /*argc*/, char** /*argv*/) {
   // obtain dofh for lagrangian finite element space
   auto fe_space =
       std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh);
-  const lf::assemble::DofHandler &dofh{fe_space->LocGlobMap()};
+  const lf::assemble::DofHandler& dofh{fe_space->LocGlobMap()};
   const int N_dofs = dofh.NumDofs();
 
   lf::assemble::COOMatrix<double> A(N_dofs, N_dofs);
@@ -124,9 +126,10 @@ int main(int /*argc*/, char** /*argv*/) {
   BlendedParametrizationElementMatrixProvider elmat_builder;
   lf::assemble::AssembleMatrixLocally(0, dofh, dofh, elmat_builder, A);
 
-
   lf::assemble::COOMatrix<double> B(N_dofs, N_dofs);
-  auto alpha = [](Eigen::Vector2d x) -> Eigen::Matrix2d { return Eigen::MatrixXd::Identity(2,2); };
+  auto alpha = [](Eigen::Vector2d x) -> Eigen::Matrix2d {
+    return Eigen::MatrixXd::Identity(2, 2);
+  };
   lf::mesh::utils::MeshFunctionGlobal mf_alpha{alpha};
   auto zero = [](Eigen::Vector2d x) -> double { return 0.; };
   lf::mesh::utils::MeshFunctionGlobal mf_zero{zero};
@@ -140,9 +143,8 @@ int main(int /*argc*/, char** /*argv*/) {
       elmat_builder_org(fe_space, mf_alpha, mf_zero, quad_rules);
   lf::assemble::AssembleMatrixLocally(0, dofh, dofh, elmat_builder_org, B);
 
-
   Eigen::VectorXd rhs = Eigen::VectorXd::Zero(N_dofs);
-  enforce_boundary_conditions(fe_space , A , rhs);
+  enforce_boundary_conditions(fe_space, A, rhs);
   const Eigen::SparseMatrix<double> A_crs = A.makeSparse();
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
   solver.compute(A_crs);
@@ -152,7 +154,7 @@ int main(int /*argc*/, char** /*argv*/) {
   vtk_writer.WritePointData("solution", mf_sol);
 
   Eigen::VectorXd rhs_lf = Eigen::VectorXd::Zero(N_dofs);
-  enforce_boundary_conditions(fe_space , B, rhs_lf);
+  enforce_boundary_conditions(fe_space, B, rhs_lf);
   Eigen::SparseMatrix<double> B_crs = B.makeSparse();
   solver.compute(B_crs);
   Eigen::VectorXd u_lf = solver.solve(rhs_lf);
