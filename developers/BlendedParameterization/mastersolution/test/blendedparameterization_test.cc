@@ -52,9 +52,7 @@ TEST(BlendedParameterization, TestGalerkin) {
 
   // compute galerkin matrix using ReactionDiffusionElementMatrixProvider
   lf::assemble::COOMatrix<double> B(N_dofs, N_dofs);
-  auto alpha = [](Eigen::Vector2d x) -> Eigen::Matrix2d {
-    return Eigen::MatrixXd::Identity(2, 2);
-  };
+  auto alpha = [](Eigen::Vector2d /*x*/) -> double { return 1.0; };
   lf::mesh::utils::MeshFunctionGlobal mf_alpha{alpha};
   auto zero = [](Eigen::Vector2d x) -> double { return 0.; };
   lf::mesh::utils::MeshFunctionGlobal mf_zero{zero};

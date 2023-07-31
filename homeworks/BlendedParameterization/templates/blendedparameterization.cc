@@ -12,9 +12,9 @@ namespace BlendedParameterization {
 
 // Jacobian of blended parameterization mapping
 /* SAM_LISTING_BEGIN_1 */
-matrix_t JacobianPhi(const coord_t& point, const Curve& gamma01,
-                     const Curve& gamma12, const Curve& gamma20) {
-  matrix_t J(2, 2);  // Variable for returning Jacobian
+Eigen::MatrixXd JacobianPhi(const coord_t& point, const Curve& gamma01,
+                            const Curve& gamma12, const Curve& gamma20) {
+  Eigen::MatrixXd J(2, 2);  // Variable for returning Jacobian
   // The formulas for the columns of the jacobian have been derived in
   // \prbautoref{sp:5}
   J.col(0) =
@@ -32,34 +32,42 @@ matrix_t JacobianPhi(const coord_t& point, const Curve& gamma01,
 /* SAM_LISTING_END_1 */
 
 /* SAM_LISTING_BEGIN_2 */
-matrix_t evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
-                         const Curve& gamma20) {
+Eigen::MatrixXd evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
+                                const Curve& gamma20) {
   // Variable for returning $3\times 3$ element matrix
-  matrix_t lclMat(3, 3);
+  Eigen::MatrixXd lclMat(3, 3);
   lclMat.setZero();
-  matrix_t xi(2, 3);  // coordinates of midpoints of curves
-  xi << 0.5, 0.5, 0., 0.5, 0.5, 0.5;
+  Eigen::MatrixXd xi(2, 3);  // coordinates of midpoints of curves
+  xi.col(0) << 0.5, 0.;
+  xi.col(1) << 0.5, 0.5;
+  xi.col(2) << 0., 0.5;
 
   // (constant) gradients of barycentric coordinate function on the reference
   // element, which are the preimages of the local shape functions under
   // pullback
-  matrix_t gradEval(3, 2);
+  Eigen::MatrixXd gradEval(3, 2);
   gradEval << -1., -1.,  // $\grad \wh{\lambda}_1$
       1., 0.,            // $\grad \wh{\lambda}_2$
       0., 1.;            // $\grad \wh{\lambda}_3$
   // Generate element matrix by adding up rank-1 matrices formed from gradients
   // of local shape functions at midpoints of edges.
   for (int l = 0; l < xi.cols(); ++l) {
-    coord_t xi_l = xi.col(l);
+    Eigen::Vector2d xi_l = xi.col(l);
     // Call auxiliary function implemented in \prbautoref{sp:6}
-    matrix_t Ji_l = JacobianPhi(xi_l, gamma01, gamma12, gamma20);
-    numeric_t detJi_l = std::abs(Ji_l.determinant());
+    Eigen::MatrixXd Ji_l = JacobianPhi(xi_l, gamma01, gamma12, gamma20);
+    double detJi_l = std::abs(Ji_l.determinant());
     // Transformation matrix for gradients, see \lref{lem:Gtrf}
-    matrix_t invJT_l = Ji_l.inverse().transpose();
+    Eigen::MatrixXd invJT_l = Ji_l.inverse().transpose();
     // Transformed gradient
-    matrix_t grad_b_l = gradEval * invJT_l;
+    // Eigen::MatrixXd grad_b_l = gradEval * invJT_l;
     // Rank-1 update of element matrix
-    lclMat += detJi_l * grad_b_l * grad_b_l.transpose();
+    for (unsigned int i = 0; i < 3; i++) {
+      for (unsigned int j = 0; j < 3; j++) {
+        lclMat(i, j) += detJi_l *
+                        (invJT_l * gradEval.row(i).transpose()).transpose() *
+                        (invJT_l * gradEval.row(j).transpose());
+      }
+    }
   }
   // Don't forget the quadrature weight $\frac{1}{6}$: area
   // of the reference triangle $=\frac12$!

@@ -50,7 +50,7 @@ void TestSquareMesh() {
   IMEX::visSolution(fe_space, mu_exact, "square_solution.vtk");
 }
 int main(int /*argc*/, char** /*argv*/) {
-  //TestConvergence();
-   TestSquareMesh();
+  TestConvergence();
+  TestSquareMesh();
   return 0;
 }
