@@ -37,6 +37,7 @@ Eigen::MatrixXd evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
   // Variable for returning $3\times 3$ element matrix
   Eigen::MatrixXd lclMat(3, 3);
   lclMat.setZero();
+
   Eigen::MatrixXd xi(2, 3);  // coordinates of midpoints of curves
   xi.col(0) << 0.5, 0.;
   xi.col(1) << 0.5, 0.5;
@@ -58,8 +59,6 @@ Eigen::MatrixXd evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
     double detJi_l = std::abs(Ji_l.determinant());
     // Transformation matrix for gradients, see \lref{lem:Gtrf}
     Eigen::MatrixXd invJT_l = Ji_l.inverse().transpose();
-    // Transformed gradient
-    // Eigen::MatrixXd grad_b_l = gradEval * invJT_l;
     // Rank-1 update of element matrix
     for (unsigned int i = 0; i < 3; i++) {
       for (unsigned int j = 0; j < 3; j++) {
@@ -69,6 +68,7 @@ Eigen::MatrixXd evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
       }
     }
   }
+
   // Don't forget the quadrature weight $\frac{1}{6}$: area
   // of the reference triangle $=\frac12$!
   return lclMat / 6.;

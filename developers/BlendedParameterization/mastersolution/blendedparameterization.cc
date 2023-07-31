@@ -15,6 +15,7 @@ namespace BlendedParameterization {
 Eigen::MatrixXd JacobianPhi(const coord_t& point, const Curve& gamma01,
                             const Curve& gamma12, const Curve& gamma20) {
   Eigen::MatrixXd J(2, 2);  // Variable for returning Jacobian
+#if SOLUTION
   // The formulas for the columns of the jacobian have been derived in
   // \prbautoref{sp:5}
   J.col(0) =
@@ -27,6 +28,11 @@ Eigen::MatrixXd JacobianPhi(const coord_t& point, const Curve& gamma01,
              point[0] * (gamma01.derivative(1. - point[1]) +
                          gamma20.derivative(1. - point[1])) -
              (gamma01(point[0]) + gamma20(point[0]) - gamma01(0.));
+#else
+  //====================
+  // Your code goes here
+  //====================
+#endif
   return J;
 }
 /* SAM_LISTING_END_1 */
@@ -37,6 +43,8 @@ Eigen::MatrixXd evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
   // Variable for returning $3\times 3$ element matrix
   Eigen::MatrixXd lclMat(3, 3);
   lclMat.setZero();
+
+#if SOLUTION
   Eigen::MatrixXd xi(2, 3);  // coordinates of midpoints of curves
   xi.col(0) << 0.5, 0.;
   xi.col(1) << 0.5, 0.5;
@@ -58,8 +66,6 @@ Eigen::MatrixXd evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
     double detJi_l = std::abs(Ji_l.determinant());
     // Transformation matrix for gradients, see \lref{lem:Gtrf}
     Eigen::MatrixXd invJT_l = Ji_l.inverse().transpose();
-    // Transformed gradient
-    // Eigen::MatrixXd grad_b_l = gradEval * invJT_l;
     // Rank-1 update of element matrix
     for (unsigned int i = 0; i < 3; i++) {
       for (unsigned int j = 0; j < 3; j++) {
@@ -69,9 +75,16 @@ Eigen::MatrixXd evalBlendLocMat(const Curve& gamma01, const Curve& gamma12,
       }
     }
   }
+
   // Don't forget the quadrature weight $\frac{1}{6}$: area
   // of the reference triangle $=\frac12$!
   return lclMat / 6.;
+#else
+  //====================
+  // Your code goes here
+  //====================
+  return lclMat;
+#endif
 }
 /* SAM_LISTING_END_2 */
 
