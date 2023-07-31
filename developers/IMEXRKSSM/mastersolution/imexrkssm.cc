@@ -109,7 +109,7 @@ Eigen::VectorXd compNonlinearTerm(
   for (const lf::mesh::Entity* element : mesh_p->Entities(0)) {
     LF_ASSERT_MSG(lf::base::RefEl::kTria() == element->RefEl(),
                   "compNonlinearTerm is only Implemented for triangles");
-    // Get the indicies of the corners of the current triangle
+    // Get the indices of the corners of the current triangle
     auto indicies = dofh.GlobalDofIndices(*element);
     // Store the coefficients of the basis expansion in $u_{loc}$
     data.u_loc[0] = u[indicies[0]];
@@ -160,7 +160,7 @@ IMEXTimestep::IMEXTimestep(
   phi_ = lf::assemble::AssembleVectorLocally<Eigen::VectorXd>(
       1, fe_test->LocGlobMap(), LocalVectorAssembler);
 
-  // Do some precomputations to initalize the sparse solvers
+  // Do some pre-computations to initialize the sparse solvers
   solver_A_.analyzePattern(A_);
   solver_A_.factorize(A_);
   LF_ASSERT_MSG(solver_A_.info() == Eigen::Success,
@@ -171,7 +171,7 @@ IMEXTimestep::IMEXTimestep(
   LF_ASSERT_MSG(solver_M_.info() == Eigen::Success,
                 "Solver did not manage to factorize M");
 
-  // Precompute $M^-1 * A$
+  // Precompute $M^{-1} * A$ and $M^{-1}\phi$
   MInvA_ = solver_M_.solve(A_);
   MInvphi_ = solver_M_.solve(phi_);
 #else
@@ -243,6 +243,7 @@ void IMEXTimestep::compTimestep(
   }
   y_dot += tau * (b_hat[2] * k_hat.col(2));
 
+  // Store the obtained solution in y
   y = y_dot;
 #else
   // ========================================
