@@ -11,4 +11,8 @@
 
 #include "advectionsupg.h"
 
-int main(int /*argc*/, char** /*argv*/) { return 0; }
+int main(int /*argc*/, char** /*argv*/) {
+  AdvectionSUPG::cvgL2SUPG();
+
+  return 0;
+}

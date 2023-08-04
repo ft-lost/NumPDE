@@ -90,6 +90,7 @@
     "PML1D/",
     "PotentialFlow/",
     "MinimalGraphSurface/",
-    "Brachistochrone/"
+    "Brachistochrone/",
+    "BlendedParameterization/"  
   ]
 }
