@@ -92,7 +92,7 @@ class BlendedParametrizationElementMatrixProvider {
 
 int main(int /*argc*/, char** /*argv*/) {
   // create a triangular grid on unit square
-  int N = 100;
+  const int N = 100;
   BlendedParameterization::matrix_t elements = generateMesh(N);
 
   // iterate over all triangles
@@ -130,16 +130,16 @@ int main(int /*argc*/, char** /*argv*/) {
   auto alpha = [](Eigen::Vector2d x) -> Eigen::Matrix2d {
     return Eigen::MatrixXd::Identity(2, 2);
   };
-  lf::mesh::utils::MeshFunctionGlobal mf_alpha{alpha};
+  const lf::mesh::utils::MeshFunctionGlobal mf_alpha{alpha};
   auto zero = [](Eigen::Vector2d x) -> double { return 0.; };
-  lf::mesh::utils::MeshFunctionGlobal mf_zero{zero};
+  const lf::mesh::utils::MeshFunctionGlobal mf_zero{zero};
   // set up quadrature rule to be able to compare
-  std::map<lf::base::RefEl, lf::quad::QuadRule> quad_rules{
+  const std::map<lf::base::RefEl, lf::quad::QuadRule> quad_rules{
       {lf::base::RefEl::kTria(), lf::quad::make_TriaQR_EdgeMidpointRule()},
       {lf::base::RefEl::kQuad(), lf::quad::make_QuadQR_EdgeMidpointRule()}};
 
-  lf::uscalfe::ReactionDiffusionElementMatrixProvider<
-      double, decltype(mf_alpha), decltype(mf_zero)>
+    lf::uscalfe::ReactionDiffusionElementMatrixProvider<
+        double, decltype(mf_alpha), decltype(mf_zero)>
       elmat_builder_org(fe_space, mf_alpha, mf_zero, quad_rules);
   lf::assemble::AssembleMatrixLocally(0, dofh, dofh, elmat_builder_org, B);
 
@@ -148,16 +148,16 @@ int main(int /*argc*/, char** /*argv*/) {
   const Eigen::SparseMatrix<double> A_crs = A.makeSparse();
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
   solver.compute(A_crs);
-  Eigen::VectorXd u = solver.solve(rhs);
+  const Eigen::VectorXd u = solver.solve(rhs);
   const lf::fe::MeshFunctionFE mf_sol(fe_space, u);
   lf::io::VtkWriter vtk_writer(fe_space->Mesh(), "./param_solution.vtk");
   vtk_writer.WritePointData("solution", mf_sol);
 
   Eigen::VectorXd rhs_lf = Eigen::VectorXd::Zero(N_dofs);
   enforce_boundary_conditions(fe_space, B, rhs_lf);
-  Eigen::SparseMatrix<double> B_crs = B.makeSparse();
+  const Eigen::SparseMatrix<double> B_crs = B.makeSparse();
   solver.compute(B_crs);
-  Eigen::VectorXd u_lf = solver.solve(rhs_lf);
+  const Eigen::VectorXd u_lf = solver.solve(rhs_lf);
   const lf::fe::MeshFunctionFE mf_sol_lf(fe_space, u_lf);
   lf::io::VtkWriter vtk_writer_lf(fe_space->Mesh(), "./lf_solution.vtk");
   vtk_writer_lf.WritePointData("solution", mf_sol_lf);

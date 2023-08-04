@@ -35,7 +35,10 @@ Eigen::SparseMatrix<double> augmentMatrix(
       lf::assemble::COOMatrix<double>(N_dofs + 1, N_dofs + 1);
   auto const_one = [](const Eigen::Vector2d& /*x*/) -> double { return 1.0; };
   auto const_zero = [](const Eigen::Vector2d& /*x*/) -> double { return 0.0; };
+  // We first assemble the upper left block of the augmented matrix
   A = compGalerkinMatrix(*dofh, const_one, const_zero, const_zero);
+  // Then we add the vector $c^T$ to the last row and $c$ to the last column of
+  // the augmented matrix
   for (int i = 0; i < N_dofs; ++i) {
     A.AddToEntry(N_dofs, i, c[i]);
     A.AddToEntry(i, N_dofs, c[i]);

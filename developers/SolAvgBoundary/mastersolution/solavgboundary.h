@@ -95,8 +95,10 @@ Eigen::VectorXd computeCVector(const FESPACE& fe_test) {
   int N_dofs = dofh->NumDofs();
   auto const_one = [](const Eigen::Vector2d& /*x*/) -> double { return 1.0; };
   auto const_zero = [](const Eigen::Vector2d& /*x*/) -> double { return 0.0; };
+  // We first assemble the Matrix B
   Eigen::SparseMatrix<double> B =
       compGalerkinMatrix(*dofh, const_zero, const_zero, const_one).makeSparse();
+  // And multiply B then with the constant vector $1$ to obtain the CVector
   sol = B * Eigen::VectorXd::Constant(N_dofs, 1.);
 
 #else
