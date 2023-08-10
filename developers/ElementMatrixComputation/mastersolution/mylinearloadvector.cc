@@ -80,7 +80,7 @@ Eigen::Vector4d computeLoadVector(
   for (int k = 0; k < num_nodes; k++) {
     // Contribution from one end of an edge
     elem_vec[k] += 0.5 * fvals(k);
-    // Contribution from the other end of the end
+    // Contribution from the other end of the edge
     elem_vec[(k + 1) % num_nodes] += 0.5 * fvals(k);
   }
   // Rescale with quadrature weights
