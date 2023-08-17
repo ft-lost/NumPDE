@@ -91,6 +91,9 @@
     "PotentialFlow/",
     "MinimalGraphSurface/",
     "Brachistochrone/",
-    "BlendedParameterization/"  
+    "BlendedParameterization/",
+    "SemiLinearEllipticBVP/",
+    "SUFEM/",
+    "AsymptoticCvgFEM/"
   ]
 }

@@ -94,3 +94,7 @@ add_subdirectory(MinimalGraphSurface)
 add_subdirectory(BlendedParameterization)
 add_subdirectory(SolAvgBoundary)
 add_subdirectory(IMEXRKSSM)
+add_subdirectory(SemilinearEllipticBVP)
+add_subdirectory(SUFEM)
+add_subdirectory(AsymptoticCvgFEM)
+

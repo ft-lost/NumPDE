@@ -1,6 +1,6 @@
 /**
  * @ file
- * @ brief NPDE homework on Nitsche's method
+ * @ brief NPDE homework on Nitsche's method (designed an exam problem)
  * @ author R. Hiptmair
  * @ date July 2021
  * @ copyright Developed at SAM, ETH Zurich

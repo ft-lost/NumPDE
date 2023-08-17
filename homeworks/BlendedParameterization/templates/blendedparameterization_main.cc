@@ -138,8 +138,8 @@ int main(int /*argc*/, char** /*argv*/) {
       {lf::base::RefEl::kTria(), lf::quad::make_TriaQR_EdgeMidpointRule()},
       {lf::base::RefEl::kQuad(), lf::quad::make_QuadQR_EdgeMidpointRule()}};
 
-    lf::uscalfe::ReactionDiffusionElementMatrixProvider<
-        double, decltype(mf_alpha), decltype(mf_zero)>
+  lf::uscalfe::ReactionDiffusionElementMatrixProvider<
+      double, decltype(mf_alpha), decltype(mf_zero)>
       elmat_builder_org(fe_space, mf_alpha, mf_zero, quad_rules);
   lf::assemble::AssembleMatrixLocally(0, dofh, dofh, elmat_builder_org, B);
 
