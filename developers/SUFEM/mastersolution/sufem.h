@@ -365,7 +365,7 @@ Eigen::VectorXd solveAdvectionDirichlet(
   Eigen::VectorXd g_coeffs = lf::fe::NodalProjection(*fe_space, mf_g);
   // Determine nodes on the inflow boundary part
   auto inflow_nodes{SUFEM::flagNodesOnInflowBoundary(fe_space->Mesh(), velo)};
-  #if SOLUTION
+#if SOLUTION
   lf::assemble::FixFlaggedSolutionCompAlt<double>(
       [&inflow_nodes, &g_coeffs,
        &dofh](lf::assemble::glb_idx_t dof_idx) -> std::pair<bool, double> {
@@ -376,9 +376,9 @@ Eigen::VectorXd solveAdvectionDirichlet(
       },
       A_COO, phi);
 #else
-    /*********************************************************
-    Your implementation to adjust A_COO and phi to enforce Dirichlet BCs goes here
-    *********************************************************/
+  /*********************************************************
+  Your implementation to adjust A_COO and phi to enforce Dirichlet BCs goes here
+  *********************************************************/
 #endif
   // Solve linear system using sparse elimination
   Eigen::SparseMatrix<double> A(A_COO.makeSparse());

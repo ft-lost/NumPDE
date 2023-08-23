@@ -10,6 +10,6 @@
 
 int main(int /*argc*/, char** /*argv*/) {
   std::cout << "Problem: Streamline-Upwind Galerkin FEM" << std::endl;
-  SUFEM::testSUFEMConvergence(4,"rotation");
+  SUFEM::testSUFEMConvergence(4, "rotation");
   return 0;
 }

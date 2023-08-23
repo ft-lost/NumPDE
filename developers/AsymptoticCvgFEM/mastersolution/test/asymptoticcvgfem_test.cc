@@ -6,10 +6,10 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 
+#include "../asymptoticcvgfem.h"
+
 #include <gtest/gtest.h>
 
 #include <Eigen/Core>
-
-#include "../asymptoticcvgfem.h"
 
 namespace asymptoticcvgfem::test {}  // namespace asymptoticcvgfem::test
