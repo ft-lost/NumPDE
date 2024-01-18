@@ -34,7 +34,7 @@ int main(int /*argc*/, char** /*argv*/) {
       lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0);
 
   // Generate a sequence of meshes by regular refinement.
-  const int reflevels = 5;
+  const int reflevels = 6;
   std::shared_ptr<lf::refinement::MeshHierarchy> multi_mesh_p =
       lf::refinement::GenerateMeshHierarchyByUniformRefinemnt(mesh_p,
                                                               reflevels);
@@ -46,10 +46,11 @@ int main(int /*argc*/, char** /*argv*/) {
   std::vector<std::tuple<int, double, double>> errs{};
 
   // Penalty parameter on coarsest mesh
-  double c = 60.0;
+  // This is a somewhat arbitrary choice supported by practical experience
+  double c = 20.0;
 
   // LEVEL LOOP: Do computations on all levels
-  for (int level = 0; level < L; ++level, c *= 3) {
+  for (int level = 0; level < L; ++level, c *= 2) {
     // Pointer to current mesh
     mesh_p = multi_mesh.getMesh(level);
     // Pointer to lowest-degree Lagrangian finite element space

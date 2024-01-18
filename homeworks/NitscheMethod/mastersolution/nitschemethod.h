@@ -102,17 +102,21 @@ class NitscheElemVecProvider {
   [[nodiscard]] Eigen::Vector3d Eval(const lf::mesh::Entity &tria) const;
 
  private:
-  FUNCTOR g_;
+  FUNCTOR g_;  // $\cob{\Bx\mapsto g(\Bx)}$
+  // Flags marking edges on the boundary
   lf::mesh::utils::CodimMeshDataSet<bool> &bd_flags_;
-  double c_;
+  double c_;  // Penalty parameter $\cob{c}$
+  // Reference coordinate of barycentre of a triangle
   const Eigen::MatrixXd c_hat_ = Eigen::Vector2d(1.0 / 3.0, 1.0 / 3.0);
+  // Gradients of reference shape functions
   const Eigen::MatrixXd G_hat_ =
       (Eigen::Matrix<double, 2, 3>() << -1.0, 1.0, 0.0, -1.0, 0.0, 1.0)
           .finished();
 };
 /* SAM_LISTING_END_6 */
 
-// Implementation of local computations
+// Implementation of local computations yielding element vector
+/* SAM_LISTING_BEGIN_7 */
 template <typename FUNCTOR>
 Eigen::Vector3d NitscheElemVecProvider<FUNCTOR>::Eval(
     const lf::mesh::Entity &cell) const {
@@ -121,6 +125,7 @@ Eigen::Vector3d NitscheElemVecProvider<FUNCTOR>::Eval(
                 "Unsupported cell type " << cell.RefEl());
   // Fetch geometry object for current cell
   const lf::geometry::Geometry &K_geo{*(cell.Geometry())};
+  const Eigen::MatrixXd cell_pts{lf::geometry::Corners(K_geo)};
   LF_ASSERT_MSG(K_geo.DimGlobal() == 2, "Mesh must be planar");
   // Obtain physical coordinates of barycenter of triangle
   const Eigen::Vector2d center{K_geo.Global(c_hat_).col(0)};
@@ -137,32 +142,30 @@ Eigen::Vector3d NitscheElemVecProvider<FUNCTOR>::Eval(
   for (int k = 0; k < 3; ++k) {
     if (bd_flags_(*edges[k])) {
       // Edge with local index k is an edge on the boundary
-      // Fetch the coordinates of its endpoints
-      const lf::geometry::Geometry &ed_geo{*(edges[k]->Geometry())};
-      const Eigen::MatrixXd ed_pts{lf::geometry::Corners(ed_geo)};
+      // Its one endpoints has local vertex index k 
+      // Fetch the local index of the other end node
+      const int l = (k + 1) % 3;
       // Evaluate Dirichlet data function in the endpoints
-      const double g0 = g_(ed_pts.col(0));
-      const double g1 = g_(ed_pts.col(1));
-
+      const double g0 = g_(cell_pts.col(k));
+      const double g1 = g_(cell_pts.col(l));
       // I: Contribution from consistency correction
       // Direction vector of the edge
-      const Eigen::Vector2d dir = ed_pts.col(1) - ed_pts.col(0);
+      const Eigen::Vector2d dir = cell_pts.col(k) - cell_pts.col(l);
       // Rotate counterclockwise by 90 degrees
       const Eigen::Vector2d ed_normal = Eigen::Vector2d(dir(1), -dir(0));
       // For adjusting direction of normal
-      const int ori = (ed_normal.dot(center - ed_pts.col(0)) > 0) ? -1 : 1;
-      // Dirichlet data assumed to be piecewise linear
+      const int ori = (ed_normal.dot(center - cell_pts.col(k)) > 0) ? -1 : 1;
+      // Dirichlet data approximated as piecewise linear
       el_vec -= 0.5 * (g0 + g1) * (G.transpose() * (ori * ed_normal));
-
       // II: Contribution from penalty correction
       const double fac = c_ * dir.norm();
-      const int l = (k + 1) % 3;
       el_vec[k] += fac * (g0 / 3.0 + g1 / 6.0);
       el_vec[l] += fac * (g1 / 3.0 + g0 / 6.0);
     }
   }
   return el_vec;
 }
+/* SAM_LISTING_END_7 */
 
 /**
  * @brief Spurious assembly of Galerkin matrix for Nitsches method

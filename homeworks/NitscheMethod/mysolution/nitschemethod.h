@@ -102,17 +102,21 @@ class NitscheElemVecProvider {
   [[nodiscard]] Eigen::Vector3d Eval(const lf::mesh::Entity &tria) const;
 
  private:
-  FUNCTOR g_;
+  FUNCTOR g_;  // $\cob{\Bx\mapsto g(\Bx)}$
+  // Flags marking edges on the boundary
   lf::mesh::utils::CodimMeshDataSet<bool> &bd_flags_;
-  double c_;
+  double c_;  // Penalty parameter $\cob{c}$
+  // Reference coordinate of barycentre of a triangle
   const Eigen::MatrixXd c_hat_ = Eigen::Vector2d(1.0 / 3.0, 1.0 / 3.0);
+  // Gradients of reference shape functions
   const Eigen::MatrixXd G_hat_ =
       (Eigen::Matrix<double, 2, 3>() << -1.0, 1.0, 0.0, -1.0, 0.0, 1.0)
           .finished();
 };
 /* SAM_LISTING_END_6 */
 
-// Implementation of local computations
+// Implementation of local computations yielding element vector
+/* SAM_LISTING_BEGIN_7 */
 template <typename FUNCTOR>
 Eigen::Vector3d NitscheElemVecProvider<FUNCTOR>::Eval(
     const lf::mesh::Entity &cell) const {
@@ -121,6 +125,7 @@ Eigen::Vector3d NitscheElemVecProvider<FUNCTOR>::Eval(
                 "Unsupported cell type " << cell.RefEl());
   // Fetch geometry object for current cell
   const lf::geometry::Geometry &K_geo{*(cell.Geometry())};
+  const Eigen::MatrixXd cell_pts{lf::geometry::Corners(K_geo)};
   LF_ASSERT_MSG(K_geo.DimGlobal() == 2, "Mesh must be planar");
   // Obtain physical coordinates of barycenter of triangle
   const Eigen::Vector2d center{K_geo.Global(c_hat_).col(0)};
@@ -163,6 +168,7 @@ Eigen::Vector3d NitscheElemVecProvider<FUNCTOR>::Eval(
   }
   return el_vec;
 }
+/* SAM_LISTING_END_7 */
 
 /**
  * @brief Spurious assembly of Galerkin matrix for Nitsches method

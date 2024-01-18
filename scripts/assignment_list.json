@@ -92,7 +92,7 @@
     "MinimalGraphSurface/",
     "Brachistochrone/",
     "BlendedParameterization/",
-    "SemiLinearEllipticBVP/",
+    "SemilinearEllipticBVP/",
     "SUFEM/",
     "AsymptoticCvgFEM/"
   ]
