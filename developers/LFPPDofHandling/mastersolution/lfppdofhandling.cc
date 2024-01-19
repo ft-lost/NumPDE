@@ -8,9 +8,14 @@
 
 #include "lfppdofhandling.h"
 
+#include <lf/assemble/assembly_types.h>
+#include <lf/base/lf_assert.h>
+#include <lf/mesh/entity.h>
+
 #include <Eigen/Dense>
 #include <array>
 #include <memory>
+#include <stdexcept>
 
 #include "lf/assemble/assemble.h"
 #include "lf/base/base.h"
@@ -157,18 +162,19 @@ Eigen::VectorXd convertDOFsLinearQuadratic(
     throw "Underlying meshes must be the same for both DOF handlers!";
   }
   std::shared_ptr<const lf::mesh::Mesh> mesh =
-      dofh_Linear_FE.Mesh();                          // get the mesh
-  Eigen::VectorXd zeta(dofh_Quadratic_FE.NumDofs());  // initialise empty zeta
-  // safety guard: always set zero if you're not sure to set every entry later
+      dofh_Linear_FE.Mesh();  // get the mesh
+  // coefficient vector for returning the result
+  Eigen::VectorXd zeta(dofh_Quadratic_FE.NumDofs());
+  // Play safe: always set zero if you're not sure to set every entry later
   // on for us this shouldn't be a problem, but just to be sure
   zeta.setZero();
-
   for (const auto *cell : mesh->Entities(0)) {
     // check if the spaces are actually linear and quadratic
 #if SOLUTION
     if (dofh_Linear_FE.NumLocalDofs(*cell) != 3 ||
         dofh_Quadratic_FE.NumLocalDofs(*cell) != 6) {
-      throw "dofh_Linear_FE must have 3 dofs per cell and dofh_Quadratic_FE 6!";
+      throw std::runtime_error(
+          "dofh_Linear_FE must have 3 dofs per cell and dofh_Quadratic_FE 6!");
     }
 #else
     //====================
@@ -211,5 +217,51 @@ Eigen::VectorXd convertDOFsLinearQuadratic(
   return zeta;
 }
 /* SAM_LISTING_END_5 */
+
+/* SAM_LISTING_BEGIN_7 */
+Eigen::VectorXd convertDOFsLinearQuadratic_alt(
+    const lf::assemble::DofHandler &dofh_Linear_FE,
+    const lf::assemble::DofHandler &dofh_Quadratic_FE,
+    const Eigen::VectorXd &mu) {
+  LF_ASSERT_MSG(dofh_Linear_FE.Mesh() == dofh_Quadratic_FE.Mesh(),
+                "Underlying meshes must be the same for both DOF handlers!");
+  std::shared_ptr<const lf::mesh::Mesh> mesh_p = dofh_Linear_FE.Mesh();
+  // coefficient vector for returning the result
+  Eigen::VectorXd zeta(dofh_Quadratic_FE.NumDofs());
+  // Visit all nodes of the mesh and copy dof values
+  for (const lf::mesh::Entity *node : mesh_p->Entities(2)) {
+    // Obtain global index numbers of the GSFs at the node for both finite
+    // element spaces
+    nonstd::span<const lf::assemble::gdof_idx_t> lin_dofs =
+        dofh_Linear_FE.InteriorGlobalDofIndices(*node);
+    nonstd::span<const lf::assemble::gdof_idx_t> quad_dofs =
+        dofh_Quadratic_FE.InteriorGlobalDofIndices(*node);
+    LF_ASSERT_MSG(lin_dofs.size() == 1, "One dof per node expected");
+    LF_ASSERT_MSG(quad_dofs.size() == 1, "One dof per node expected");
+    // Just copy the coefficient
+    zeta[quad_dofs[0]] = mu[lin_dofs[0]];
+  }
+  // Run through all edges of the mesh 
+  for (const lf::mesh::Entity *edge : mesh_p->Entities(1)) {
+    // Obtain pointers to endpoints of edge
+    nonstd::span<const lf::mesh::Entity *const> endpoints{edge->SubEntities(1)};
+    LF_ASSERT_MSG(endpoints.size() == 2, "Edge must have two endpoints");
+    // Obtain indices of GSFs for linear FE spaces associated with endpoints
+    nonstd::span<const lf::assemble::gdof_idx_t> lindof_p0 =
+        dofh_Linear_FE.InteriorGlobalDofIndices(*endpoints[0]);
+    LF_ASSERT_MSG(lindof_p0.size() == 1, "Onle one dof per vertex allowed");
+    nonstd::span<const lf::assemble::gdof_idx_t> lindof_p1 =
+        dofh_Linear_FE.InteriorGlobalDofIndices(*endpoints[1]);
+    LF_ASSERT_MSG(lindof_p1.size() == 1, "Onle one dof per vertex allowed");
+    nonstd::span<const lf::assemble::gdof_idx_t> quad_dofs =
+        dofh_Quadratic_FE.InteriorGlobalDofIndices(*edge);
+    LF_ASSERT_MSG(quad_dofs.size() == 1,
+                  "Only one dof associated with an edge");
+    // Set value of edge dof to average of adjacent vertex dofs
+    zeta[quad_dofs[0]] = 0.5 * (mu[lindof_p0[0]] + mu[lindof_p1[0]]);
+  }
+  return zeta;
+}
+/* SAM_LISTING_END_7 */
 
 }  // namespace LFPPDofHandling

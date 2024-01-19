@@ -143,12 +143,9 @@ Eigen::Vector3d NitscheElemVecProvider<FUNCTOR>::Eval(
   for (int k = 0; k < 3; ++k) {
     if (bd_flags_(*edges[k])) {
       // Edge with local index k is an edge on the boundary
-      // Its one endpoints has local vertex index k 
+      // Its one endpoints has local vertex index k
       // Fetch the local index of the other end node
       const int l = (k + 1) % 3;
-      // Evaluate Dirichlet data function in the endpoints
-      const double g0 = g_(cell_pts.col(k));
-      const double g1 = g_(cell_pts.col(l));
       // I: Contribution from consistency correction
       // Direction vector of the edge
       const Eigen::Vector2d dir = cell_pts.col(k) - cell_pts.col(l);
@@ -156,6 +153,9 @@ Eigen::Vector3d NitscheElemVecProvider<FUNCTOR>::Eval(
       const Eigen::Vector2d ed_normal = Eigen::Vector2d(dir(1), -dir(0));
       // For adjusting direction of normal
       const int ori = (ed_normal.dot(center - cell_pts.col(k)) > 0) ? -1 : 1;
+      // Evaluate Dirichlet data function in the endpoints
+      const double g0 = g_(cell_pts.col(k));
+      const double g1 = g_(cell_pts.col(l));
       // Dirichlet data approximated as piecewise linear
       el_vec -= 0.5 * (g0 + g1) * (G.transpose() * (ori * ed_normal));
       // II: Contribution from penalty correction
