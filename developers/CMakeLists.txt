@@ -97,4 +97,6 @@ add_subdirectory(IMEXRKSSM)
 add_subdirectory(SemilinearEllipticBVP)
 add_subdirectory(SUFEM)
 add_subdirectory(AsymptoticCvgFEM)
-
+add_subdirectory(GuyerKrumhansl)
+add_subdirectory(CoupledBVPs)
+add_subdirectory(PLaplacian)

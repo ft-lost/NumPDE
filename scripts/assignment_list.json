@@ -94,6 +94,9 @@
     "BlendedParameterization/",
     "SemilinearEllipticBVP/",
     "SUFEM/",
-    "AsymptoticCvgFEM/"
+    "AsymptoticCvgFEM/",
+    "GuyerKrumhansl/",
+    "CoupledBVPs/",
+    "PLaplacian/"
   ]
 }
