@@ -315,7 +315,7 @@ lf::mesh::utils::CodimMeshDataSet<bool> flagNodesOnInflowBoundary(
     // Get velocity values in the midpoints of the edges
     auto velo_mp_vals = velo(*cell, mp_hat);
     // Retrieve pointers to all edges of the triangle
-    nonstd::span<const lf::mesh::Entity *const> edges{cell->SubEntities(1)};
+    std::span<const lf::mesh::Entity *const> edges{cell->SubEntities(1)};
     LF_ASSERT_MSG(edges.size() == 3, "Triangle must have three edges!");
     for (int k = 0; k < 3; ++k) {
       if (ed_bd_flags(*edges[k])) {
@@ -333,7 +333,7 @@ lf::mesh::utils::CodimMeshDataSet<bool> flagNodesOnInflowBoundary(
             ((velo_mp_vals[k].dot(ed_normal) > 0) ? 1 : -1) * ori;
         if (v_rel_ori < 0) {
           // Inflow: obtain endpoints of the edge and mark them
-          nonstd::span<const lf::mesh::Entity *const> endpoints{
+          std::span<const lf::mesh::Entity *const> endpoints{
               edges[k]->SubEntities(1)};
           LF_ASSERT_MSG(endpoints.size() == 2, "Edge must have two endpoints!");
           nd_inflow_flags(*endpoints[0]) = true;

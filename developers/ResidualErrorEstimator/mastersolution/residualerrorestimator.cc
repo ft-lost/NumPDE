@@ -201,7 +201,7 @@ lf::mesh::utils::CodimMeshDataSet<double> edgeResiduals(
     const lf::geometry::Geometry &cell_geo{*(cell->Geometry())};
     const Eigen::MatrixXd cell_vert{lf::geometry::Corners(cell_geo)};
     // Visit all three edges of the triangle
-    nonstd::span<const lf::mesh::Entity *const> edges{cell->SubEntities(1)};
+    std::span<const lf::mesh::Entity *const> edges{cell->SubEntities(1)};
     LF_ASSERT_MSG(edges.size() == 3, "Triangle must have three edges!");
     for (int l = 0; l < 3; ++l) {
       if (!bd_ed_flags(*edges[l])) {

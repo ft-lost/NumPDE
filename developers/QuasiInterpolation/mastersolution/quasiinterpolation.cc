@@ -8,7 +8,7 @@
 
 #include "quasiinterpolation.h"
 
-#include <lf/base/base.h>  // nonstd::span
+#include <lf/base/base.h>  // std::span
 #include <lf/geometry/geometry.h>
 #include <lf/mesh/utils/utils.h>
 
@@ -25,7 +25,7 @@ double edgeLength(const lf::mesh::Entity &edge) {
 }
 
 // Auxiliary function: computing the length of the longest edge
-double maxLength(const nonstd::span<const lf::mesh::Entity *const> &edges) {
+double maxLength(const std::span<const lf::mesh::Entity *const> &edges) {
   double length = 0.0;
   for (const lf::mesh::Entity *edge : edges) {
     length = std::max(length, edgeLength(*edge));
@@ -55,7 +55,7 @@ findKp(std::shared_ptr<const lf::mesh::Mesh> mesh_p) {
                                      (corners.col(2) - corners.col(1)).norm(),
                                      (corners.col(0) - corners.col(2)).norm()});
     // Obtain array of pointers to vertex objects of current triangle
-    nonstd::span<const lf::mesh::Entity *const> vertices{
+    std::span<const lf::mesh::Entity *const> vertices{
         triangle->SubEntities(2)};
     // Loop over vertices and update size of largest adjacent triangle.
     for (unsigned int i = 0; i < 3; ++i) {

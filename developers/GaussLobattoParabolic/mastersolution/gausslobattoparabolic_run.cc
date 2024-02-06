@@ -23,7 +23,7 @@
 constexpr double PI = 3.14159265358979323846;
 
 // Helper function to compute the meshwidth of a refinement
-double maxLength(const nonstd::span<const lf::mesh::Entity *const> &edges) {
+double maxLength(const std::span<const lf::mesh::Entity *const> &edges) {
   double length = 0.0;
   for (const lf::mesh::Entity *edge : edges) {
     Eigen::Matrix2d corners = lf::geometry::Corners(*(edge->Geometry()));

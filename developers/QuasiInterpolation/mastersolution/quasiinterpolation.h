@@ -30,7 +30,7 @@ namespace QuasiInterpolation {
  * @param edges range of edges
  * @return length of a longest edge in the range and zero if the range is empty
  */
-double maxLength(const nonstd::span<const lf::mesh::Entity *const> &edges);
+double maxLength(const std::span<const lf::mesh::Entity *const> &edges);
 
 /**
  * @brief Produces a mapping of vertices $p$ to the corresponding $(K_p,j)$,

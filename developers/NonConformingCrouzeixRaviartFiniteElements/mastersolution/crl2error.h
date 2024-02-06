@@ -47,7 +47,7 @@ double computeCRL2Error(std::shared_ptr<CRFeSpace> fe_space,
 		     .finished()};
     // clang-format on
     // Obtain global indices of local shape functions
-    nonstd::span<const lf::assemble::gdof_idx_t> cell_dof_idx(
+    std::span<const lf::assemble::gdof_idx_t> cell_dof_idx(
         dof_handler.GlobalDofIndices(*cell));
 
     // Sum contributions of quadrature nodes
