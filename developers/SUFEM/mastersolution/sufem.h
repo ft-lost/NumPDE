@@ -43,7 +43,7 @@ namespace SUFEM {
 
 template <typename VELOCITY>
 class AdvectionElementMatrixProvider {
-  static_assert(lf::mesh::utils::isMeshFunction<VELOCITY>);
+  static_assert(lf::mesh::utils::MeshFunction<VELOCITY>);
 
  public:
   using ElemMat = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
@@ -209,7 +209,7 @@ AdvectionElementMatrixProvider<VELOCITY>::Eval(const lf::mesh::Entity &cell) {
    tensor in SU bilinear form */
 template <typename VELOCITY>
 class MeshFunctionDiffTensor {
-  static_assert(lf::mesh::utils::isMeshFunction<VELOCITY>);
+  static_assert(lf::mesh::utils::MeshFunction<VELOCITY>);
 
  public:
   MeshFunctionDiffTensor(const MeshFunctionDiffTensor &) = default;
@@ -267,7 +267,7 @@ template <typename VELOCITY>
 lf::assemble::COOMatrix<double> buildSUGalerkinMatrix(
     std::shared_ptr<const lf::uscalfe::UniformScalarFESpace<double>> fe_space,
     VELOCITY velo) {
-  static_assert(lf::mesh::utils::isMeshFunction<VELOCITY>);
+  static_assert(lf::mesh::utils::MeshFunction<VELOCITY>);
   // Create object of helper class providing diffusion tensor for SU bilinear
   // form
   MeshFunctionDiffTensor mf_diff(velo);
@@ -291,7 +291,7 @@ lf::assemble::COOMatrix<double> buildSUGalerkinMatrix(
 template <typename VELOCITY>
 lf::mesh::utils::CodimMeshDataSet<bool> flagNodesOnInflowBoundary(
     const std::shared_ptr<const lf::mesh::Mesh> &mesh_p, VELOCITY velo) {
-  static_assert(lf::mesh::utils::isMeshFunction<VELOCITY>);
+  static_assert(lf::mesh::utils::MeshFunction<VELOCITY>);
   // Array for flags
   lf::mesh::utils::CodimMeshDataSet<bool> nd_inflow_flags(mesh_p, 2, false);
   // Reference coordinates of center of gravity of a triangle
@@ -351,8 +351,8 @@ template <typename VELOCITY, typename DIRICHLET_DATA>
 Eigen::VectorXd solveAdvectionDirichlet(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
     VELOCITY velo, DIRICHLET_DATA mf_g) {
-  static_assert(lf::mesh::utils::isMeshFunction<VELOCITY>);
-  static_assert(lf::mesh::utils::isMeshFunction<DIRICHLET_DATA>);
+  static_assert(lf::mesh::utils::MeshFunction<VELOCITY>);
+  static_assert(lf::mesh::utils::MeshFunction<DIRICHLET_DATA>);
   // Obtain full Galerkin matrix in COO format
   lf::assemble::COOMatrix<double> A_COO =
       SUFEM::buildSUGalerkinMatrix(fe_space, velo);
