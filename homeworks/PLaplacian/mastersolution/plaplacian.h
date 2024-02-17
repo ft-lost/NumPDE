@@ -35,7 +35,7 @@ namespace plaplacian {
 template <typename MESHFUNCTION, typename FUNCTION>
 class FunctionMFWrapper {
  public:
-  static_assert(lf::mesh::utils::isMeshFunction<MESHFUNCTION>);
+  static_assert(lf::mesh::utils::MeshFunction<MESHFUNCTION>);
   using mf_vector_t = decltype(std::declval<MESHFUNCTION>()(
       std::declval<const lf::mesh::Entity>(),
       std::declval<const Eigen::MatrixXd>()));

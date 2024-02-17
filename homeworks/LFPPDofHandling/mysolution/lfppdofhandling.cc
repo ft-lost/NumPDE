@@ -125,9 +125,9 @@ Eigen::VectorXd convertDOFsLinearQuadratic_alt(
   for (const lf::mesh::Entity *node : mesh_p->Entities(2)) {
     // Obtain global index numbers of the GSFs at the node for both finite
     // element spaces
-    nonstd::span<const lf::assemble::gdof_idx_t> lin_dofs =
+    std::span<const lf::assemble::gdof_idx_t> lin_dofs =
         dofh_Linear_FE.InteriorGlobalDofIndices(*node);
-    nonstd::span<const lf::assemble::gdof_idx_t> quad_dofs =
+    std::span<const lf::assemble::gdof_idx_t> quad_dofs =
         dofh_Quadratic_FE.InteriorGlobalDofIndices(*node);
     LF_ASSERT_MSG(lin_dofs.size() == 1, "One dof per node expected");
     LF_ASSERT_MSG(quad_dofs.size() == 1, "One dof per node expected");
@@ -137,16 +137,16 @@ Eigen::VectorXd convertDOFsLinearQuadratic_alt(
   // Run through all edges of the mesh 
   for (const lf::mesh::Entity *edge : mesh_p->Entities(1)) {
     // Obtain pointers to endpoints of edge
-    nonstd::span<const lf::mesh::Entity *const> endpoints{edge->SubEntities(1)};
+    std::span<const lf::mesh::Entity *const> endpoints{edge->SubEntities(1)};
     LF_ASSERT_MSG(endpoints.size() == 2, "Edge must have two endpoints");
     // Obtain indices of GSFs for linear FE spaces associated with endpoints
-    nonstd::span<const lf::assemble::gdof_idx_t> lindof_p0 =
+    std::span<const lf::assemble::gdof_idx_t> lindof_p0 =
         dofh_Linear_FE.InteriorGlobalDofIndices(*endpoints[0]);
     LF_ASSERT_MSG(lindof_p0.size() == 1, "Onle one dof per vertex allowed");
-    nonstd::span<const lf::assemble::gdof_idx_t> lindof_p1 =
+    std::span<const lf::assemble::gdof_idx_t> lindof_p1 =
         dofh_Linear_FE.InteriorGlobalDofIndices(*endpoints[1]);
     LF_ASSERT_MSG(lindof_p1.size() == 1, "Onle one dof per vertex allowed");
-    nonstd::span<const lf::assemble::gdof_idx_t> quad_dofs =
+    std::span<const lf::assemble::gdof_idx_t> quad_dofs =
         dofh_Quadratic_FE.InteriorGlobalDofIndices(*edge);
     LF_ASSERT_MSG(quad_dofs.size() == 1,
                   "Only one dof associated with an edge");

@@ -69,7 +69,7 @@ TEST(MinimalGraphSurface, CoeffScalarc) {
 
   // Test if CoeffScalarc satisfies the conditions for being a MeshFunction.
   EXPECT_TRUE(
-      lf::mesh::utils::isMeshFunction<MinimalGraphSurface::CoeffScalarc>);
+      lf::mesh::utils::MeshFunction<MinimalGraphSurface::CoeffScalarc>);
 }
 
 TEST(MinimalGraphSurface, CoeffTensorA) {
@@ -108,7 +108,7 @@ TEST(MinimalGraphSurface, CoeffTensorA) {
 
   // Test if CoeffTensorA satisfies the conditions for being a MeshFunction.
   EXPECT_TRUE(
-      lf::mesh::utils::isMeshFunction<MinimalGraphSurface::CoeffTensorA>);
+      lf::mesh::utils::MeshFunction<MinimalGraphSurface::CoeffTensorA>);
 }
 
 TEST(MinimalGraphSurface, computeNewtonCorrection) {

@@ -88,7 +88,7 @@ Eigen::SparseMatrix<SCALAR> getFEMatrixDirichlet(
   for (const lf::mesh::Entity *edge : mesh_p->Entities(1)) {
     if (bd_ed_flags(*edge)) {
       // Fetch all dof indices associated with the current edge
-      nonstd::span<const gdof_idx_t> ed_dof_idx{dofh.GlobalDofIndices(*edge)};
+      std::span<const gdof_idx_t> ed_dof_idx{dofh.GlobalDofIndices(*edge)};
       for (const gdof_idx_t dof_idx : ed_dof_idx) {
         LF_ASSERT_MSG(dof_idx < dofh.NumDofs(),
                       "Dof idx exceeds vector length!");

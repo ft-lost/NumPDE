@@ -43,7 +43,7 @@ namespace SUFEM {
 
 template <typename VELOCITY>
 class AdvectionElementMatrixProvider {
-  static_assert(lf::mesh::utils::isMeshFunction<VELOCITY>);
+  static_assert(lf::mesh::utils::MeshFunction<VELOCITY>);
 
  public:
   using ElemMat = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
@@ -203,7 +203,7 @@ AdvectionElementMatrixProvider<VELOCITY>::Eval(const lf::mesh::Entity &cell) {
    tensor in SU bilinear form */
 template <typename VELOCITY>
 class MeshFunctionDiffTensor {
-  static_assert(lf::mesh::utils::isMeshFunction<VELOCITY>);
+  static_assert(lf::mesh::utils::MeshFunction<VELOCITY>);
 
  public:
   MeshFunctionDiffTensor(const MeshFunctionDiffTensor &) = default;
@@ -249,7 +249,7 @@ template <typename VELOCITY>
 lf::assemble::COOMatrix<double> buildSUGalerkinMatrix(
     std::shared_ptr<const lf::uscalfe::UniformScalarFESpace<double>> fe_space,
     VELOCITY velo) {
-  static_assert(lf::mesh::utils::isMeshFunction<VELOCITY>);
+  static_assert(lf::mesh::utils::MeshFunction<VELOCITY>);
   // Create object of helper class providing diffusion tensor for SU bilinear
   // form
   MeshFunctionDiffTensor mf_diff(velo);
@@ -273,7 +273,7 @@ lf::assemble::COOMatrix<double> buildSUGalerkinMatrix(
 template <typename VELOCITY>
 lf::mesh::utils::CodimMeshDataSet<bool> flagNodesOnInflowBoundary(
     const std::shared_ptr<const lf::mesh::Mesh> &mesh_p, VELOCITY velo) {
-  static_assert(lf::mesh::utils::isMeshFunction<VELOCITY>);
+  static_assert(lf::mesh::utils::MeshFunction<VELOCITY>);
   // Array for flags
   lf::mesh::utils::CodimMeshDataSet<bool> nd_inflow_flags(mesh_p, 2, false);
   // Reference coordinates of center of gravity of a triangle
@@ -297,7 +297,7 @@ lf::mesh::utils::CodimMeshDataSet<bool> flagNodesOnInflowBoundary(
     // Get velocity values in the midpoints of the edges
     auto velo_mp_vals = velo(*cell, mp_hat);
     // Retrieve pointers to all edges of the triangle
-    nonstd::span<const lf::mesh::Entity *const> edges{cell->SubEntities(1)};
+    std::span<const lf::mesh::Entity *const> edges{cell->SubEntities(1)};
     LF_ASSERT_MSG(edges.size() == 3, "Triangle must have three edges!");
     for (int k = 0; k < 3; ++k) {
       if (ed_bd_flags(*edges[k])) {
@@ -315,7 +315,7 @@ lf::mesh::utils::CodimMeshDataSet<bool> flagNodesOnInflowBoundary(
             ((velo_mp_vals[k].dot(ed_normal) > 0) ? 1 : -1) * ori;
         if (v_rel_ori < 0) {
           // Inflow: obtain endpoints of the edge and mark them
-          nonstd::span<const lf::mesh::Entity *const> endpoints{
+          std::span<const lf::mesh::Entity *const> endpoints{
               edges[k]->SubEntities(1)};
           LF_ASSERT_MSG(endpoints.size() == 2, "Edge must have two endpoints!");
           nd_inflow_flags(*endpoints[0]) = true;
@@ -333,8 +333,8 @@ template <typename VELOCITY, typename DIRICHLET_DATA>
 Eigen::VectorXd solveAdvectionDirichlet(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
     VELOCITY velo, DIRICHLET_DATA mf_g) {
-  static_assert(lf::mesh::utils::isMeshFunction<VELOCITY>);
-  static_assert(lf::mesh::utils::isMeshFunction<DIRICHLET_DATA>);
+  static_assert(lf::mesh::utils::MeshFunction<VELOCITY>);
+  static_assert(lf::mesh::utils::MeshFunction<DIRICHLET_DATA>);
   // Obtain full Galerkin matrix in COO format
   lf::assemble::COOMatrix<double> A_COO =
       SUFEM::buildSUGalerkinMatrix(fe_space, velo);

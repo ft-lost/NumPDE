@@ -34,11 +34,11 @@ Eigen::VectorXd trfLinToQuad(
   Eigen::VectorXd nu(dh_quad.NumDofs());
   // Visit nodes (codimension =2) and copy values
   for (const lf::mesh::Entity *node : mesh.Entities(2)) {
-    nonstd::span<const gdof_idx_t> lf_dof_idx{dh_lin.GlobalDofIndices(*node)};
+    std::span<const gdof_idx_t> lf_dof_idx{dh_lin.GlobalDofIndices(*node)};
     LF_ASSERT_MSG(lf_dof_idx.size() == 1,
                   "Exactly one LFE basis functiona at a node");
     LF_ASSERT_MSG(lf_dof_idx[0] < dh_lin.NumDofs(), "LFE dof number too large");
-    nonstd::span<const gdof_idx_t> qf_dof_idx{dh_quad.GlobalDofIndices(*node)};
+    std::span<const gdof_idx_t> qf_dof_idx{dh_quad.GlobalDofIndices(*node)};
     LF_ASSERT_MSG(lf_dof_idx.size() == 1,
                   "Exactly one QFE basis functiona at a node");
     LF_ASSERT_MSG(qf_dof_idx[0] < dh_quad.NumDofs(),
@@ -49,14 +49,14 @@ Eigen::VectorXd trfLinToQuad(
   for (const lf::mesh::Entity *edge : mesh.Entities(1)) {
     // Obtain global numbers of LFE DOFs associated with the endpoints of
     // the edge, that is, of those DOFs covering the edge.
-    nonstd::span<const gdof_idx_t> lf_dof_idx{dh_lin.GlobalDofIndices(*edge)};
+    std::span<const gdof_idx_t> lf_dof_idx{dh_lin.GlobalDofIndices(*edge)};
     LF_ASSERT_MSG(lf_dof_idx.size() == 2,
                   "Exactly two basis functions must cover an edge");
     LF_ASSERT_MSG((lf_dof_idx[0] < dh_lin.NumDofs()) &&
                       (lf_dof_idx[1] < dh_lin.NumDofs()),
                   "LFE dof numbers too large");
     // Obtain global number of QFE basis function associated with the edge
-    nonstd::span<const gdof_idx_t> qf_dof_idx{
+    std::span<const gdof_idx_t> qf_dof_idx{
         dh_quad.InteriorGlobalDofIndices(*edge)};
     LF_ASSERT_MSG(qf_dof_idx.size() == 1,
                   "A single QFE basis function is associated to an edge!");

@@ -46,7 +46,7 @@ lf::mesh::utils::CodimMeshDataSet<double> areasOfAdjacentCells(
   for (const lf::mesh::Entity *cell : mesh.Entities(0)) {
     const double area = lf::geometry::Volume(*(cell->Geometry()));
     // Loop over nodes of  a cell (relative codim == 2 sub-entities)
-    const nonstd::span<const lf::mesh::Entity *const> cell_nodes{
+    const std::span<const lf::mesh::Entity *const> cell_nodes{
         cell->SubEntities(2)};
     for (const lf::mesh::Entity *node : cell_nodes) {
       LF_ASSERT_MSG(node->RefEl() == lf::base::RefEl::kPoint(),

@@ -85,7 +85,7 @@ lf::mesh::utils::CodimMeshDataSet<int> tagNodes(
     const int id = edgeids(*edge);
     if (id >= 0) {
       // Obtain iterator over set of endpoints
-      nonstd::span<const lf::mesh::Entity *const> sub_ent_range{
+      std::span<const lf::mesh::Entity *const> sub_ent_range{
           edge->SubEntities(1)};
       LF_ASSERT_MSG(sub_ent_range.size() == 2, " Edge with #endpoints != 2!");
       // Access endpoints
