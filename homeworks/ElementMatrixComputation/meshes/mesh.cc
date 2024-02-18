@@ -62,7 +62,7 @@ std::shared_ptr<lf::mesh::Mesh> Generate2DTestMesh() {
   for (const auto &node : tria_nodes) {
     mesh_factory_ptr->AddEntity(
         lf::base::RefEl::kTria(),
-        nonstd::span<const size_type>({node[0], node[1], node[2]}),
+        std::span<const size_type>({node[0], node[1], node[2]}),
         std::unique_ptr<lf::geometry::Geometry>(nullptr));
   }
 
@@ -75,7 +75,7 @@ std::shared_ptr<lf::mesh::Mesh> Generate2DTestMesh() {
     }
     mesh_factory_ptr->AddEntity(
         lf::base::RefEl::kQuad(),
-        nonstd::span<const size_type>({node[0], node[1], node[2], node[3]}),
+        std::span<const size_type>({node[0], node[1], node[2], node[3]}),
         std::make_unique<lf::geometry::Parallelogram>(quad_coord));
   }
 

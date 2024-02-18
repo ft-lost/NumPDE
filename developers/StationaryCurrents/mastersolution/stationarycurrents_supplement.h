@@ -98,7 +98,7 @@ double contactFlux(
     LF_ASSERT_MSG(ref_el_type == lf::base::RefEl::kTria(),
                   "contactFlux: implemented for triangles only");
     // Obtain array of edge pointers (sub-entities of co-dimension 1)
-    nonstd::span<const lf::mesh::Entity *const> sub_ent_range{
+    std::span<const lf::mesh::Entity *const> sub_ent_range{
         cell->SubEntities(1)};
     // Must be three edges
     LF_ASSERT_MSG(sub_ent_range.size() == 3, "Triangle must have three edges!");

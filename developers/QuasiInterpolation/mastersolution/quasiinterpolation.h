@@ -30,7 +30,7 @@ namespace QuasiInterpolation {
  * @param edges range of edges
  * @return length of a longest edge in the range and zero if the range is empty
  */
-double maxLength(const nonstd::span<const lf::mesh::Entity *const> &edges);
+double maxLength(const std::span<const lf::mesh::Entity *const> &edges);
 
 /**
  * @brief Produces a mapping of vertices $p$ to the corresponding $(K_p,j)$,
@@ -142,8 +142,8 @@ std::pair<Eigen::VectorXd, Eigen::VectorXd> interpolationError(
     std::shared_ptr<lf::refinement::MeshHierarchy> mesh_hierarchy_p,
     MESHFUNCTION_U &&mf_u, MESHFUNCTION_GRAD_U &&mf_grad_u) {
   // Make sure that the coefficient types are compatible
-  // static_assert(lf::mesh::utils::isMeshFunction<MESHFUNCTION_U>);
-  // static_assert(lf::mesh::utils::isMeshFunction<MESHFUNCTION_GRAD_U>);
+  // static_assert(lf::mesh::utils::MeshFunction<MESHFUNCTION_U>);
+  // static_assert(lf::mesh::utils::MeshFunction<MESHFUNCTION_GRAD_U>);
   // Allocate sequences for storing error norms
   int L = mesh_hierarchy_p->NumLevels();
   Eigen::VectorXd l2_error(L);

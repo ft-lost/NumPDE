@@ -36,7 +36,7 @@ namespace TranspSemiLagr {
  */
 template <typename FUNCTOR, typename MESH_FUNCTION>
 class UpwindLagrangianElementVectorProvider {
-  static_assert(lf::mesh::utils::isMeshFunction<MESH_FUNCTION>);
+  static_assert(lf::mesh::utils::MeshFunction<MESH_FUNCTION>);
 
  public:
   /**

@@ -138,7 +138,7 @@ Eigen::Vector3d NitscheElemVecProvider<FUNCTOR>::Eval(
   Eigen::Vector3d el_vec = Eigen::Vector3d::Zero();
   // Loop over edges and check whether they are
   // located on the bondary
-  nonstd::span<const lf::mesh::Entity *const> edges{cell.SubEntities(1)};
+  std::span<const lf::mesh::Entity *const> edges{cell.SubEntities(1)};
 #if SOLUTION
   for (int k = 0; k < 3; ++k) {
     if (bd_flags_(*edges[k])) {

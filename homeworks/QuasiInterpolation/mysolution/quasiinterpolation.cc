@@ -8,7 +8,7 @@
 
 #include "quasiinterpolation.h"
 
-#include <lf/base/base.h>  // nonstd::span
+#include <lf/base/base.h>  // std::span
 #include <lf/geometry/geometry.h>
 #include <lf/mesh/utils/utils.h>
 
@@ -25,7 +25,7 @@ double edgeLength(const lf::mesh::Entity &edge) {
 }
 
 // Auxiliary function: computing the length of the longest edge
-double maxLength(const nonstd::span<const lf::mesh::Entity *const> &edges) {
+double maxLength(const std::span<const lf::mesh::Entity *const> &edges) {
   double length = 0.0;
   for (const lf::mesh::Entity *edge : edges) {
     length = std::max(length, edgeLength(*edge));

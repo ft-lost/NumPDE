@@ -110,7 +110,7 @@ lf::mesh::utils::CodimMeshDataSet<Eigen::Vector2d> exteriorEdgeWeightedNormals(
     const Eigen::Matrix<double, 2, 3> normals{
         exteriorTriangleNormals(vertices)};
     // Obtain array of edge pointers (relative co-dimension = 1)
-    nonstd::span<const lf::mesh::Entity *const> sub_ent_range{
+    std::span<const lf::mesh::Entity *const> sub_ent_range{
         cell->SubEntities(1)};
     // loop over the edges and check whether they belong to the boundary
     for (lf::base::sub_idx_t j = 0; j < ref_el_type.NumSubEntities(1); ++j) {

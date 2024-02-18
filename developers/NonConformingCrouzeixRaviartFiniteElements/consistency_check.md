@@ -27,6 +27,6 @@ THESE INCONSISTENCIES WERE FIXED:
 		   replace **glb_idx_t** with **lf::assemble::glb_idx_t**
 
 - 2-14.w): replace **size_type** with **lf::assemble::size_type**
-		   in NUMPDE problems text file: const **lf::base::RandomAccessRange<const gdof_idx_t> cell_dof_idx()** ; whereas in problem code: **nonstd::span<const lf::assemble::gdof_idx_t>cell_dof_idx ()**
+		   in NUMPDE problems text file: const **lf::base::RandomAccessRange<const gdof_idx_t> cell_dof_idx()** ; whereas in problem code: **std::span<const lf::assemble::gdof_idx_t>cell_dof_idx ()**
 
 - I added in the codes all the comments **// TODO: task 2-14.xxx)** for every subexercise

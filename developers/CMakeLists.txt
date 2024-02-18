@@ -29,7 +29,7 @@ add_subdirectory(ExponentialIntegrator)
 add_subdirectory(ExtendedMUSCL)
 add_subdirectory(FiniteVolumeRobin)
 add_subdirectory(FiniteVolumeSineConsLaw)
-# add_subdirectory(FisherKPP) # missing unit tests
+add_subdirectory(FisherKPP) # missing unit tests
 add_subdirectory(FluxLimitedFV)
 add_subdirectory(GaussLobattoParabolic)
 add_subdirectory(GradientFlow)
@@ -38,7 +38,7 @@ add_subdirectory(ImplRK3Prey)
 add_subdirectory(IncidenceMatrices)
 add_subdirectory(InitCondLV)
 add_subdirectory(IPDGFEM)
-# add_subdirectory(LaxWendroffScheme) # test_mastersolution takes too long
+add_subdirectory(LaxWendroffScheme) # test_mastersolution takes too long
 add_subdirectory(LengthOfBoundary)
 add_subdirectory(LFPPDofHandling)
 add_subdirectory(LinearFE1D)

@@ -182,7 +182,7 @@ Eigen::VectorXd compHierSurplusSolution(
   // Flag vector indicating inactive edges
   std::vector<bool> dropped_ed(N_qdofs, false);
   for (const lf::mesh::Entity *edge : mesh.Entities(1)) {
-    nonstd::span<const lf::assemble::gdof_idx_t> qf_dof_idx{
+    std::span<const lf::assemble::gdof_idx_t> qf_dof_idx{
         dh_quad.GlobalDofIndices(*edge)};
     LF_ASSERT_MSG(qf_dof_idx.size() == 3,
                   "Three QFE basis functions covering an edge!");

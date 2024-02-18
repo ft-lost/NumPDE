@@ -43,7 +43,7 @@ void prepTriMesh(
   // Create a second .m file containing the nodal values
   std::vector<double> nodvals(N_dofs);
   for (const lf::mesh::Entity* node_ptr : mesh.Entities(2)) {
-    nonstd::span<const lf::assemble::gdof_idx_t> dof_idx{
+    std::span<const lf::assemble::gdof_idx_t> dof_idx{
         dofh.GlobalDofIndices(*node_ptr)};
     LF_VERIFY_MSG(dof_idx.size() == 1, "Only 1 dof per node allowed!");
     // Obtain index of current node

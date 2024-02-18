@@ -46,7 +46,7 @@ Eigen::Matrix3d LinearFENitscheElementMatrix::Eval(
   // II: Boundary parts of the bilinear form
   // ----------------------------------------
   // Retrieve pointers to all edges of the triangle
-  nonstd::span<const lf::mesh::Entity *const> edges{cell.SubEntities(1)};
+  std::span<const lf::mesh::Entity *const> edges{cell.SubEntities(1)};
   LF_ASSERT_MSG(edges.size() == 3, "Triangle must have three edges!");
   // Loop over edges and check whether they are located on the bondary
   for (int k = 0; k < 3; ++k) {

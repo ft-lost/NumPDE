@@ -105,7 +105,7 @@ Eigen::VectorXd computeRHS_alt(
   // Loop over all nodes
   for (const lf::mesh::Entity *node : mesh.Entities(2)) {
     // Find global index of dof associated with the node
-    const nonstd::span<const lf::assemble::gdof_idx_t> node_dofs(
+    const std::span<const lf::assemble::gdof_idx_t> node_dofs(
         dofh_V.GlobalDofIndices(*node));
     LF_ASSERT_MSG(node_dofs.size() == 1, "A node has to carry exatly one dof!");
     // Global index of tent function sitting on the node
@@ -192,7 +192,7 @@ Eigen::SparseMatrix<double> computeMV_alt(
     // Evaluate coefficient function at node
     const double rho_val = rho(node_pos);
     // Find global index of dof associated with the node
-    const nonstd::span<const lf::assemble::gdof_idx_t> node_dofs(
+    const std::span<const lf::assemble::gdof_idx_t> node_dofs(
         dofh_V.GlobalDofIndices(*node));
     LF_ASSERT_MSG(node_dofs.size() == 1, "A node has to carry exatly one dof!");
     // Global index of tent function sitting on the node

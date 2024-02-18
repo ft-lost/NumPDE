@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 include("cmake/HunterGate.cmake")
 HunterGate(
-    URL "https://github.com/cpp-pm/hunter/archive/v0.23.321.tar.gz"
-    SHA1 "5e53cbb0429037ea8e2592bfd92704b8ff3ab492"
+    URL "https://github.com/cpp-pm/hunter/archive/v0.25.3.tar.gz"
+    SHA1 "0dfbc2cb5c4cf7e83533733bdfd2125ff96680cb"
     LOCAL
 )
 
@@ -19,6 +19,9 @@ endif()
 
 #setup compiler
 set(CMAKE_CXX_STANDARD 17)
+
+#enable language support
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 #enable warnings
 include(CheckCXXCompilerFlag)
