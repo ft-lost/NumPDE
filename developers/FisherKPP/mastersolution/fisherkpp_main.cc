@@ -367,8 +367,7 @@ void modelproblem() {
 }
 /* SAM_LISTING_END_9 */
 
-int main(int argc, char** argv) {
-
+int main(int argc, char **argv) {
   std::cout << "Usage: " << argv[0] << " [h|m]" << std::endl;
   std::cout << "h: human migration simulation" << std::endl;
   std::cout << "m: model problem simulation" << std::endl;
