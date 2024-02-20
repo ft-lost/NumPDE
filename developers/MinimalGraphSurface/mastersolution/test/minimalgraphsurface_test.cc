@@ -68,8 +68,7 @@ TEST(MinimalGraphSurface, CoeffScalarc) {
   EXPECT_NEAR(integral_val, -9. / sqrt(6), tol);
 
   // Test if CoeffScalarc satisfies the conditions for being a MeshFunction.
-  EXPECT_TRUE(
-      lf::mesh::utils::MeshFunction<MinimalGraphSurface::CoeffScalarc>);
+  EXPECT_TRUE(lf::mesh::utils::MeshFunction<MinimalGraphSurface::CoeffScalarc>);
 }
 
 TEST(MinimalGraphSurface, CoeffTensorA) {
@@ -107,8 +106,7 @@ TEST(MinimalGraphSurface, CoeffTensorA) {
   EXPECT_NEAR(A_mat[0](1, 1), 1. / sqrt(6.) * (1. - 1. / 6. * 4.), tol);
 
   // Test if CoeffTensorA satisfies the conditions for being a MeshFunction.
-  EXPECT_TRUE(
-      lf::mesh::utils::MeshFunction<MinimalGraphSurface::CoeffTensorA>);
+  EXPECT_TRUE(lf::mesh::utils::MeshFunction<MinimalGraphSurface::CoeffTensorA>);
 }
 
 TEST(MinimalGraphSurface, computeNewtonCorrection) {

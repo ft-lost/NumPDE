@@ -71,7 +71,7 @@ Eigen::VectorXd convertDOFsLinearQuadratic_alt(
     const lf::assemble::DofHandler &dofh_Linear_FE,
     const lf::assemble::DofHandler &dofh_Quadratic_FE,
     const Eigen::VectorXd &mu);
-  
+
 /**
  * @brief Evaluate the function f in the dofs and put them at the index given by
  * the dof
