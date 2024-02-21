@@ -91,7 +91,6 @@ Eigen::VectorXd solveDirichletBVP(
 }
 /* SAM_LISTING_END_7 */
 
-
 /* SAM_LISTING_BEGIN_8 */
 template <typename F_FUNCTOR>
 std::pair<Eigen::VectorXd, Eigen::VectorXd> solveModulatedHeatFlow(
@@ -118,9 +117,9 @@ std::pair<Eigen::VectorXd, Eigen::VectorXd> solveModulatedHeatFlow(
   // and coefficient w
   v_gf = solveDirichletBVP(fes_p, mf_w, mf_w, zero);
 #else
-// ************************  
-// Your code here.
-// Replace the following four meaningless code lines with your implementation
+  // ************************
+  // Your code here.
+  // Replace the following four meaningless code lines with your implementation
   w_gf.resize(fes_p->LocGlobMap().NumDofs());
   w_gf.setConstant(1.);
   v_gf.resize(fes_p->LocGlobMap().NumDofs());

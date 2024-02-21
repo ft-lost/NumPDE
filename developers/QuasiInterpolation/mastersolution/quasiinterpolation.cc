@@ -55,8 +55,7 @@ findKp(std::shared_ptr<const lf::mesh::Mesh> mesh_p) {
                                      (corners.col(2) - corners.col(1)).norm(),
                                      (corners.col(0) - corners.col(2)).norm()});
     // Obtain array of pointers to vertex objects of current triangle
-    std::span<const lf::mesh::Entity *const> vertices{
-        triangle->SubEntities(2)};
+    std::span<const lf::mesh::Entity *const> vertices{triangle->SubEntities(2)};
     // Loop over vertices and update size of largest adjacent triangle.
     for (unsigned int i = 0; i < 3; ++i) {
       // Note that 'size' is a reference!

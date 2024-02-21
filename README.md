@@ -7,7 +7,7 @@ Moreover, enrolled students can access the [moodle](https://moodle-app2.let.ethz
 
 ## Requirements
 Currently, only UNIX based operating systems are supported. Moreover, you need to have the following installed on your machine:
-* C++17 compiler (e.g. gcc, clang)
+* C++20 compiler (e.g. gcc, clang)
 * CMake (at least VERSION 3.10)
 * python3
 * A reader for .vtk files (e.g. paraview)

@@ -133,10 +133,10 @@ void fixedPointNextIt(
   // Invoke assembly on cells (codim == 0)
   lf::assemble::AssembleVectorLocally(0, dofh, elvec_builder, phi);
 #else
-// ************************
-// Adjust the following code
-  lf::uscalfe::ReactionDiffusionElementMatrixProvider<
-      double, decltype(mf_one), decltype(mf_zero)>
+  // ************************
+  // Adjust the following code
+  lf::uscalfe::ReactionDiffusionElementMatrixProvider<double, decltype(mf_one),
+                                                      decltype(mf_zero)>
       elmat_provider(fes_p, mf_one, mf_zero);
   lf::assemble::AssembleMatrixLocally(0, dofh, dofh, elmat_provider, A);
 // ************************

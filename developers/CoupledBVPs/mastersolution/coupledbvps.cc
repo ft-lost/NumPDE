@@ -6,8 +6,8 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 
-#include <Eigen/Core>
-
 #include "coupledbvps.h"
+
+#include <Eigen/Core>
 
 namespace CoupledBVPs {}  // namespace CoupledBVPs
