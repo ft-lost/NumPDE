@@ -88,9 +88,6 @@ test-developer-job-mac:
     key : developers-mac
     paths : 
       - $CI_PROJECT_DIR/build_mac/developers/
-  artifacts:
-    paths:
-      - $CI_PROJECT_DIR/build_mac/developers/
 
 test-developer-job-linux:
   stage: test
@@ -104,7 +101,4 @@ test-developer-job-linux:
   cache:
     key : developers-linux
     paths : 
-      - $CI_PROJECT_DIR/build_linux/developers/
-  artifacts:
-    paths:
       - $CI_PROJECT_DIR/build_linux/developers/
