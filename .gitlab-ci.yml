@@ -42,12 +42,9 @@ compile-developers-job-mac:
        - echo "Building developer folder"
        - cd developers
        - make -j 4
-
-    cache:
-      key : developers-mac
-      paths : 
-        - $CI_PROJECT_DIR/build_mac/developers/
-       
+    artifacts:
+      paths:
+        $CI_PROJECT_DIR/build_mac
 
 compile-developers-job-linux:
     stage: build
@@ -70,10 +67,9 @@ compile-developers-job-linux:
        - echo "Building developer folder"
        - cd developers
        - make -j 4
-    cache:
-      key : developers-linux
-      paths : 
-        - $CI_PROJECT_DIR/build_linux/developers/
+    artifact:
+      paths:
+        - $CI_PROJECT_DIR/build_linux/
 
 test-developer-job-mac:
   stage: test
@@ -86,10 +82,6 @@ test-developer-job-mac:
        - cd $CI_PROJECT_DIR/build_mac
        - chmod +x $CI_PROJECT_DIR/scripts/ci/test_developers.sh
        - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
-  cache:
-    key : developers-mac
-    paths : 
-      - $CI_PROJECT_DIR/build_mac/developers/
 
 test-developer-job-linux:
   stage: test
@@ -102,7 +94,3 @@ test-developer-job-linux:
        - cd $CI_PROJECT_DIR/build_linux
        - chmod +x $CI_PROJECT_DIR/scripts/ci/test_developers.sh
        - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
-  cache:
-    key : developers-linux
-    paths : 
-      - $CI_PROJECT_DIR/build_linux/developers/
