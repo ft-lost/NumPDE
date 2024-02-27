@@ -30,5 +30,5 @@ function(build_test TARGET TARGET_TO_TEST DIR OUTPUT_NAME)
   target_compile_definitions(${TARGET} PRIVATE CURRENT_BINARY_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\")
   target_link_libraries(${TARGET} PUBLIC ${LIBRARIES} ${TARGET_TO_TEST}.static)
 
-  gtest_discover_tests(${TARGET})
+  # gtest_discover_tests(${TARGET}) Not necessary given that the CI pipeline runs the tests
 endfunction(build_test)
