@@ -23,7 +23,8 @@
 
 TEST(StableEvaluationAtAPoint, PSL) {
   auto mesh_factory_init = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader_init(std::move(mesh_factory_init), "meshes/square.msh");
+  lf::io::GmshReader reader_init(std::move(mesh_factory_init),
+                                 "meshes/square.msh");
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader_init.mesh();
 
   const auto u = [](Eigen::Vector2d x) -> double {
@@ -44,7 +45,8 @@ TEST(StableEvaluationAtAPoint, PSL) {
 
 TEST(StableEvaluationAtAPoint, PDL) {
   auto mesh_factory_init = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader_init(std::move(mesh_factory_init), "meshes/square.msh");
+  lf::io::GmshReader reader_init(std::move(mesh_factory_init),
+                                 "meshes/square.msh");
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader_init.mesh();
 
   const auto u = [](Eigen::Vector2d x) -> double {
@@ -65,7 +67,8 @@ TEST(StableEvaluationAtAPoint, PDL) {
 
 TEST(StableEvaluationAtAPoint, PointEval) {
   auto mesh_factory_init = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader_init(std::move(mesh_factory_init), "meshes/square.msh");
+  lf::io::GmshReader reader_init(std::move(mesh_factory_init),
+                                 "meshes/square.msh");
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader_init.mesh();
 
   double error = StableEvaluationAtAPoint::PointEval(mesh_p);
@@ -79,7 +82,8 @@ TEST(StableEvaluationAtAPoint, PointEval) {
 
 TEST(StableEvaluationAtAPoint, Jstar) {
   auto mesh_factory_init = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader_init(std::move(mesh_factory_init), "meshes/square7.msh");
+  lf::io::GmshReader reader_init(std::move(mesh_factory_init),
+                                 "meshes/square7.msh");
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader_init.mesh();
 
   std::shared_ptr<lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space =
@@ -107,8 +111,9 @@ TEST(StableEvaluationAtAPoint, Jstar) {
 /*
 TEST(StableEvaluationAtAPoint, stab_pointEval) {
   auto mesh_factory_init = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader_init(std::move(mesh_factory_init), "meshes/square.msh");
-  std::shared_ptr<lf::mesh::Mesh> mesh_p = reader_init.mesh();
+  lf::io::GmshReader reader_init(std::move(mesh_factory_init),
+"meshes/square.msh"); std::shared_ptr<lf::mesh::Mesh> mesh_p =
+reader_init.mesh();
 
   std::shared_ptr<lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space =
       std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_p);

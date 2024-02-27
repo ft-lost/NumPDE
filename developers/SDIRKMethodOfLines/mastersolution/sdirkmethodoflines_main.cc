@@ -38,7 +38,8 @@ int main(int /*argc*/, char ** /*argv*/) {
 
   // Load mesh into a Lehrfem++ object
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(std::move(mesh_factory), "meshes/square64_bnd.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory),
+                                  "meshes/square64_bnd.msh");
   auto mesh_p = reader.mesh();  // type shared_ptr< const lf::mesh::Mesh>
 
   // Finite element space

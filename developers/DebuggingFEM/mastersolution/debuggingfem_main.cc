@@ -29,8 +29,7 @@ using size_type = lf::base::size_type;
 int main() {
   // read mesh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            "meshes/square_64.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/square_64.msh");
   auto mesh = reader.mesh();
 
   // refine mesh

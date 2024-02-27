@@ -23,8 +23,8 @@ constexpr double PI = 3.14159265358979323846;
 int main() {
   // Load the mesh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(
-      std::move(mesh_factory), "meshes/hex_hybrid.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory),
+                                  "meshes/hex_hybrid.msh");
   std::shared_ptr<const lf::mesh::Mesh> mesh_p = reader.mesh();
   auto fe_space =
       std::make_shared<const lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_p);

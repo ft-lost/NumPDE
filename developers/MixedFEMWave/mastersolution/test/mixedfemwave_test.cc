@@ -23,7 +23,8 @@ namespace MixedFEMWave::test {
 TEST(MixedFEMWave_computeMQ, test) {
   // LOADING COARSE MESH
   auto mesh_factory_init = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader_init(std::move(mesh_factory_init), "meshes/unitsquare_unitest.msh");
+  lf::io::GmshReader reader_init(std::move(mesh_factory_init),
+                                 "meshes/unitsquare_unitest.msh");
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader_init.mesh();
 
   // Vector dofhandler for the finite element space Q
@@ -49,7 +50,8 @@ TEST(MixedFEMWave_computeMV, test) {
   auto rho = [](Eigen::Vector2d x) -> double { return 1.0; };
   // LOADING COARSE MESH
   auto mesh_factory_init = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader_init(std::move(mesh_factory_init), "meshes/unitsquare_unitest.msh");
+  lf::io::GmshReader reader_init(std::move(mesh_factory_init),
+                                 "meshes/unitsquare_unitest.msh");
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader_init.mesh();
 
   // Scalar finite element space for lowest-order Lagrangian finite elements
@@ -73,7 +75,8 @@ TEST(MixedFEMWave_computeB, test) {
   auto rho = [](Eigen::Vector2d x) -> double { return 1.0; };
   // LOADING COARSE MESH
   auto mesh_factory_init = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader_init(std::move(mesh_factory_init), "meshes/unitsquare_unitest.msh");
+  lf::io::GmshReader reader_init(std::move(mesh_factory_init),
+                                 "meshes/unitsquare_unitest.msh");
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader_init.mesh();
 
   // Scalar finite element space for lowest-order Lagrangian finite elements

@@ -35,7 +35,8 @@ int main(int /*argc*/, const char ** /*argv*/) {
 
   // LOADING MESH
   auto mesh_factory_init = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader_init(std::move(mesh_factory_init), "meshes/bassin3.msh");
+  lf::io::GmshReader reader_init(std::move(mesh_factory_init),
+                                 "meshes/bassin3.msh");
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader_init.mesh();
 
   // FINITE ELEMENT SPACES AND DOFHS

@@ -29,9 +29,8 @@ int main() {
 
   // plot MESH
   std::string meshplot = CURRENT_BINARY_DIR "/" MESH ".eps";
-  std::system(("python3 -B scripts/plot_mesh.py " +
-               meshfile + " " + meshplot)
-                  .c_str());
+  std::system(
+      ("python3 -B scripts/plot_mesh.py " + meshfile + " " + meshplot).c_str());
   std::cout << "Generated " + meshplot << std::endl;
 
   // path and name of output files
@@ -43,8 +42,8 @@ int main() {
   std::cout << "Generated " + meshfile_solution << std::endl;
 
   // plot the 3d mesh file
-  std::system(("python3 -B scripts/plot_surf.py " +
-               meshfile_solution + " " + meshplot_solution)
+  std::system(("python3 -B scripts/plot_surf.py " + meshfile_solution + " " +
+               meshplot_solution)
                   .c_str());
   std::cout << "Generated " + meshplot_solution << std::endl;
   return 0;
