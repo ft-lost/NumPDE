@@ -29,7 +29,7 @@ int main() {
   // Load mesh and initalize FE space and DOF handler
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   const lf::io::GmshReader reader(
-      std::move(mesh_factory), CURRENT_SOURCE_DIR "/../meshes/square_64.msh");
+      std::move(mesh_factory), "meshes/square_64.msh");
   auto mesh_p = reader.mesh();
   auto fe_space =
       std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_p);
@@ -117,7 +117,7 @@ int main() {
 
   // Call python script to plot norm
   std::cout << "Generated " CURRENT_BINARY_DIR "/norm.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot_norm.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_norm.py " CURRENT_BINARY_DIR
               "/norm.csv " CURRENT_BINARY_DIR "/norm.eps");
 
   // Write energies to file
@@ -130,8 +130,7 @@ int main() {
 
   // Call python script to plot energies
   std::cout << "Generated " CURRENT_BINARY_DIR "/energies.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_energies.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_energies.py " CURRENT_BINARY_DIR
               "/energies.csv " CURRENT_BINARY_DIR "/energies.eps");
 
   // Write entry-wise squared modulus of $\mu$ to .vtk file

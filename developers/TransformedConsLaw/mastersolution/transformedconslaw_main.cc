@@ -54,7 +54,7 @@ int main() {
   std::cout << "Generated " CURRENT_BINARY_DIR "/solution.csv" << std::endl;
 
   // Plot from .csv file using plot.py
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot.py " CURRENT_BINARY_DIR
               "/solution.csv " CURRENT_BINARY_DIR "/solution.eps");
 
   return 0;

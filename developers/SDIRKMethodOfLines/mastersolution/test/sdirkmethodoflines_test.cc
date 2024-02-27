@@ -23,7 +23,7 @@ namespace SDIRKMethodOfLines::test {
 TEST(SDIRKMethodOfLines, assembleGalerkinMatrices) {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   const lf::io::GmshReader reader(
-      std::move(mesh_factory), CURRENT_SOURCE_DIR "/../../meshes/simple.msh");
+      std::move(mesh_factory), "meshes/simple.msh");
   auto mesh_p = reader.mesh();
 
   auto fe_space =
@@ -62,7 +62,7 @@ TEST(SDIRKMethodOfLines, assembleGalerkinMatrices) {
 TEST(SDIRKMethodOfLines, solveTemperatureEvolution) {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   const lf::io::GmshReader reader(
-      std::move(mesh_factory), CURRENT_SOURCE_DIR "/../../meshes/simple.msh");
+      std::move(mesh_factory), "meshes/simple.msh");
   auto mesh_p = reader.mesh();
 
   auto fe_space =
@@ -102,7 +102,7 @@ TEST(SDIRKMethodOfLines, solveTemperatureEvolution) {
 TEST(SDIRKMethodOfLines, thermalEnergy) {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   const lf::io::GmshReader reader(
-      std::move(mesh_factory), CURRENT_SOURCE_DIR "/../../meshes/simple.msh");
+      std::move(mesh_factory), "meshes/simple.msh");
   auto mesh_p = reader.mesh();
 
   auto fe_space =

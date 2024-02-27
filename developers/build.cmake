@@ -9,6 +9,21 @@ function(build PROBLEM_NAME DIR SOLUTION)
   set(PROBLEM_TARGET ${PROBLEM_NAME}_${DIR})
   set(TEST_TARGET ${PROBLEM_NAME}_test_${DIR})
 
+  # copy mesh files to build directory
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes)
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/meshes DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  endif()
+
+  # copy master solution scripts to build directory
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/mastersolution/scripts)
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mastersolution/scripts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  endif()
+
+  # copy general scripts to build directory
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/scripts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  endif()
+
   # problem
   build_problem(${PROBLEM_TARGET}_dev mastersolution ${PROBLEM_TARGET})
   target_compile_definitions(${PROBLEM_TARGET}_dev PRIVATE SOLUTION=${SOLUTION})

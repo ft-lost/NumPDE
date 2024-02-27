@@ -113,7 +113,7 @@ int main(int /*argc*/, char** /*argv*/) {
   // read in mesh and set up finite element space
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/../meshes/square.msh");
+                            "meshes/square.msh");
   auto mesh = reader.mesh();
   // obtain dofh for lagrangian finite element space
   auto fe_space =

@@ -35,8 +35,7 @@ int main(int /*argc*/, const char ** /*argv*/) {
 
   // LOADING MESH
   auto mesh_factory_init = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader_init(std::move(mesh_factory_init),
-                                 CURRENT_SOURCE_DIR "/../meshes/bassin3.msh");
+  lf::io::GmshReader reader_init(std::move(mesh_factory_init), "meshes/bassin3.msh");
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader_init.mesh();
 
   // FINITE ELEMENT SPACES AND DOFHS
@@ -76,8 +75,7 @@ int main(int /*argc*/, const char ** /*argv*/) {
   energy_csv << energy.transpose().format(CSVFormat) << std::endl;
   energy_csv.close();
   std::cout << "Generated " CURRENT_BINARY_DIR "/energy.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_energy.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_energy.py " CURRENT_BINARY_DIR
               "/energy.csv " CURRENT_BINARY_DIR "/energy.eps");
 
   // Output wave solution results to vtk file

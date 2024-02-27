@@ -19,7 +19,7 @@
 
 namespace AvgValBoundary::test {
 
-constexpr char mesh_file[] = CURRENT_SOURCE_DIR "/../../meshes/square.msh";
+constexpr char mesh_file[] = "meshes/square.msh";
 
 constexpr auto const_one = [](Eigen::Vector2d x) -> double { return 1.0; };
 

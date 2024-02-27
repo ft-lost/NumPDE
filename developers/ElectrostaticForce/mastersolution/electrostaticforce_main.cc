@@ -54,7 +54,7 @@ int main() {
   for (int i = 0; i < N_meshes; i++) {  // for each mesh
     // READ MESH INTO LEHRFEMPP
     // Load mesh into a Lehrfem++ object
-    std::string mesh_file = CURRENT_SOURCE_DIR "/../meshes/emforce" +
+    std::string mesh_file = "meshes/emforce" +
                             std::to_string(i + 1) + ".msh";
     auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
     const lf::io::GmshReader reader(std::move(mesh_factory), mesh_file);
@@ -243,14 +243,12 @@ int main() {
 
   // Plot from .csv file using python
   std::system(
-      "python3 " CURRENT_SOURCE_DIR "/plot_errors.py " CURRENT_BINARY_DIR
+      "python3 scripts/plot_errors.py " CURRENT_BINARY_DIR
       "/errorsL2PoissonBVP.csv " CURRENT_BINARY_DIR "/errorsL2PoissonBVP.eps");
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_errors.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_errors.py " CURRENT_BINARY_DIR
               "/errorsl2ForceBoundaryFunctional.csv " CURRENT_BINARY_DIR
               "/errorsl2ForceBoundaryFunctional.eps");
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_errors.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_errors.py " CURRENT_BINARY_DIR
               "/errorsl2ForceDomainFunctional.csv " CURRENT_BINARY_DIR
               "/errorsl2ForceDomainFunctional.eps");
   return 0;

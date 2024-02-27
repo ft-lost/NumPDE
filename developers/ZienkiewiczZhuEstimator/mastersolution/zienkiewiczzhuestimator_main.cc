@@ -60,8 +60,7 @@ int main(int /*argc*/, const char ** /*argv*/) {
     // Load mesh into a Lehrfem++ object
     auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
     const lf::io::GmshReader reader(
-        std::move(mesh_factory),
-        CURRENT_SOURCE_DIR "/../meshes/unitsquare" + idx_str + ".msh");
+        std::move(mesh_factory), "meshes/unitsquare" + idx_str + ".msh");
     mesh_p = reader.mesh();
     mesh_sizes[i] = getMeshSize(mesh_p);
     fe_space_p =

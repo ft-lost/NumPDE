@@ -105,7 +105,7 @@ TEST(NonConformingCrouzeixRaviartFiniteElements,
 
   // Loop over meshes
   for (int i = 1; i <= 4; ++i) {
-    std::string mesh_file = CURRENT_SOURCE_DIR "/../../meshes/refined_square" +
+    std::string mesh_file = "meshes/refined_square" +
                             std::to_string(i) + ".msh";
 
     EXPECT_FLOAT_EQ(L2errorCRDiscretizationDirichletBVP(mesh_file),

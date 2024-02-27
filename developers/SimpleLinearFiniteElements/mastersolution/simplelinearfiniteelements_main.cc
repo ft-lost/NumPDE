@@ -13,7 +13,7 @@ int main() {
   std::cout << "NumPDE homework problem on triangular linear FEM for 2D "
                "reaction-diffusion BVP "
             << std::endl;
-  std::string meshfile = CURRENT_SOURCE_DIR "/../meshes/" MESH ".txt";
+  std::string meshfile = "meshes/" MESH ".txt";
 
   SimpleLinearFiniteElements::TriaMesh2D square_mesh(meshfile);
   std::cout << "Mesh loaded from " << meshfile << std::endl;
@@ -29,7 +29,7 @@ int main() {
 
   // plot MESH
   std::string meshplot = CURRENT_BINARY_DIR "/" MESH ".eps";
-  std::system(("python3 -B " CURRENT_SOURCE_DIR "/../scripts/plot_mesh.py " +
+  std::system(("python3 -B scripts/plot_mesh.py " +
                meshfile + " " + meshplot)
                   .c_str());
   std::cout << "Generated " + meshplot << std::endl;
@@ -43,7 +43,7 @@ int main() {
   std::cout << "Generated " + meshfile_solution << std::endl;
 
   // plot the 3d mesh file
-  std::system(("python3 -B " CURRENT_SOURCE_DIR "/../scripts/plot_surf.py " +
+  std::system(("python3 -B scripts/plot_surf.py " +
                meshfile_solution + " " + meshplot_solution)
                   .c_str());
   std::cout << "Generated " + meshplot_solution << std::endl;

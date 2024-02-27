@@ -57,9 +57,7 @@ int main(int /*argc*/, const char ** /*argv*/) {
     // read mesh::
     std::string idx = std::to_string(k + 1);
     auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-    lf::io::GmshReader reader(std::move(mesh_factory), CURRENT_SOURCE_DIR
-                                                           "/../meshes/square" +
-                                                           idx + ".msh");
+    lf::io::GmshReader reader(std::move(mesh_factory), "meshes/square" + idx + ".msh");
     auto mesh_p = reader.mesh();
 
     // Initialize fe-space and dofh
@@ -140,10 +138,8 @@ int main(int /*argc*/, const char ** /*argv*/) {
             << std::endl;
 
   // Plot
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_convergence_potential.py " CURRENT_BINARY_DIR);
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_convergence_stable.py " CURRENT_BINARY_DIR);
+  std::system("python3 scripts/plot_convergence_potential.py " CURRENT_BINARY_DIR);
+  std::system("python3 scripts/plot_convergence_stable.py " CURRENT_BINARY_DIR);
 
   return 0;
 }

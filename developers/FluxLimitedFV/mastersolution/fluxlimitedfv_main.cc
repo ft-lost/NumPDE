@@ -133,7 +133,7 @@ int main(int /*argc*/, char** /*argv*/) {
   fluxlimAdvection_sol_A_csv.close();
   std::cout << "Generated " CURRENT_BINARY_DIR "/fluxlimAdvection_sol_A.csv"
             << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot_sol.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_sol.py " CURRENT_BINARY_DIR
               "/fluxlimAdvection_sol_A.csv " CURRENT_BINARY_DIR
               "/fluxlimAdvection_sol_A.eps");
 
@@ -147,7 +147,7 @@ int main(int /*argc*/, char** /*argv*/) {
   fluxlimAdvection_sol_B_csv.close();
   std::cout << "Generated " CURRENT_BINARY_DIR "/fluxlimAdvection_sol_B.csv"
             << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot_sol.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_sol.py " CURRENT_BINARY_DIR
               "/fluxlimAdvection_sol_B.csv " CURRENT_BINARY_DIR
               "/fluxlimAdvection_sol_B.eps");
 
@@ -191,7 +191,7 @@ int main(int /*argc*/, char** /*argv*/) {
   fluxlimBurgers_sol_csv.close();
   std::cout << "Generated " CURRENT_BINARY_DIR "/fluxlimBurgers_sol.csv"
             << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot_sol.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_sol.py " CURRENT_BINARY_DIR
               "/fluxlimBurgers_sol.csv " CURRENT_BINARY_DIR
               "/fluxlimBurgers_sol.eps");
 

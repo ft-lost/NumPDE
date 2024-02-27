@@ -119,7 +119,7 @@ void SemiLagrangeVis(int M, int K, double T) {
   solution_file.close();
 
   std::ostringstream oss;
-  oss << "python3 " CURRENT_SOURCE_DIR "/make_gif.py " CURRENT_BINARY_DIR
+  oss << "python3 scripts/make_gif.py " CURRENT_BINARY_DIR
          "/solution.csv " CURRENT_BINARY_DIR "/ "
       << M << " " << K << " " << T;
 

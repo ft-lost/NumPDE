@@ -42,8 +42,7 @@ int main(int /*argc*/, char** /*argv*/) {
   std::cout << "Generated " CURRENT_BINARY_DIR "/contourplot.csv" << std::endl;
 
   // Call the Python script to plot the isolines
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/contourplot.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/contourplot.py " CURRENT_BINARY_DIR
               "/contourplot.csv " CURRENT_BINARY_DIR "/contourplot.eps");
   /* SAM_LISTING_END_0 */
 

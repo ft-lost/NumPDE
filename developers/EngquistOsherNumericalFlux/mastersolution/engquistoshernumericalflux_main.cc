@@ -39,8 +39,7 @@ int main() {
   file.close();
 
   std::cout << "Generated " CURRENT_BINARY_DIR "/ufinal.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_solution.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_solution.py " CURRENT_BINARY_DIR
               "/ufinal.csv " CURRENT_BINARY_DIR "/ufinal.eps");
 #else
   //====================
@@ -48,7 +47,7 @@ int main() {
   // Use std::ofstream to write the solution to
   // the file "ufinal.csv". To plot this file
   // you may uncomment the following line:
-  // std::system("python3 " CURRENT_SOURCE_DIR "/plot_solution.py "
+  // std::system("python3 scripts/plot_solution.py "
   // CURRENT_BINARY_DIR "/ufinal.csv " CURRENT_BINARY_DIR "/ufinal.eps");
   //====================
 #endif

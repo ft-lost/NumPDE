@@ -38,8 +38,7 @@ int main(int /*argc*/, char ** /*argv*/) {
 
   // Load mesh into a Lehrfem++ object
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(std::move(mesh_factory), CURRENT_SOURCE_DIR
-                                  "/../meshes/square64_bnd.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory), "meshes/square64_bnd.msh");
   auto mesh_p = reader.mesh();  // type shared_ptr< const lf::mesh::Mesh>
 
   // Finite element space
@@ -85,8 +84,7 @@ int main(int /*argc*/, char ** /*argv*/) {
   std::cout << "Generated " CURRENT_BINARY_DIR "/energies.csv" << std::endl;
 
   // Plot from .csv file using python
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_energies.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_energies.py " CURRENT_BINARY_DIR
               "/energies.csv " CURRENT_BINARY_DIR "/energies.eps");
   /* SAM_LISTING_END_1 */
 #else

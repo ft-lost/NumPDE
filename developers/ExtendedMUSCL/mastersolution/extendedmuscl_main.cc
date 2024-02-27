@@ -57,15 +57,13 @@ int main() {
             << std::endl;
   storeMUSCLSolution("musclsol_02.csv", bump, 0.2, 100);
   std::cout << "Generated " CURRENT_BINARY_DIR "/musclsol_02.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_musclsolution.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_musclsolution.py " CURRENT_BINARY_DIR
               "/musclsol_02.csv " CURRENT_BINARY_DIR "/musclsol_02.eps");
   std::cout << "Writing MUSCL FV solution at t = 1.0 to file 'musclsol_10.csv'"
             << std::endl;
   storeMUSCLSolution("musclsol_10.csv", bump, 1.0, 100);
   std::cout << "Generated " CURRENT_BINARY_DIR "/musclsol_10.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_musclsolution.py " CURRENT_BINARY_DIR
+  std::system("python3 scripts/plot_musclsolution.py " CURRENT_BINARY_DIR
               "/musclsol_10.csv " CURRENT_BINARY_DIR "/musclsol_10.eps");
 
   // Third run: convergence study

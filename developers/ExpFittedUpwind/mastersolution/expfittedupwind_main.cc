@@ -106,7 +106,7 @@ int main() {
   L2output.close();
 
   // Plot the computed L2 error
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot_error.py " CURRENT_BINARY_DIR
+  std::system("python3 /scripts/plot_error.py " CURRENT_BINARY_DIR
               "/L2error.txt " CURRENT_BINARY_DIR "/results.eps");
 
   return 0;
