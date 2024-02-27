@@ -71,16 +71,15 @@ int main(int /*argc*/, const char ** /*argv*/) {
   const static Eigen::IOFormat CSVFormat(Eigen::StreamPrecision,
                                          Eigen::DontAlignCols, ", ", "\n");
   std::ofstream energy_csv;
-  energy_csv.open(CURRENT_BINARY_DIR "/energy.csv");
+  energy_csv.open("energy.csv");
   energy_csv << t.tail(nb_timesteps).transpose().format(CSVFormat) << std::endl;
   energy_csv << energy.transpose().format(CSVFormat) << std::endl;
   energy_csv.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/energy.csv" << std::endl;
-  std::system("python3 scripts/plot_energy.py " CURRENT_BINARY_DIR
-              "/energy.csv " CURRENT_BINARY_DIR "/energy.eps");
+  std::cout << "Generated energy.csv" << std::endl;
+  std::system("python3 scripts/plot_energy.py energy.csv energy.eps");
 
   // Output wave solution results to vtk file
-  lf::io::VtkWriter vtk_writer(mesh_p, CURRENT_BINARY_DIR "/wave_solution.vtk");
+  lf::io::VtkWriter vtk_writer(mesh_p, "wave_solution.vtk");
   // Write nodal data taking the values of the discrete solution at the vertices
   auto nodal_data = lf::mesh::utils::make_CodimMeshDataSet<double>(mesh_p, 2);
   for (int global_idx = 0; global_idx < N_dofs_V; global_idx++) {

@@ -104,12 +104,11 @@ int main() {
   const static Eigen::IOFormat CSVFormat(Eigen::FullPrecision,
                                          Eigen::DontAlignCols, ", ", "\n");
   std::ofstream error_file;
-  error_file.open(CURRENT_BINARY_DIR "/error.csv");
+  error_file.open("error.csv");
   error_file << data.format(CSVFormat) << std::endl;
   error_file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/error.csv" << std::endl;
-  std::system("python3 scripts/plot_error.py " CURRENT_BINARY_DIR
-              "/error.csv " CURRENT_BINARY_DIR "/error.eps");
+  std::cout << "Generated error.csv" << std::endl;
+  std::system("python3 scripts/plot_error.py error.csv error.eps");
 
   return 0;
 }

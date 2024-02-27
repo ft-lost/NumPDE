@@ -116,9 +116,8 @@ int main() {
   /* SAM_LISTING_END_9 */
 
   // Call python script to plot norm
-  std::cout << "Generated " CURRENT_BINARY_DIR "/norm.csv" << std::endl;
-  std::system("python3 scripts/plot_norm.py " CURRENT_BINARY_DIR
-              "/norm.csv " CURRENT_BINARY_DIR "/norm.eps");
+  std::cout << "Generated norm.csv" << std::endl;
+  std::system("python3 scripts/plot_norm.py norm.csv norm.eps");
 
   // Write energies to file
   std::ofstream energies_csv;
@@ -129,12 +128,11 @@ int main() {
   energies_csv.close();
 
   // Call python script to plot energies
-  std::cout << "Generated " CURRENT_BINARY_DIR "/energies.csv" << std::endl;
-  std::system("python3 scripts/plot_energies.py " CURRENT_BINARY_DIR
-              "/energies.csv " CURRENT_BINARY_DIR "/energies.eps");
+  std::cout << "Generated energies.csv" << std::endl;
+  std::system("python3 scripts/plot_energies.py energies.csv energies.eps");
 
   // Write entry-wise squared modulus of $\mu$ to .vtk file
-  std::cout << "Generated " CURRENT_BINARY_DIR "/solution.vtk" << std::endl;
+  std::cout << "Generated solution.vtk" << std::endl;
   lf::io::VtkWriter vtk_writer(mesh_p, "solution.vtk");
   Eigen::VectorXd mu_abs2 = mu.cwiseAbs2();
   lf::fe::MeshFunctionFE mu_abs2_mf(fe_space, mu_abs2);

@@ -45,8 +45,7 @@ int main() {
     nodal_data->operator()(dofh.Entity(i)) = mu(i);
   };
   vtk_writer.WritePointData(filename, *nodal_data);
-  std::cout << "Generated " << CURRENT_BINARY_DIR << "/" << filename << ".vtk"
-            << std::endl;
+  std::cout << "Generated " << filename << ".vtk" << std::endl;
 
   return 0;
 }

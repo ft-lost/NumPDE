@@ -42,7 +42,7 @@ int main() {
 
   // Output file
   std::ofstream L2output;
-  L2output.open(CURRENT_BINARY_DIR "/L2error.txt");
+  L2output.open("L2error.txt");
   L2output << "No. of dofs, L2 error" << std::endl;
 
   // generate a mesh hierarchy:
@@ -106,8 +106,7 @@ int main() {
   L2output.close();
 
   // Plot the computed L2 error
-  std::system("python3 /scripts/plot_error.py " CURRENT_BINARY_DIR
-              "/L2error.txt " CURRENT_BINARY_DIR "/results.eps");
+  std::system("python3 /scripts/plot_error.py L2error.txt results.eps");
 
   return 0;
 }

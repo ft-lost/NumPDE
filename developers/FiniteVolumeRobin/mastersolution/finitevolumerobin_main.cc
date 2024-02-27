@@ -77,9 +77,8 @@ int main() {
     // construct mesh function representing the finite element solution
     lf::fe::MeshFunctionFE mf_sol(fe_space, sol_vec);
     // construct vtk writer
-    lf::io::VtkWriter vtk_writer(mesh_p, CURRENT_BINARY_DIR
-                                             "/finite_volume_robin_solution_" +
-                                             std::to_string(i) + ".vtk");
+    lf::io::VtkWriter vtk_writer(
+        mesh_p, "finite_volume_robin_solution_" + std::to_string(i) + ".vtk");
     // output data
     vtk_writer.WritePointData(
         "finite_volume_robin_solution_" + std::to_string(i), mf_sol);

@@ -65,9 +65,8 @@ int main(int /*argc*/, const char ** /*argv*/) {
   file.open("results.csv");
   file << results.format(CSVFormat);
   file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/results.csv" << std::endl;
+  std::cout << "Generated results.csv" << std::endl;
 
   // Apply plot.py to results.csv
-  std::system("python3 scripts/plot.py " CURRENT_BINARY_DIR
-              "/results.csv " CURRENT_BINARY_DIR "/results.eps");
+  std::system("python3 scripts/plot.py results.csv results.eps");
 }

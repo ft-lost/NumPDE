@@ -51,9 +51,8 @@ int main() {
   }
   solution_file.close();
 
-  std::cout << "Generated " CURRENT_BINARY_DIR "/tangent.csv" << std::endl;
-  std::system("python3 scripts/plot_tangent.py " CURRENT_BINARY_DIR
-              "/tangent.csv " CURRENT_BINARY_DIR);
+  std::cout << "Generated tangent.csv" << std::endl;
+  std::system("python3 scripts/plot_tangent.py tangent.csv .");
 
   return 0;
 }

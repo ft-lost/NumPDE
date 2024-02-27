@@ -142,8 +142,8 @@ int main() {
   }
   csv_file.close();
 
-  std::system("python3 scripts/advectionfv2d.py " CURRENT_BINARY_DIR
-              "/advectionfv2d.csv " CURRENT_BINARY_DIR "/solution.eps");
+  std::system(
+      "python3 scripts/advectionfv2d.py advectionfv2d.csv solution.eps");
   /* SAM_LISTING_END_1 */
 
   /* SAM_LISTING_BEGIN_2 */

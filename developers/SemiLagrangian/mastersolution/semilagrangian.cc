@@ -119,16 +119,14 @@ void SemiLagrangeVis(int M, int K, double T) {
   solution_file.close();
 
   std::ostringstream oss;
-  oss << "python3 scripts/make_gif.py " CURRENT_BINARY_DIR
-         "/solution.csv " CURRENT_BINARY_DIR "/ "
-      << M << " " << K << " " << T;
+  oss << "python3 scripts/make_gif.py solution.csv/ " << M << " " << K << " "
+      << T;
 
   std::string ostring = oss.str();
   const char* arguments = ostring.c_str();
   // Generating gif
   std::cout << "Creating gif" << std::endl;
-  std::system("mkdir " CURRENT_BINARY_DIR
-              "/img");  // Creates the directory which will hold the images
+  std::system("mkdir img");  // Creates the directory which will hold the images
 
   std::system(arguments);  // Executes the pythong plotting
 

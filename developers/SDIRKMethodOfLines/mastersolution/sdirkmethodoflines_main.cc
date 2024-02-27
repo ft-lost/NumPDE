@@ -78,15 +78,14 @@ int main(int /*argc*/, char ** /*argv*/) {
 
   // Write .csv file of energy vs. time
   std::ofstream file;
-  file.open(CURRENT_BINARY_DIR "/energies.csv");
+  file.open("energies.csv");
   file << time.transpose().format(CSVFormat) << std::endl;
   file << energies.transpose().format(CSVFormat) << std::endl;
   file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/energies.csv" << std::endl;
+  std::cout << "Generated energies.csv" << std::endl;
 
   // Plot from .csv file using python
-  std::system("python3 scripts/plot_energies.py " CURRENT_BINARY_DIR
-              "/energies.csv " CURRENT_BINARY_DIR "/energies.eps");
+  std::system("python3 scripts/plot_energies.py energies.csv energies.eps");
   /* SAM_LISTING_END_1 */
 #else
   //====================

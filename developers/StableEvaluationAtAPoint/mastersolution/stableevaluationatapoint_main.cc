@@ -128,20 +128,17 @@ int main(int /*argc*/, const char ** /*argv*/) {
   file << "h, Error u(x) (Potential) \n";
   file << convergence_potential.format(CSVFormat);
   file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/convergence_potential.csv"
-            << std::endl;
+  std::cout << "Generated convergence_potential.csv" << std::endl;
 
   file.open("convergence_stable.csv");
   file << "h, Error u(x) (Direct), Error u(x) (Stable) \n";
   file << convergence_stable.format(CSVFormat);
   file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/convergence_stable.csv"
-            << std::endl;
+  std::cout << "Generated convergence_stable.csv" << std::endl;
 
   // Plot
-  std::system(
-      "python3 scripts/plot_convergence_potential.py " CURRENT_BINARY_DIR);
-  std::system("python3 scripts/plot_convergence_stable.py " CURRENT_BINARY_DIR);
+  std::system("python3 scripts/plot_convergence_potential.py .");
+  std::system("python3 scripts/plot_convergence_stable.py .");
 
   return 0;
 }

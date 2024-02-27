@@ -196,8 +196,8 @@ int main() {
   // In that sense, we are plotting the values of the solution at the vertices
   const lf::assemble::DofHandler &dofh{fe_space_p->LocGlobMap()};
   const lf::uscalfe::size_type N_dofs(dofh.NumDofs());
-  lf::io::VtkWriter vtk_writer(
-      mesh_p, CURRENT_BINARY_DIR "/ElectrostaticForcePoissonBVP_solution.vtk");
+  lf::io::VtkWriter vtk_writer(mesh_p,
+                               "ElectrostaticForcePoissonBVP_solution.vtk");
   // Write nodal data taking the values of the discrete solution at vertices
   auto nodal_data = lf::mesh::utils::make_CodimMeshDataSet<double>(mesh_p, 2);
   for (int global_idx = 0; global_idx < N_dofs; global_idx++) {
@@ -217,8 +217,7 @@ int main() {
   file1 << mesh_sizes.transpose().format(CSVFormat) << std::endl;
   file1 << errorsL2PoissonBVP.transpose().format(CSVFormat) << std::endl;
   file1.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/errorsL2PoissonBVP.csv"
-            << std::endl;
+  std::cout << "Generated errorsL2PoissonBVP.csv" << std::endl;
 
   std::ofstream file2;
   file2.open("errorsl2ForceBoundaryFunctional.csv");
@@ -226,9 +225,7 @@ int main() {
   file2 << errorsl2ForceBoundaryFunctional.transpose().format(CSVFormat)
         << std::endl;
   file2.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR
-               "/errorsl2ForceBoundaryFunctional.csv"
-            << std::endl;
+  std::cout << "Generated errorsl2ForceBoundaryFunctional.csv" << std::endl;
 
   std::ofstream file3;
   file3.open("errorsl2ForceDomainFunctional.csv");
@@ -236,19 +233,17 @@ int main() {
   file3 << errorsl2ForceDomainFunctional.transpose().format(CSVFormat)
         << std::endl;
   file3.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR
-               "/errorsl2ForceDomainFunctional.csv"
-            << std::endl;
+  std::cout << "Generated errorsl2ForceDomainFunctional.csv" << std::endl;
 
   // Plot from .csv file using python
-  std::system("python3 scripts/plot_errors.py " CURRENT_BINARY_DIR
-              "/errorsL2PoissonBVP.csv " CURRENT_BINARY_DIR
-              "/errorsL2PoissonBVP.eps");
-  std::system("python3 scripts/plot_errors.py " CURRENT_BINARY_DIR
-              "/errorsl2ForceBoundaryFunctional.csv " CURRENT_BINARY_DIR
-              "/errorsl2ForceBoundaryFunctional.eps");
-  std::system("python3 scripts/plot_errors.py " CURRENT_BINARY_DIR
-              "/errorsl2ForceDomainFunctional.csv " CURRENT_BINARY_DIR
-              "/errorsl2ForceDomainFunctional.eps");
+  std::system(
+      "python3 scripts/plot_errors.py errorsL2PoissonBVP.csv "
+      "errorsL2PoissonBVP.eps");
+  std::system(
+      "python3 scripts/plot_errors.py errorsl2ForceBoundaryFunctional.csv "
+      "errorsl2ForceBoundaryFunctional.eps");
+  std::system(
+      "python3 scripts/plot_errors.py errorsl2ForceDomainFunctional.csv "
+      "errorsl2ForceDomainFunctional.eps");
   return 0;
 }

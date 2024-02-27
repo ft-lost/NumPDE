@@ -28,14 +28,14 @@ int main() {
   std::cout << "H1s-error: " << std::get<2>(solution) << std::endl;
 
   // plot MESH
-  std::string meshplot = CURRENT_BINARY_DIR "/" MESH ".eps";
+  std::string meshplot = MESH ".eps";
   std::system(
       ("python3 -B scripts/plot_mesh.py " + meshfile + " " + meshplot).c_str());
   std::cout << "Generated " + meshplot << std::endl;
 
   // path and name of output files
-  std::string meshfile_solution = CURRENT_BINARY_DIR "/" MESH "_solution.txt";
-  std::string meshplot_solution = CURRENT_BINARY_DIR "/" MESH "_solution.eps";
+  std::string meshfile_solution = MESH "_solution.txt";
+  std::string meshplot_solution = MESH "_solution.eps";
 
   // generate 3d mesh file from solution
   square_mesh.SaveMesh3D(meshfile_solution, std::get<0>(solution));

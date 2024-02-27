@@ -32,15 +32,13 @@ int main() {
   file << error_LaxWendroffSmoothU0.transpose().format(CSVFormat) << std::endl;
   file << error_GodunovSmoothU0.transpose().format(CSVFormat) << std::endl;
   file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/convergence.csv" << std::endl;
+  std::cout << "Generated convergence.csv" << std::endl;
 
 #if SOLUTION
-  std::system("python3 scripts/plot.py " CURRENT_BINARY_DIR
-              "/convergence.csv " CURRENT_BINARY_DIR "/convergence.eps");
+  std::system("python3 scripts/plot.py convergence.csv convergence.eps");
 #else
   // To plot from convergence.csv uncomment this:
-  // std::system("python3 scripts/plot.py " CURRENT_BINARY_DIR
-  // "/convergence.csv " CURRENT_BINARY_DIR "/convergence.eps");
+  // std::system("python3 scripts/plot.py convergence.csv convergence.eps");
 #endif
 
   return 0;
