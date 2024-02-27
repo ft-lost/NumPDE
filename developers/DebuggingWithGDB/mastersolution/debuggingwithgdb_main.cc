@@ -11,7 +11,7 @@
 /* SAM_LISTING_BEGIN_1 */
 int main() {
   // A function using some of LehrFEM++'s facilities
-  DebuggingWithGDB::ReadAndOutputMesh("../ljoint.msh");
+  DebuggingWithGDB::ReadAndOutputMesh("meshes/ljoint.msh");
 
   return 0;
 }
