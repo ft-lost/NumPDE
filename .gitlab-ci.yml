@@ -79,6 +79,8 @@ test-developer-job-mac:
   stage: test
   tags:
     - mac
+  dependencies:
+    - compile-developers-job-mac
   script:
        - echo "Testing developer folder master solutions"
        - cd $CI_PROJECT_DIR/build_mac
@@ -93,6 +95,8 @@ test-developer-job-linux:
   stage: test
   tags:
     - linux
+  dependencies:
+    - compile-developers-job-linux
   script:
        - echo "Testing developer folder master solutions"
        - cd $CI_PROJECT_DIR/build_linux
