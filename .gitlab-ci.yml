@@ -44,7 +44,7 @@ compile-developers-job-mac:
        - make -j 4
     artifacts:
       paths:
-        $CI_PROJECT_DIR/build_mac
+        $CI_PROJECT_DIR/build_macgit 
 
 compile-developers-job-linux:
     stage: build
@@ -67,7 +67,7 @@ compile-developers-job-linux:
        - echo "Building developer folder"
        - cd developers
        - make -j 4
-    artifact:
+    artifacts:
       paths:
         - $CI_PROJECT_DIR/build_linux/
 
