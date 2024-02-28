@@ -28,14 +28,14 @@ int main() {
   file.close();
 
   std::cout << "Generated solution.csv" << std::endl;
-  systemcall::execute("python3 plot_solution.py solution.csv solution.eps");
+  systemcall::execute("python3 scripts/plot_solution.py solution.csv solution.eps");
 #else
   //====================
   // Your code goes here
   // Use std::ofstream to write the solution to
   // the file "solution.csv". To plot this file
   // you may uncomment the following line:
-  // systemcall::execute("python3 plot_solution.py solution.csv solution.eps");
+  // systemcall::execute("python3 scripts/plot_solution.py solution.csv solution.eps");
   //====================
 #endif
 
