@@ -13,15 +13,14 @@ def create_frame(x, y , solution, t):
     ax.set_zlim3d(bottom=0 , top=1)
     ax.plot_surface(x, y , solution , cmap='viridis')
     ax.set_title("Transport at {} seconds".format(t))
-    plt.savefig(output_dir + f"/img/img_{t}.eps", transparent=False, facecolor="white" , format="eps")
+    plt.savefig(f"img/img_{t}.eps", transparent=False, facecolor="white" , format="eps")
     plt.close()
 
 
 input_file = str(argv[1])
-output_dir = str(argv[2])
-M = int(argv[3])
-K = int(argv[4])
-T = float(argv[5])
+M = int(argv[2])
+K = int(argv[3])
+T = float(argv[4])
 data = genfromtxt(input_file, delimiter=',')
 time_steps = np.arange(0,T,T/K)
 x = np.linspace(0,1,M-1)
@@ -35,11 +34,11 @@ for i, t in enumerate(time_steps):
 # Gather all the frames
 frames = []
 for t in time_steps:
-    image = imageio.v2.imread(output_dir + f'img/img_{t}.eps')
+    image = imageio.v2.imread(f'img/img_{t}.eps')
     frames.append(image)
 # Now we create the final gif
-imageio.mimsave(output_dir + 'solution.gif', # output gif
+imageio.mimsave('solution.gif', # output gif
                 frames,          # array of input frames
                 fps=60)          # optional: frames per second
 
-print("Generated " + output_dir + "solution.gif")
+print("Generated solution.gif")
