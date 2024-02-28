@@ -42,7 +42,9 @@ int main(int /*argc*/, char** /*argv*/) {
   std::cout << "Generated contourplot.csv" << std::endl;
 
   // Call the Python script to plot the isolines
-  std::system("python3 mastersolution_scripts/contourplot.py contourplot.csv contourplot.eps");
+  std::system(
+      "python3 mastersolution_scripts/contourplot.py contourplot.csv "
+      "contourplot.eps");
   /* SAM_LISTING_END_0 */
 
   return 0;

@@ -119,8 +119,8 @@ void SemiLagrangeVis(int M, int K, double T) {
   solution_file.close();
 
   std::ostringstream oss;
-  oss << "python3 mastersolution_scripts/make_gif.py solution.csv/ " << M << " " << K << " "
-      << T;
+  oss << "python3 mastersolution_scripts/make_gif.py solution.csv/ " << M << " "
+      << K << " " << T;
 
   std::string ostring = oss.str();
   const char* arguments = ostring.c_str();

@@ -143,7 +143,8 @@ int main() {
   csv_file.close();
 
   std::system(
-      "python3 mastersolution_scripts/advectionfv2d.py advectionfv2d.csv solution.eps");
+      "python3 mastersolution_scripts/advectionfv2d.py advectionfv2d.csv "
+      "solution.eps");
   /* SAM_LISTING_END_1 */
 
   /* SAM_LISTING_BEGIN_2 */

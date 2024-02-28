@@ -72,7 +72,8 @@ int main(int /* argc */, char** /*argv*/) {
                                  "/convergence_u1.csv");
     // Call a Python script to generate plots
     std::system(
-        "python3 mastersolution_scripts/plot_convergence.py /convergence_u1.csv "
+        "python3 mastersolution_scripts/plot_convergence.py "
+        "/convergence_u1.csv "
         "convergence_u1.eps 'Interpolation error for $u(x)=u_1(x)$'");
   }
   {

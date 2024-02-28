@@ -58,13 +58,15 @@ int main() {
   storeMUSCLSolution("musclsol_02.csv", bump, 0.2, 100);
   std::cout << "Generated musclsol_02.csv" << std::endl;
   std::system(
-      "python3 mastersolution_scripts/plot_musclsolution.py musclsol_02.csv musclsol_02.eps");
+      "python3 mastersolution_scripts/plot_musclsolution.py musclsol_02.csv "
+      "musclsol_02.eps");
   std::cout << "Writing MUSCL FV solution at t = 1.0 to file 'musclsol_10.csv'"
             << std::endl;
   storeMUSCLSolution("musclsol_10.csv", bump, 1.0, 100);
   std::cout << "Generated musclsol_10.csv" << std::endl;
   std::system(
-      "python3 mastersolution_scripts/plot_musclsolution.py musclsol_10.csv musclsol_10.eps");
+      "python3 mastersolution_scripts/plot_musclsolution.py musclsol_10.csv "
+      "musclsol_10.eps");
 
   // Third run: convergence study
   studyCvgMUSCLSolution(bump, 0.2);
