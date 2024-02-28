@@ -7,12 +7,13 @@
  */
 
 #include "semilagrangian.h"
-#include "systemcall.h"
 
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "systemcall.h"
 
 #define CSV_FORMAT \
   Eigen::IOFormat( \
@@ -120,15 +121,16 @@ void SemiLagrangeVis(int M, int K, double T) {
   solution_file.close();
 
   std::ostringstream oss;
-  oss << "python3 scripts/make_gif.py solution.csv " << M << " "
-      << K << " " << T;
+  oss << "python3 scripts/make_gif.py solution.csv " << M << " " << K << " "
+      << T;
 
   std::string ostring = oss.str();
   const char* arguments = ostring.c_str();
   // Generating gif
   std::cout << "Creating gif" << std::endl;
   try {
-    systemcall::execute("mkdir img");  // Creates the directory which will hold the images
+    systemcall::execute(
+        "mkdir img");  // Creates the directory which will hold the images
   } catch (std::exception& e) {
     std::cout << "Directory img already exists" << std::endl;
   }

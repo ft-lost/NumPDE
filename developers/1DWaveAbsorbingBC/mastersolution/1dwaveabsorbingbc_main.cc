@@ -39,8 +39,7 @@ int main() {
   solution_file << tR.format(CSVFormat) << std::endl;
   solution_file.close();
   std::cout << "Generated solution.csv" << std::endl;
-  systemcall::execute(
-      "python3 scripts/viswave.py solution.csv solution.eps");
+  systemcall::execute("python3 scripts/viswave.py solution.csv solution.eps");
 #else
   //====================
   // Your code goes here

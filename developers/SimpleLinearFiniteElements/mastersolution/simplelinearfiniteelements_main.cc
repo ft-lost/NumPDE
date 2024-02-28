@@ -4,8 +4,8 @@
 #include <tuple>
 
 #include "simplelinearfiniteelements.h"
-#include "tria_mesh_2D.h"
 #include "systemcall.h"
+#include "tria_mesh_2D.h"
 
 /* SAM_LISTING_BEGIN_5 */
 #define MESH "Square4"
@@ -43,9 +43,9 @@ int main() {
   std::cout << "Generated " + meshfile_solution << std::endl;
 
   // plot the 3d mesh file
-  systemcall::execute(("python3 -B scripts/plot_surf.py " + meshfile_solution + " " +
-               meshplot_solution)
-                  .c_str());
+  systemcall::execute(("python3 -B scripts/plot_surf.py " + meshfile_solution +
+                       " " + meshplot_solution)
+                          .c_str());
   std::cout << "Generated " + meshplot_solution << std::endl;
   return 0;
 }

@@ -40,8 +40,7 @@ int main() {
   file.close();
 
   std::cout << "Generated ufinal.csv" << std::endl;
-  systemcall::execute(
-      "python3 scripts/plot_solution.py ufinal.csv ufinal.eps");
+  systemcall::execute("python3 scripts/plot_solution.py ufinal.csv ufinal.eps");
 #else
   //====================
   // Your code goes here
