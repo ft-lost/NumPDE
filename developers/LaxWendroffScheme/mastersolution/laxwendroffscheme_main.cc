@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "laxwendroffscheme.h"
+#include "systemcall.h"
 
 using namespace LaxWendroffScheme;
 
@@ -35,11 +36,11 @@ int main() {
   std::cout << "Generated convergence.csv" << std::endl;
 
 #if SOLUTION
-  std::system(
+  systemcall::execute(
       "python3 scripts/plot.py convergence.csv convergence.eps");
 #else
   // To plot from convergence.csv uncomment this:
-  // std::system("python3 scripts/plot.py convergence.csv
+  // systemcall::execute("python3 scripts/plot.py convergence.csv
   // convergence.eps");
 #endif
 

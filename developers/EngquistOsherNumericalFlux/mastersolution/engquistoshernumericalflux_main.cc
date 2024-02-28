@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "engquistoshernumericalflux.h"
+#include "systemcall.h"
 
 /* SAM_LISTING_BEGIN_1 */
 const static Eigen::IOFormat CSVFormat(Eigen::FullPrecision,
@@ -39,7 +40,7 @@ int main() {
   file.close();
 
   std::cout << "Generated ufinal.csv" << std::endl;
-  std::system(
+  systemcall::execute(
       "python3 scripts/plot_solution.py ufinal.csv ufinal.eps");
 #else
   //====================
@@ -47,7 +48,7 @@ int main() {
   // Use std::ofstream to write the solution to
   // the file "ufinal.csv". To plot this file
   // you may uncomment the following line:
-  // std::system("python3 scripts/plot_solution.py ufinal.csv
+  // systemcall::execute("python3 scripts/plot_solution.py ufinal.csv
   // ufinal.eps");
   //====================
 #endif

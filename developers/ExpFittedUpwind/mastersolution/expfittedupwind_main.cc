@@ -22,6 +22,7 @@
 #include <memory>
 
 #include "expfittedupwind.h"
+#include "systemcall.h"
 
 int main() {
   // Define Mesh-independent Data:
@@ -106,7 +107,7 @@ int main() {
   L2output.close();
 
   // Plot the computed L2 error
-  std::system("python3 /scripts/plot_error.py L2error.txt results.eps");
+  systemcall::execute("python3 /scripts/plot_error.py L2error.txt results.eps");
 
   return 0;
 }

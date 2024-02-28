@@ -22,6 +22,7 @@
 #include <utility>
 
 #include "stableevaluationatapoint.h"
+#include "systemcall.h"
 
 int main(int /*argc*/, const char ** /*argv*/) {
   // exact solution
@@ -137,8 +138,8 @@ int main(int /*argc*/, const char ** /*argv*/) {
   std::cout << "Generated convergence_stable.csv" << std::endl;
 
   // Plot
-  std::system("python3 scripts/plot_convergence_potential.py .");
-  std::system("python3 scripts/plot_convergence_stable.py .");
+  systemcall::execute("python3 scripts/plot_convergence_potential.py .");
+  systemcall::execute("python3 scripts/plot_convergence_stable.py .");
 
   return 0;
 }

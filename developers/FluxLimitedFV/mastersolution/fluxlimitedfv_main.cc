@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "fluxlimitedfv.h"
+#include "systemcall.h"
 
 typedef std::numeric_limits<double> dbl;
 
@@ -131,7 +132,7 @@ int main(int /*argc*/, char** /*argv*/) {
       << fluxlimAdvection_sol_A.transpose().format(CSVFormat) << std::endl;
   fluxlimAdvection_sol_A_csv.close();
   std::cout << "Generated fluxlimAdvection_sol_A.csv" << std::endl;
-  std::system(
+  systemcall::execute(
       "python3 scripts/plot_sol.py fluxlimAdvection_sol_A.csv "
       "fluxlimAdvection_sol_A.eps");
 
@@ -143,7 +144,7 @@ int main(int /*argc*/, char** /*argv*/) {
       << fluxlimAdvection_sol_B.transpose().format(CSVFormat) << std::endl;
   fluxlimAdvection_sol_B_csv.close();
   std::cout << "Generated fluxlimAdvection_sol_B.csv" << std::endl;
-  std::system(
+  systemcall::execute(
       "python3 scripts/plot_sol.py fluxlimAdvection_sol_B.csv "
       "fluxlimAdvection_sol_B.eps");
 
@@ -186,7 +187,7 @@ int main(int /*argc*/, char** /*argv*/) {
                          << std::endl;
   fluxlimBurgers_sol_csv.close();
   std::cout << "Generated fluxlimBurgers_sol.csv" << std::endl;
-  std::system(
+  systemcall::execute(
       "python3 scripts/plot_sol.py fluxlimBurgers_sol.csv "
       "fluxlimBurgers_sol.eps");
 

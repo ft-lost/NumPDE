@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "contourplot.h"
+#include "systemcall.h"
 
 const static Eigen::IOFormat CSVFormat(Eigen::FullPrecision,
                                        Eigen::DontAlignCols, ", ", "\n");
@@ -42,7 +43,7 @@ int main(int /*argc*/, char** /*argv*/) {
   std::cout << "Generated contourplot.csv" << std::endl;
 
   // Call the Python script to plot the isolines
-  std::system(
+  systemcall::execute(
       "python3 scripts/contourplot.py contourplot.csv "
       "contourplot.eps");
   /* SAM_LISTING_END_0 */

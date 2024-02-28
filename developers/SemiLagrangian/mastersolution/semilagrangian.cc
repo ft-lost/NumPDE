@@ -7,6 +7,7 @@
  */
 
 #include "semilagrangian.h"
+#include "systemcall.h"
 
 #include <fstream>
 #include <sstream>
@@ -126,9 +127,13 @@ void SemiLagrangeVis(int M, int K, double T) {
   const char* arguments = ostring.c_str();
   // Generating gif
   std::cout << "Creating gif" << std::endl;
-  std::system("mkdir img");  // Creates the directory which will hold the images
+  try {
+    systemcall::execute("mkdir img");  // Creates the directory which will hold the images
+  } catch (std::exception& e) {
+    std::cout << "Directory img already exists" << std::endl;
+  }
 
-  std::system(arguments);  // Executes the pythong plotting
+  systemcall::execute(arguments);  // Executes the pythong plotting
 
 #else
   //====================
