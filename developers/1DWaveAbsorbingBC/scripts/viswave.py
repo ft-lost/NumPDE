@@ -15,7 +15,7 @@ x = linspace(0, 1, n)
 X, T = meshgrid(x, t)
 
 fig = figure()
-ax = fig.gca(projection='3d')
+ax = fig.add_subplot(projection='3d')
 ax.plot_surface(X, T, R, cmap='cool', edgecolor='black', alpha=0.5)
 ax.set_xlabel('x')
 ax.set_ylabel('t')
