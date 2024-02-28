@@ -72,7 +72,7 @@ int main(int /* argc */, char** /*argv*/) {
                                  "/convergence_u1.csv");
     // Call a Python script to generate plots
     std::system(
-        "python3 mastersolution_scripts/plot_convergence.py "
+        "python3 scripts/plot_convergence.py "
         "/convergence_u1.csv "
         "convergence_u1.eps 'Interpolation error for $u(x)=u_1(x)$'");
   }
@@ -87,7 +87,7 @@ int main(int /* argc */, char** /*argv*/) {
     QuasiInterpolation::writeCSV(meshwidth, l2_error, h1_error,
                                  "/convergence_u2.csv");
     std::system(
-        "python3 mastersolution_scripts/plot_convergence.py convergence_u2.csv "
+        "python3 scripts/plot_convergence.py convergence_u2.csv "
         "convergence_u2.eps 'Interpolation error for $u(x)=u_2(x)$'");
   }
   return 0;

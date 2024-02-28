@@ -77,7 +77,7 @@ int main(int /*argc*/, const char ** /*argv*/) {
   energy_csv.close();
   std::cout << "Generated energy.csv" << std::endl;
   std::system(
-      "python3 mastersolution_scripts/plot_energy.py energy.csv energy.eps");
+      "python3 scripts/plot_energy.py energy.csv energy.eps");
 
   // Output wave solution results to vtk file
   lf::io::VtkWriter vtk_writer(mesh_p, "wave_solution.vtk");

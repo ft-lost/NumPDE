@@ -52,7 +52,7 @@ int main() {
   solution_file.close();
 
   std::cout << "Generated tangent.csv" << std::endl;
-  std::system("python3 mastersolution_scripts/plot_tangent.py tangent.csv .");
+  std::system("python3 scripts/plot_tangent.py tangent.csv .");
 
   return 0;
 }

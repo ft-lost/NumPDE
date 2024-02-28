@@ -43,7 +43,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
   // Call the Python script to plot the isolines
   std::system(
-      "python3 mastersolution_scripts/contourplot.py contourplot.csv "
+      "python3 scripts/contourplot.py contourplot.csv "
       "contourplot.eps");
   /* SAM_LISTING_END_0 */
 

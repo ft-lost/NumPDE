@@ -36,10 +36,10 @@ int main() {
 
 #if SOLUTION
   std::system(
-      "python3 mastersolution_scripts/plot.py convergence.csv convergence.eps");
+      "python3 scripts/plot.py convergence.csv convergence.eps");
 #else
   // To plot from convergence.csv uncomment this:
-  // std::system("python3 mastersolution_scripts/plot.py convergence.csv
+  // std::system("python3 scripts/plot.py convergence.csv
   // convergence.eps");
 #endif
 

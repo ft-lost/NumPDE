@@ -48,7 +48,7 @@ void ReadAndOutputMesh(const char *filename) {
     lf::io::writeMatplotlib(mesh, "ljoint.csv");
     std::cout << "Wrote ljoint.csv" << std::endl;
     std::system(
-        "python3 mastersolution_scripts/plot_mesh.py ljoint.csv mesh.eps");
+        "python3 scripts/plot_mesh.py ljoint.csv mesh.eps");
   }
 }
 /* SAM_LISTING_END_1 */

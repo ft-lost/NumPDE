@@ -39,7 +39,7 @@ int main() {
   solution_file.close();
   std::cout << "Generated solution.csv" << std::endl;
   std::system(
-      "python3 mastersolution_scripts/viswave.py solution.csv solution.eps");
+      "python3 scripts/viswave.py solution.csv solution.eps");
 #else
   //====================
   // Your code goes here
@@ -63,7 +63,7 @@ int main() {
   energies_file.close();
   std::cout << "Generated energies.csv" << std::endl;
   std::system(
-      "python3 mastersolution_scripts/visenergies.py energies.csv "
+      "python3 scripts/visenergies.py energies.csv "
       "energies.eps");
 /* SAM_LISTING_END_2 */
 #else
