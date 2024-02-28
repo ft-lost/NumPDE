@@ -23,6 +23,7 @@
 
 #include "nonlinschroedingerequation.h"
 #include "propagator.h"
+#include "systemcall.h"
 
 int main() {
   /* SAM_LISTING_BEGIN_9 */
@@ -117,7 +118,7 @@ int main() {
 
   // Call python script to plot norm
   std::cout << "Generated norm.csv" << std::endl;
-  std::system("python3 scripts/plot_norm.py norm.csv norm.eps");
+  systemcall::execute("python3 scripts/plot_norm.py norm.csv norm.eps");
 
   // Write energies to file
   std::ofstream energies_csv;
@@ -129,7 +130,9 @@ int main() {
 
   // Call python script to plot energies
   std::cout << "Generated energies.csv" << std::endl;
-  std::system("python3 scripts/plot_energies.py energies.csv energies.eps");
+  systemcall::execute(
+      "python3 scripts/plot_energies.py energies.csv "
+      "energies.eps");
 
   // Write entry-wise squared modulus of $\mu$ to .vtk file
   std::cout << "Generated solution.vtk" << std::endl;

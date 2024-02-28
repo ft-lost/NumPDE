@@ -18,6 +18,7 @@
 
 #include "iohelper.h"
 #include "quasiinterpolation.h"
+#include "systemcall.h"
 
 constexpr double PI = 3.14159265358979323846;
 // A bump function
@@ -69,10 +70,10 @@ int main(int /* argc */, char** /*argv*/) {
     QuasiInterpolation::printError(meshwidth, l2_error, h1_error,
                                    "errors for u1");
     QuasiInterpolation::writeCSV(meshwidth, l2_error, h1_error,
-                                 "/convergence_u1.csv");
+                                 "convergence_u1.csv");
     // Call a Python script to generate plots
-    std::system(
-        "python3 scripts/plot_convergence.py /convergence_u1.csv "
+    systemcall::execute(
+        "python3 scripts/plot_convergence.py convergence_u1.csv "
         "convergence_u1.eps 'Interpolation error for $u(x)=u_1(x)$'");
   }
   {
@@ -84,8 +85,8 @@ int main(int /* argc */, char** /*argv*/) {
     QuasiInterpolation::printError(meshwidth, l2_error, h1_error,
                                    "errors for u2");
     QuasiInterpolation::writeCSV(meshwidth, l2_error, h1_error,
-                                 "/convergence_u2.csv");
-    std::system(
+                                 "convergence_u2.csv");
+    systemcall::execute(
         "python3 scripts/plot_convergence.py convergence_u2.csv "
         "convergence_u2.eps 'Interpolation error for $u(x)=u_2(x)$'");
   }

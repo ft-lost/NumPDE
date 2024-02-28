@@ -23,6 +23,7 @@
 #include "locallaplaceqfe.h"
 #include "qfeinterpolator.h"
 #include "qfeprovidertester.h"
+#include "systemcall.h"
 
 using size_type = lf::base::size_type;
 
@@ -108,7 +109,7 @@ int main() {
   error_file << data.format(CSVFormat) << std::endl;
   error_file.close();
   std::cout << "Generated error.csv" << std::endl;
-  std::system("python3 scripts/plot_error.py error.csv error.eps");
+  systemcall::execute("python3 scripts/plot_error.py error.csv error.eps");
 
   return 0;
 }

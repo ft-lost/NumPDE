@@ -11,6 +11,7 @@
 #include <fstream>
 #include <string>
 
+#include "systemcall.h"
 #include "teelaplrobinassembly.h"
 
 using namespace ErrorEstimatesForTraces;
@@ -68,5 +69,5 @@ int main(int /*argc*/, const char ** /*argv*/) {
   std::cout << "Generated results.csv" << std::endl;
 
   // Apply plot.py to results.csv
-  std::system("python3 scripts/plot.py results.csv results.eps");
+  systemcall::execute("python3 scripts/plot.py results.csv results.eps");
 }

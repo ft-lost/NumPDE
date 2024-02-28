@@ -11,6 +11,7 @@
 #include <fstream>
 
 #include "electrostaticforce.h"
+#include "systemcall.h"
 
 using namespace ElectrostaticForce;
 
@@ -236,14 +237,16 @@ int main() {
   std::cout << "Generated errorsl2ForceDomainFunctional.csv" << std::endl;
 
   // Plot from .csv file using python
-  std::system(
+  systemcall::execute(
       "python3 scripts/plot_errors.py errorsL2PoissonBVP.csv "
       "errorsL2PoissonBVP.eps");
-  std::system(
-      "python3 scripts/plot_errors.py errorsl2ForceBoundaryFunctional.csv "
+  systemcall::execute(
+      "python3 scripts/plot_errors.py "
+      "errorsl2ForceBoundaryFunctional.csv "
       "errorsl2ForceBoundaryFunctional.eps");
-  std::system(
-      "python3 scripts/plot_errors.py errorsl2ForceDomainFunctional.csv "
+  systemcall::execute(
+      "python3 scripts/plot_errors.py "
+      "errorsl2ForceDomainFunctional.csv "
       "errorsl2ForceDomainFunctional.eps");
   return 0;
 }

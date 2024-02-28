@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "burgersequation.h"
+#include "systemcall.h"
 
 int main() {
   /* SAM_LISTING_BEGIN_1 */
@@ -32,7 +33,9 @@ int main() {
                 << std::endl;
   solution_file.close();
   std::cout << "Generated solution.csv" << std::endl;
-  std::system("python3 scripts/plot_solution.py solution.csv solution.eps");
+  systemcall::execute(
+      "python3 scripts/plot_solution.py solution.csv "
+      "solution.eps");
 #else
   //====================
   // Your code goes here
@@ -50,7 +53,7 @@ int main() {
   error_file << result.format(BurgersEquation::CSVFormat) << std::endl;
   error_file.close();
   std::cout << "Generated error.csv" << std::endl;
-  std::system("python3 scripts/plot_error.py error.csv error.eps");
+  systemcall::execute("python3 scripts/plot_error.py error.csv error.eps");
 #else
   //====================
   // Your code goes here

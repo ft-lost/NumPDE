@@ -10,6 +10,7 @@
 
 #include "sdirkmethodoflines.h"
 #include "sdirkmethodoflines_ode.h"
+#include "systemcall.h"
 
 using namespace SDIRKMethodOfLines;
 
@@ -85,7 +86,9 @@ int main(int /*argc*/, char ** /*argv*/) {
   std::cout << "Generated energies.csv" << std::endl;
 
   // Plot from .csv file using python
-  std::system("python3 scripts/plot_energies.py energies.csv energies.eps");
+  systemcall::execute(
+      "python3 scripts/plot_energies.py energies.csv "
+      "energies.eps");
   /* SAM_LISTING_END_1 */
 #else
   //====================

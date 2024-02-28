@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "finitevolumesineconslaw.h"
+#include "systemcall.h"
 
 using namespace FiniteVolumeSineConsLaw;
 
@@ -36,14 +37,15 @@ int main() {
   file.close();
 
   std::cout << "Generated ufinal.csv" << std::endl;
-  std::system("python3 scripts/plot.py ufinal.csv ufinal.eps");
+  systemcall::execute("python3 scripts/plot.py ufinal.csv ufinal.eps");
 #else
   //====================
   // Your code goes here
   // Use std::ofstream to write the solution to
   // the file "ufinal.csv". To plot this
   // file you may uncomment the following line:
-  // std::system("python3 scripts/plot.py ufinal.csv ufinal.eps");
+  // systemcall::execute("python3 scripts/plot.py ufinal.csv
+  // ufinal.eps");
   //====================
 #endif
   /* SAM_LISTING_END_1 */
@@ -61,15 +63,16 @@ int main() {
   file.close();
 
   std::cout << "Generated ufinal_reaction.csv" << std::endl;
-  std::system(
-      "python3 scripts/plot.py ufinal_reaction.csv ufinal_reaction.eps");
+  systemcall::execute(
+      "python3 scripts/plot.py ufinal_reaction.csv "
+      "ufinal_reaction.eps");
 #else
   //====================
   // Your code goes here
   // Use std::ofstream to write the solution to
   // the file "ufinal_reaction.csv". To plot this
   // file you may uncomment the following line:
-  // std::system("python3 scripts/plot.py ufinal_reaction.csv
+  // systemcall::execute("python3 scripts/plot.py ufinal_reaction.csv
   // ufinal_reaction.eps");
   //====================
 #endif

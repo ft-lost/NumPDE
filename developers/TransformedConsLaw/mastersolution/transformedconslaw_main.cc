@@ -12,6 +12,7 @@
 #include <iostream>
 #include <utility>
 
+#include "systemcall.h"
 #include "transformedconslaw.h"
 
 const static Eigen::IOFormat CSVFormat(Eigen::FullPrecision,
@@ -54,7 +55,7 @@ int main() {
   std::cout << "Generated solution.csv" << std::endl;
 
   // Plot from .csv file using plot.py
-  std::system("python3 scripts/plot.py solution.csv solution.eps");
+  systemcall::execute("python3 scripts/plot.py solution.csv solution.eps");
 
   return 0;
 }

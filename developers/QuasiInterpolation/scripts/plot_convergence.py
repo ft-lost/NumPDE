@@ -1,5 +1,6 @@
 from numpy import genfromtxt
-from matplotlib.pyplot import figure, legend, loglog, savefig, title, xlabel, ylabel
+from matplotlib.pyplot import figure, legend, loglog, savefig, title, xlabel, ylabel, gca
+from matplotlib.ticker import LogLocator
 from sys import argv
 
 input_file = str(argv[1])
@@ -16,10 +17,12 @@ y1 = [hi for hi in h]
 
 fig = figure()
 title(r"{}".format(title_string))
-loglog(h, l2_error, 'go-', label=r'$L^2(\Omega)$-error', basex=2.0, basey=2.0)
-loglog(h, y2, 'g--', label=r'$\mathcal{O}(h^2)$', basex=2.0, basey=2.0)
-loglog(h, h1_error, 'co-', label=r'$H^1(\Omega)$-error', basex=2.0, basey=2.0)
-loglog(h, y1, 'c--', label=r'$\mathcal{O}(h^1)$', basex=2.0, basey=2.0)
+loglog(h, l2_error, 'go-', label=r'$L^2(\Omega)$-error')
+loglog(h, y2, 'g--', label=r'$\mathcal{O}(h^2)$')
+loglog(h, h1_error, 'co-', label=r'$H^1(\Omega)$-error')
+loglog(h, y1, 'c--', label=r'$\mathcal{O}(h^1)$')
+gca().xaxis.set_major_locator(LogLocator(base=2))
+gca().yaxis.set_major_locator(LogLocator(base=2))
 xlabel(r'meshwidth $h$')
 ylabel(r'error $||u-Q_h(u)||$')
 legend(framealpha=1.0) # avoid warning because .eps cannot store transparency

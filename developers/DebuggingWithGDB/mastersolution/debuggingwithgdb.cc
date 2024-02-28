@@ -10,6 +10,8 @@
 
 #include <cstdlib>
 
+#include "systemcall.h"
+
 namespace DebuggingWithGDB {
 /* SAM_LISTING_BEGIN_1 */
 void ReadAndOutputMesh(const char *filename) {
@@ -47,7 +49,7 @@ void ReadAndOutputMesh(const char *filename) {
     // Wite mesh data to file for visualization with Python script
     lf::io::writeMatplotlib(mesh, "ljoint.csv");
     std::cout << "Wrote ljoint.csv" << std::endl;
-    std::system("python3 scripts/plot_mesh.py ljoint.csv mesh.eps");
+    systemcall::execute("python3 scripts/plot_mesh.py ljoint.csv mesh.eps");
   }
 }
 /* SAM_LISTING_END_1 */

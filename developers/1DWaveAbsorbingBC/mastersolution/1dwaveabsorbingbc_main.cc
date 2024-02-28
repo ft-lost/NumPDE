@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "1dwaveabsorbingbc.h"
+#include "systemcall.h"
 
 using namespace WaveAbsorbingBC1D;
 
@@ -38,7 +39,7 @@ int main() {
   solution_file << tR.format(CSVFormat) << std::endl;
   solution_file.close();
   std::cout << "Generated solution.csv" << std::endl;
-  std::system("python3 scripts/viswave.py solution.csv solution.eps");
+  systemcall::execute("python3 scripts/viswave.py solution.csv solution.eps");
 #else
   //====================
   // Your code goes here
@@ -61,7 +62,9 @@ int main() {
                 << E_kin.transpose().format(CSVFormat) << std::endl;
   energies_file.close();
   std::cout << "Generated energies.csv" << std::endl;
-  std::system("python3 scripts/visenergies.py energies.csv energies.eps");
+  systemcall::execute(
+      "python3 scripts/visenergies.py energies.csv "
+      "energies.eps");
 /* SAM_LISTING_END_2 */
 #else
   //====================

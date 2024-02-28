@@ -4,6 +4,7 @@
 #include <tuple>
 
 #include "simplelinearfiniteelements.h"
+#include "systemcall.h"
 #include "tria_mesh_2D.h"
 
 /* SAM_LISTING_BEGIN_5 */
@@ -29,7 +30,7 @@ int main() {
 
   // plot MESH
   std::string meshplot = MESH ".eps";
-  std::system(
+  systemcall::execute(
       ("python3 -B scripts/plot_mesh.py " + meshfile + " " + meshplot).c_str());
   std::cout << "Generated " + meshplot << std::endl;
 
@@ -42,9 +43,9 @@ int main() {
   std::cout << "Generated " + meshfile_solution << std::endl;
 
   // plot the 3d mesh file
-  std::system(("python3 -B scripts/plot_surf.py " + meshfile_solution + " " +
-               meshplot_solution)
-                  .c_str());
+  systemcall::execute(("python3 -B scripts/plot_surf.py " + meshfile_solution +
+                       " " + meshplot_solution)
+                          .c_str());
   std::cout << "Generated " + meshplot_solution << std::endl;
   return 0;
 }
