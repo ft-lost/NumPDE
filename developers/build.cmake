@@ -22,12 +22,7 @@ function(build PROBLEM_NAME DIR SOLUTION)
     create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/meshes meshes)
   endif()
 
-  # create relative symbolic link to master solution scirpts
-  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/mastersolution/scripts)
-    create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/mastersolution/scripts mastersolution_scripts)
-  endif()
-
-  # create relative symbolic link to general scripts
+  # create relative symbolic link to scripts
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
     create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/scripts scripts)
   endif()
