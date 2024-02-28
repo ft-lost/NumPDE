@@ -4,24 +4,32 @@ include(${CMAKE_SOURCE_DIR}/cmake/modules/build_variables.cmake)
 # Provides functions build_problem and build_test
 include(${CMAKE_SOURCE_DIR}/cmake/modules/build_rules.cmake)
 
+# Helper function to create relative symbolic links from the current binary directory to the source directory
+function(create_relative_symlink_from_bin_dir target link_name)
+  # compute relative path from current binary directory to target
+  file(RELATIVE_PATH target_rel ${CMAKE_CURRENT_BINARY_DIR} ${target})
+  # create symbolic links
+  execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${target_rel} ${CMAKE_CURRENT_BINARY_DIR}/${link_name})
+endfunction()
+
 # pass correct arguemnts to build rules
 function(build PROBLEM_NAME DIR SOLUTION)
   set(PROBLEM_TARGET ${PROBLEM_NAME}_${DIR})
   set(TEST_TARGET ${PROBLEM_NAME}_test_${DIR})
 
-  # copy mesh files to build directory
+  # create relative symbolic link to mesh files
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes)
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/meshes DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/meshes meshes)
   endif()
 
-  # copy master solution scripts to build directory
+  # create relative symbolic link to master solution scirpts
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/mastersolution/scripts)
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mastersolution/scripts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/mastersolution/scripts mastersolution_scripts)
   endif()
 
-  # copy general scripts to build directory
+  # create relative symbolic link to general scripts
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/scripts)
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/scripts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/scripts scripts)
   endif()
 
   # problem

@@ -17,7 +17,7 @@ int main() {
   std::cout << std::endl << "The rate is " << rate << std::endl;
 
   // Plot stability domain for gamma = 1.0
-  std::system("python3 scripts/stabdomSDIRK.py stabdomSDIRK.eps");
+  std::system("python3 mastersolution_scripts/stabdomSDIRK.py stabdomSDIRK.eps");
   std::cout << "Generated stabdomSDIRK.eps" << std::endl;
 
   return 0;

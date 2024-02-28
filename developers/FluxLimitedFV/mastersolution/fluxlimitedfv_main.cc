@@ -132,7 +132,7 @@ int main(int /*argc*/, char** /*argv*/) {
   fluxlimAdvection_sol_A_csv.close();
   std::cout << "Generated fluxlimAdvection_sol_A.csv" << std::endl;
   std::system(
-      "python3 scripts/plot_sol.py fluxlimAdvection_sol_A.csv "
+      "python3 mastersolution_scripts/plot_sol.py fluxlimAdvection_sol_A.csv "
       "fluxlimAdvection_sol_A.eps");
 
   std::ofstream fluxlimAdvection_sol_B_csv;
@@ -144,7 +144,7 @@ int main(int /*argc*/, char** /*argv*/) {
   fluxlimAdvection_sol_B_csv.close();
   std::cout << "Generated fluxlimAdvection_sol_B.csv" << std::endl;
   std::system(
-      "python3 scripts/plot_sol.py fluxlimAdvection_sol_B.csv "
+      "python3 mastersolution_scripts/plot_sol.py fluxlimAdvection_sol_B.csv "
       "fluxlimAdvection_sol_B.eps");
 
   /* BURGERS FLUX PROBLEM */
@@ -187,7 +187,7 @@ int main(int /*argc*/, char** /*argv*/) {
   fluxlimBurgers_sol_csv.close();
   std::cout << "Generated fluxlimBurgers_sol.csv" << std::endl;
   std::system(
-      "python3 scripts/plot_sol.py fluxlimBurgers_sol.csv "
+      "python3 mastersolution_scripts/plot_sol.py fluxlimBurgers_sol.csv "
       "fluxlimBurgers_sol.eps");
 
 }  // main

@@ -85,7 +85,7 @@ int main(int /*argc*/, char ** /*argv*/) {
   std::cout << "Generated energies.csv" << std::endl;
 
   // Plot from .csv file using python
-  std::system("python3 scripts/plot_energies.py energies.csv energies.eps");
+  std::system("python3 mastersolution_scripts/plot_energies.py energies.csv energies.eps");
   /* SAM_LISTING_END_1 */
 #else
   //====================

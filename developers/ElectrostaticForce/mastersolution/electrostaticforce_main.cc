@@ -237,13 +237,13 @@ int main() {
 
   // Plot from .csv file using python
   std::system(
-      "python3 scripts/plot_errors.py errorsL2PoissonBVP.csv "
+      "python3 mastersolution_scripts/plot_errors.py errorsL2PoissonBVP.csv "
       "errorsL2PoissonBVP.eps");
   std::system(
-      "python3 scripts/plot_errors.py errorsl2ForceBoundaryFunctional.csv "
+      "python3 mastersolution_scripts/plot_errors.py errorsl2ForceBoundaryFunctional.csv "
       "errorsl2ForceBoundaryFunctional.eps");
   std::system(
-      "python3 scripts/plot_errors.py errorsl2ForceDomainFunctional.csv "
+      "python3 mastersolution_scripts/plot_errors.py errorsl2ForceDomainFunctional.csv "
       "errorsl2ForceDomainFunctional.eps");
   return 0;
 }

@@ -117,7 +117,7 @@ int main() {
 
   // Call python script to plot norm
   std::cout << "Generated norm.csv" << std::endl;
-  std::system("python3 scripts/plot_norm.py norm.csv norm.eps");
+  std::system("python3 mastersolution_scripts/plot_norm.py norm.csv norm.eps");
 
   // Write energies to file
   std::ofstream energies_csv;
@@ -129,7 +129,7 @@ int main() {
 
   // Call python script to plot energies
   std::cout << "Generated energies.csv" << std::endl;
-  std::system("python3 scripts/plot_energies.py energies.csv energies.eps");
+  std::system("python3 mastersolution_scripts/plot_energies.py energies.csv energies.eps");
 
   // Write entry-wise squared modulus of $\mu$ to .vtk file
   std::cout << "Generated solution.vtk" << std::endl;

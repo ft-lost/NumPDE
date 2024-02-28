@@ -54,7 +54,7 @@ int main() {
   std::cout << "Generated solution.csv" << std::endl;
 
   // Plot from .csv file using plot.py
-  std::system("python3 scripts/plot.py solution.csv solution.eps");
+  std::system("python3 mastersolution_scripts/plot.py solution.csv solution.eps");
 
   return 0;
 }

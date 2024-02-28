@@ -32,7 +32,7 @@ int main() {
                 << std::endl;
   solution_file.close();
   std::cout << "Generated solution.csv" << std::endl;
-  std::system("python3 scripts/plot_solution.py solution.csv solution.eps");
+  std::system("python3 mastersolution_scripts/plot_solution.py solution.csv solution.eps");
 #else
   //====================
   // Your code goes here
@@ -50,7 +50,7 @@ int main() {
   error_file << result.format(BurgersEquation::CSVFormat) << std::endl;
   error_file.close();
   std::cout << "Generated error.csv" << std::endl;
-  std::system("python3 scripts/plot_error.py error.csv error.eps");
+  std::system("python3 mastersolution_scripts/plot_error.py error.csv error.eps");
 #else
   //====================
   // Your code goes here

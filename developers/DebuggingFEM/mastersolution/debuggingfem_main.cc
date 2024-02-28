@@ -108,7 +108,7 @@ int main() {
   error_file << data.format(CSVFormat) << std::endl;
   error_file.close();
   std::cout << "Generated error.csv" << std::endl;
-  std::system("python3 scripts/plot_error.py error.csv error.eps");
+  std::system("python3 mastersolution_scripts/plot_error.py error.csv error.eps");
 
   return 0;
 }
