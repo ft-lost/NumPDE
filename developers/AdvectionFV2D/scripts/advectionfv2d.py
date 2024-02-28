@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import LogLocator
 from sys import argv
 
 input_file = str(argv[1])
@@ -14,9 +15,9 @@ fig = plt.figure()
 plt.plot(num_cells, l2_errors, 'o-')
 plt.grid()
 plt.xlabel("Number of Cells")
-plt.xscale('log', basex=2)
+plt.xscale('log')
 plt.ylabel("L2 Error")
-plt.yscale('log', basey=2)
+plt.yscale('log')
 plt.tight_layout()
 
 plt.savefig(output_file)
