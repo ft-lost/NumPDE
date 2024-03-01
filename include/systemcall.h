@@ -12,14 +12,17 @@
 #include <exception>
 #include <string>
 
-// Global function call to enable systemcall::execute calls with exception
+// Global function call to enable std::system calls with exception
 namespace systemcall {
-    void execute(const std::string &command) {
-        int sys_out = std::system(command.c_str());
-        if (sys_out != 0) {
-            throw std::runtime_error("Error during system call: " + command + ", return value: " + std::to_string(sys_out));
-        }
-    }
+void execute(const std::string &command) {
+  int sys_out = std::system(command.c_str());
+  if (sys_out != 0) {
+    throw std::runtime_error(
+        "Error during system call: " + command +
+        ", return value: " + std::to_string(sys_out) +
+        "\nCheck error output of system call for more details");
+  }
 }
+}  // namespace systemcall
 
 #endif  // SYSTEM_CALL_H
