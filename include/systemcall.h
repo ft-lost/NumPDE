@@ -19,7 +19,7 @@ void execute(const std::string &command) {
   if (sys_out != 0) {
     throw std::runtime_error(
         "Error during system call: " + command +
-        ", return value: " + std::to_string(sys_out) +
+        ", return value: " + std::to_string(WEXITSTATUS(sys_out)) +
         "\nCheck error output of system call for more details");
   }
 }
