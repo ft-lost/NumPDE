@@ -19,7 +19,12 @@ clang-format-job:
     script:
       - echo "Checking if the code is well formated"
       - clang-format --version
+      - echo "Checking developers folder"
       - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/developers/
+      - echo "Checking include folder"
+      - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/include/
+      - echo "Checking lecturecodes folder"
+      - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/lecturecodes/
 
 # compilation on macos
 compile-developers-job-mac:
