@@ -1,16 +1,8 @@
 # Provides variable PROBLEM_NAME
 include(${CMAKE_SOURCE_DIR}/cmake/modules/build_variables.cmake)
 
-# Provides functions build_problem and build_test
+# Provides functions build_problem, build_test and create_relative_symlink_from_bin_dir
 include(${CMAKE_SOURCE_DIR}/cmake/modules/build_rules.cmake)
-
-# Helper function to create relative symbolic links from the current binary directory to the source directory
-function(create_relative_symlink_from_bin_dir target link_name)
-  # compute relative path from current binary directory to target
-  file(RELATIVE_PATH target_rel ${CMAKE_CURRENT_BINARY_DIR} ${target})
-  # create symbolic links
-  execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${target_rel} ${CMAKE_CURRENT_BINARY_DIR}/${link_name})
-endfunction()
 
 # pass correct arguemnts to build rules
 function(build PROBLEM_NAME DIR)
