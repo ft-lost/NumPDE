@@ -14,7 +14,7 @@
 #include <iostream>
 #include <vector>
 
-#include "../../../lecturecodes/helperfiles/polyfit.h"
+#include "polyfit.h"
 
 namespace SDIRK {
 
