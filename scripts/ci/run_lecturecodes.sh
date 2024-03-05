@@ -9,7 +9,7 @@ task() {
 
     cd "$d"
     for file in *; do
-        if [[ -x "$file" ]]; then
+        if [[ -f "$file" && -x "$file" ]]; then
             echo "Executing $file"
             if ! output=$(./$file 2>&1); then
                 echo "ERROR: "
