@@ -8,8 +8,8 @@ task() {
     fi
 
     cd "$d"
-    for file in lecturecodes*; do
-        if [[ -f "$file" ]]; then
+    for file in *; do
+        if [[ -x "$file" ]]; then
             echo "Executing $file"
             if ! output=$(./$file 2>&1); then
                 echo "ERROR: "

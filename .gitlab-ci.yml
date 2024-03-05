@@ -89,7 +89,7 @@ test-developer-job-mac:
        - cd $CI_PROJECT_DIR/build_mac
        - echo "Testing developer folder master solutions"
        - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
-       - echo "Testing lecturecodes"
+       - echo "Testing lecture codes"
        - cd $CI_PROJECT_DIR/build_mac
        - $CI_PROJECT_DIR/scripts/ci/run_lecturecodes.sh
 
@@ -104,6 +104,6 @@ test-developer-job-linux:
        - cd $CI_PROJECT_DIR/build_linux
        - echo "Testing developer folder master solutions"
        - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
-       - echo "Testing lecturecodes"
+       - echo "Testing lecture codes"
        - cd $CI_PROJECT_DIR/build_linux
        - $CI_PROJECT_DIR/scripts/ci/run_lecturecodes.sh
