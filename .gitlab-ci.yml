@@ -88,8 +88,9 @@ test-developer-job-mac:
        - echo "Testing developer folder master solutions"
        - cd $CI_PROJECT_DIR/build_mac
        - echo "Testing developer folder master solutions"
-       - $CI_PROJECT_DIR/scripts/ci/run_developers.sh
+       - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
        - echo "Testing lecturecodes"
+       - $CI_PROJECT_DIR/scripts/ci/run_lecturecodes.sh
 
 test-developer-job-linux:
   stage: test
