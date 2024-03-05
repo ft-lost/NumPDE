@@ -24,19 +24,21 @@ namespace po = boost::program_options;
 // discretization error for 1D finite element discretization of a 2-point BVP.
 // Special example with a highly oscillatory solution
 int main(int argc, char *argv[]) {
+  std::cout << "Run with --help for usage information" << std::endl;
   po::options_description desc("Allowed options");
   // clang-format off
   desc.add_options()
-  ("output,o", po::value<std::string>(), "Name of the output file")
+  ("help,h", "Display this help message")
+  ("output,o", po::value<std::string>()->default_value("output.csv"), "Name of the output file")
   ("M_max,M", po::value<int>()->default_value(500), "Maximum number of cells")
   ("dM,m", po::value<int>()->default_value(5), "Increment in M")
   ("num_quad_points,n", po::value<int>()->default_value(2), "Number of points for numerical quadrature");
   // clang-format on
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
-  if (vm.count("output") == 0) {
+  if (vm.count("help")) {
     std::cout << desc << std::endl;
-    exit(1);
+    exit(0);
   }
   const int M_max = vm["M_max"].as<int>();
   const int dM = vm["dM"].as<int>();

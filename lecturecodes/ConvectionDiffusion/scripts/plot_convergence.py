@@ -5,6 +5,13 @@ import sys
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import importlib.util
+import subprocess
+
+# Check if mpltools is installed, if not, install it
+if importlib.util.find_spec('mpltools') is None:
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'mpltools'])
+
 from mpltools import annotation
 
 
