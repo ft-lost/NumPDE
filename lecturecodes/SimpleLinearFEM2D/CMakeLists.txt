@@ -35,4 +35,4 @@ target_link_libraries(lecturecodes.compare_implementations
   PUBLIC Eigen3::Eigen
 )
 
-# add_subdirectory(test)
+create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/meshes meshes)

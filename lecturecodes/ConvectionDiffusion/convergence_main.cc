@@ -24,6 +24,8 @@
 #include "supg.h"
 #include "upwind.h"
 
+#include "systemcall.h"
+
 int main() {
   // parameter functions:
   // velocity field
@@ -140,8 +142,7 @@ int main() {
   file.close();
 
   // Plot
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_convergence.py " CURRENT_BINARY_DIR);
+  systemcall::execute("python3 scripts/plot_convergence.py .");
 
   return 0;
 }

@@ -25,3 +25,5 @@ add_custom_target(lecturecodes.convergencestudies.asymptotic_run
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/asymptotic_plot.py
 )
 add_dependencies(convergencestudies_run lecturecodes.convergencestudies.asymptotic_run)
+
+create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/scripts scripts)

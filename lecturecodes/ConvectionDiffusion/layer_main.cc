@@ -19,6 +19,8 @@
 #include "supg.h"
 #include "upwind.h"
 
+#include "systemcall.h"
+
 int main() {
   // parameter functions:
   // boundary conditions
@@ -67,7 +69,6 @@ int main() {
                                           sol_supg_mf, 300);
 
   // Plot
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_layer.py " CURRENT_BINARY_DIR);
+  systemcall::execute("python3 scripts/plot_layer.py .");
   return 0;
 }
