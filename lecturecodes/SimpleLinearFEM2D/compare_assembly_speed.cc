@@ -15,7 +15,7 @@ int main() {
   const int num_tries = 10;
 
   // right-hand-side source function f
-  auto f = [](const Eigen::Vector2d &x) {
+  FHandle_t f = [](const Eigen::Vector2d &x) {
     return (8.0 * pi * pi + 1) * std::cos(2 * pi * x(0)) *
            std::cos(2 * pi * x(1));
   };
@@ -31,7 +31,7 @@ int main() {
 
   for (int i = 0; i < num_meshes; i++) {
     // load the mesh from file
-    std::string mesh_file = "./meshes/Square" + std::to_string(i) + ".txt";
+    std::string mesh_file = "meshes/Square" + std::to_string(i) + ".txt";
     TriaMesh2D mesh(mesh_file);
     // save the number of degrees of freedom
     times(i, 0) = mesh._nodecoords.rows();
