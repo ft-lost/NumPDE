@@ -105,5 +105,5 @@ test-developer-job-linux:
        - echo "Testing developer folder master solutions"
        - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
        - echo "Testing lecturecodes"
-       - cd $CI_PROJECT_DIR/build_mac
+       - cd $CI_PROJECT_DIR/build_linux
        - $CI_PROJECT_DIR/scripts/ci/run_lecturecodes.sh
