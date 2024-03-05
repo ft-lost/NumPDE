@@ -44,8 +44,7 @@ compile-developers-job-mac:
        - echo $CXX
        - cmake .. -DHOMEWORKS=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
 
-       - echo "Building developer folder"
-       - cd developers
+       - echo "Building developer and lecturecodes folder"
        - make -j 4
     artifacts:
       paths:
@@ -70,8 +69,7 @@ compile-developers-job-linux:
        - echo $CXX
 
        - cmake .. -DHOMEWORKS=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
-       - echo "Building developer folder"
-       - cd developers
+       - echo "Building developer and lecturecodes folder"
        - make -j 4
     artifacts:
       paths:
