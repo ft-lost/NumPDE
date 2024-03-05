@@ -17,9 +17,8 @@
 #include "cd_tools.h"
 #include "standard_fem.h"
 #include "supg.h"
-#include "upwind.h"
-
 #include "systemcall.h"
+#include "upwind.h"
 
 int main() {
   // parameter functions:

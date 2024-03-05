@@ -17,7 +17,8 @@
 #include "ode45.h"
 
 void case1() {
-  std::cout << "Explicit adaptive RK-SSM for stiff scalar logistic IVP" << std::endl;
+  std::cout << "Explicit adaptive RK-SSM for stiff scalar logistic IVP"
+            << std::endl;
   /* SAM_LISTING_BEGIN_0 */
   // Types to be used for a scalar ODE with state space \Blue{$\bbR$}
   using StateType = double;
@@ -43,8 +44,7 @@ void case1() {
   /* SAM_LISTING_END_0 */
 
   for (auto state : states) {
-    std::cout << "t = " << state.second << ", y = " << state.first
-              << std::endl;
+    std::cout << "t = " << state.second << ", y = " << state.first << std::endl;
   }
 }
 
@@ -74,15 +74,16 @@ void case2() {
   /* SAM_LISTING_END_1 */
 
   for (auto state : states) {
-    std::cout << "t = " << state.second << ", y = " << state.first
-              << std::endl;
+    std::cout << "t = " << state.second << ", y = " << state.first << std::endl;
   }
 }
 
 int main(int argc, char **argv) {
   if (argc != 2) {
     std::cerr << "Usage: " << argv[0] << "[1-2]" << std::endl;
-    std::cout << "Running both cases by default" << std::endl; // This is unconventional but useful for the CI pipeline
+    std::cout
+        << "Running both cases by default"
+        << std::endl;  // This is unconventional but useful for the CI pipeline
     case1();
     case2();
   } else {
