@@ -8,11 +8,11 @@
  */
 
 #include <Eigen/Dense>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include <array>
 namespace EmbeddedRKSSM {
 
 /**
