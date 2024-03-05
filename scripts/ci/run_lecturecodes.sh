@@ -9,7 +9,7 @@ task() {
 
     cd "$d"
     for file in lecturecodes*; do
-        if [[ -f "$file" && -x "$file" ]]; then
+        if [[ -f "$file" ]]; then
             echo "Executing $file"
             if ! output=$(./$file 2>&1); then
                 echo "ERROR: "
