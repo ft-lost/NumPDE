@@ -36,7 +36,7 @@ int main() {
   const auto f = [](const Eigen::Vector2d &x) { return 0.0; };
 
   // Read Mesh from file
-  std::string mesh_file = CURRENT_SOURCE_DIR "/meshes/mesh_square.msh";
+  std::string mesh_file = "meshes/mesh_square.msh";
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   lf::io::GmshReader reader(std::move(mesh_factory), mesh_file);
   auto mesh_p = reader.mesh();
