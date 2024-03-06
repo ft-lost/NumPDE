@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "engquistoshernumericalflux.h"
+#include "systemcall.h"
 
 /* SAM_LISTING_BEGIN_1 */
 const static Eigen::IOFormat CSVFormat(Eigen::FullPrecision,
@@ -37,10 +38,8 @@ int main() {
   file << ufinal.transpose().format(CSVFormat) << std::endl;
   file.close();
 
-  std::cout << "Generated " CURRENT_BINARY_DIR "/ufinal.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_solution.py " CURRENT_BINARY_DIR
-              "/ufinal.csv " CURRENT_BINARY_DIR "/ufinal.eps");
+  std::cout << "Generated ufinal.csv" << std::endl;
+  systemcall::execute("python3 scripts/plot_solution.py ufinal.csv ufinal.eps");
 
   return 0;
 }

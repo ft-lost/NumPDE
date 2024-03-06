@@ -11,6 +11,7 @@
 #include <fstream>
 #include <string>
 
+#include "systemcall.h"
 #include "teelaplrobinassembly.h"
 
 using namespace ErrorEstimatesForTraces;
@@ -24,8 +25,7 @@ int main(int /*argc*/, const char ** /*argv*/) {
   for (int i = 1; i <= N_meshes; i++) {  // for each mesh
     /* SAM_LISTING_BEGIN_1 */
     // Load mesh into a Lehrfem++ object
-    std::string mesh_file =
-        CURRENT_SOURCE_DIR "/../meshes/hex" + std::to_string(i) + ".msh";
+    std::string mesh_file = "meshes/hex" + std::to_string(i) + ".msh";
     auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
     const lf::io::GmshReader reader(std::move(mesh_factory), mesh_file);
     auto mesh_p = reader.mesh();  // type shared_ptr<const lf::mesh::Mesh>
@@ -66,9 +66,8 @@ int main(int /*argc*/, const char ** /*argv*/) {
   file.open("results.csv");
   file << results.format(CSVFormat);
   file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/results.csv" << std::endl;
+  std::cout << "Generated results.csv" << std::endl;
 
   // Apply plot.py to results.csv
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot.py " CURRENT_BINARY_DIR
-              "/results.csv " CURRENT_BINARY_DIR "/results.eps");
+  systemcall::execute("python3 scripts/plot.py results.csv results.eps");
 }

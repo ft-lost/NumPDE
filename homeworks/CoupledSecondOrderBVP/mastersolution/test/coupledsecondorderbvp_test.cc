@@ -25,7 +25,7 @@
 
 namespace CoupledSecondOrderBVP::test {
 
-constexpr char mesh_file[] = CURRENT_SOURCE_DIR "/../../meshes/simple.msh";
+constexpr char mesh_file[] = "meshes/simple.msh";
 
 TEST(CoupledSecondOrderBVP, dropMatrixRowsAndColumns) {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);

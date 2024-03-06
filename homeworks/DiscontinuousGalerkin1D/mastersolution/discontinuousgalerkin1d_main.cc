@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "discontinuousgalerkin1d.h"
+#include "systemcall.h"
 
 int main() {
   DiscontinuousGalerkin1D::Solution solution =
@@ -25,10 +26,9 @@ int main() {
   file << solution.u_.transpose().format(CSVFormat) << std::endl;
   file.close();
 
-  std::cout << "Generated " CURRENT_BINARY_DIR "/solution.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_solution.py " CURRENT_BINARY_DIR
-              "/solution.csv " CURRENT_BINARY_DIR "/solution.eps");
+  std::cout << "Generated solution.csv" << std::endl;
+  systemcall::execute(
+      "python3 scripts/plot_solution.py solution.csv solution.eps");
 
   return 0;
 }

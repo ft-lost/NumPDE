@@ -45,12 +45,12 @@ Eigen::MatrixXd studyAsymptoticCvg(unsigned int reflev) {
   };
 
   // Read mesh of unit triangle from file triangle.msh in directory ../meshes
-  std::string mesh_file = CURRENT_SOURCE_DIR "/../meshes/triangle.msh";
+  std::string mesh_file = "meshes/triangle.msh";
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   lf::io::GmshReader reader(std::move(mesh_factory), mesh_file);
   std::shared_ptr<lf::mesh::Mesh> cmesh_p = reader.mesh();
   const lf::mesh::Mesh& cmesh{*cmesh_p};
-  std::cout << "Read mesh from ../meshes/triangle.msh: " << cmesh.NumEntities(0)
+  std::cout << "Read mesh from meshes/triangle.msh: " << cmesh.NumEntities(0)
             << " cells, " << cmesh.NumEntities(1) << " edges, "
             << cmesh.NumEntities(2) << " nodes " << std::endl;
   // Make sure that the mesh is purel triangular

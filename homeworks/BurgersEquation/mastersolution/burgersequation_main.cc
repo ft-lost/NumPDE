@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "burgersequation.h"
+#include "systemcall.h"
 
 int main() {
   /* SAM_LISTING_BEGIN_1 */
@@ -30,10 +31,10 @@ int main() {
   solution_file << mu30.transpose().format(BurgersEquation::CSVFormat)
                 << std::endl;
   solution_file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/solution.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_solution.py " CURRENT_BINARY_DIR
-              "/solution.csv " CURRENT_BINARY_DIR "/solution.eps");
+  std::cout << "Generated solution.csv" << std::endl;
+  systemcall::execute(
+      "python3 scripts/plot_solution.py solution.csv "
+      "solution.eps");
   /* SAM_LISTING_END_1 */
 
   /* SAM_LISTING_BEGIN_2 */
@@ -44,9 +45,8 @@ int main() {
   error_file.open("error.csv");
   error_file << result.format(BurgersEquation::CSVFormat) << std::endl;
   error_file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/error.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot_error.py " CURRENT_BINARY_DIR
-              "/error.csv " CURRENT_BINARY_DIR "/error.eps");
+  std::cout << "Generated error.csv" << std::endl;
+  systemcall::execute("python3 scripts/plot_error.py error.csv error.eps");
   /* SAM_LISTING_END_2 */
 
   return 0;

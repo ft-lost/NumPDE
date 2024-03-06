@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "1dwaveabsorbingbc.h"
+#include "systemcall.h"
 
 using namespace WaveAbsorbingBC1D;
 

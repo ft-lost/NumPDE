@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "laxwendroffscheme.h"
+#include "systemcall.h"
 
 using namespace LaxWendroffScheme;
 
@@ -32,11 +33,11 @@ int main() {
   file << error_LaxWendroffSmoothU0.transpose().format(CSVFormat) << std::endl;
   file << error_GodunovSmoothU0.transpose().format(CSVFormat) << std::endl;
   file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/convergence.csv" << std::endl;
+  std::cout << "Generated convergence.csv" << std::endl;
 
   // To plot from convergence.csv uncomment this:
-  // std::system("python3 " CURRENT_SOURCE_DIR "/plot.py " CURRENT_BINARY_DIR
-  // "/convergence.csv " CURRENT_BINARY_DIR "/convergence.eps");
+  // systemcall::execute("python3 scripts/plot.py convergence.csv
+  // convergence.eps");
 
   return 0;
 }

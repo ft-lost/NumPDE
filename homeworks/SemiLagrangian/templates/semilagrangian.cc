@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include "systemcall.h"
+
 #define CSV_FORMAT \
   Eigen::IOFormat( \
       Eigen::IOFormat(Eigen::FullPrecision, Eigen::DontAlignCols, ", ", "\n"))

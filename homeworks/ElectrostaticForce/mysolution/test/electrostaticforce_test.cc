@@ -26,8 +26,7 @@ TEST(ElectrostaticForce, computeExactForce) {
 }
 
 TEST(ElectrostaticForce, computeForceDomainFunctional) {
-  std::string mesh_file =
-      CURRENT_SOURCE_DIR "/../../meshes/emforce" + std::to_string(4) + ".msh";
+  std::string mesh_file = "meshes/emforce" + std::to_string(4) + ".msh";
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   const lf::io::GmshReader reader(std::move(mesh_factory), mesh_file);
   auto mesh_p = reader.mesh();
@@ -45,8 +44,7 @@ TEST(ElectrostaticForce, computeForceDomainFunctional) {
 }
 
 TEST(ElectrostaticForce, computeForceBoundaryFunctional) {
-  std::string mesh_file =
-      CURRENT_SOURCE_DIR "/../../meshes/emforce" + std::to_string(4) + ".msh";
+  std::string mesh_file = "meshes/emforce" + std::to_string(4) + ".msh";
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   const lf::io::GmshReader reader(std::move(mesh_factory), mesh_file);
   auto mesh_p = reader.mesh();
@@ -66,8 +64,7 @@ TEST(ElectrostaticForce, computeForceBoundaryFunctional) {
 
 TEST(ElectrostaticForce, solvePoissonBVPBoundaryConditions) {
   double tol = 1.0e-14;
-  std::string mesh_file =
-      CURRENT_SOURCE_DIR "/../../meshes/emforce" + std::to_string(1) + ".msh";
+  std::string mesh_file = "meshes/emforce" + std::to_string(1) + ".msh";
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   const lf::io::GmshReader reader(std::move(mesh_factory), mesh_file);
   auto mesh_p = reader.mesh();

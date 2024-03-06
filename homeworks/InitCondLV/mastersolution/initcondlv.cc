@@ -11,7 +11,7 @@
 #include <iostream>
 #include <utility>
 
-#include "../../../lecturecodes/Ode45/ode45.h"
+#include "ode45.h"
 
 namespace InitCondLV {
 

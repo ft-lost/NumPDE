@@ -12,6 +12,7 @@
 #include <iostream>
 #include <utility>
 
+#include "systemcall.h"
 #include "transformedconslaw.h"
 
 const static Eigen::IOFormat CSVFormat(Eigen::FullPrecision,
@@ -46,16 +47,15 @@ int main() {
 
   // Write x, zeta0 and zetaT to .csv file
   std::ofstream solution_file;
-  solution_file.open(CURRENT_BINARY_DIR "/solution.csv");
+  solution_file.open("solution.csv");
   solution_file << x.transpose().format(CSVFormat) << std::endl;
   solution_file << zeta0.transpose().format(CSVFormat) << std::endl;
   solution_file << zetaT.transpose().format(CSVFormat) << std::endl;
   solution_file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/solution.csv" << std::endl;
+  std::cout << "Generated solution.csv" << std::endl;
 
   // Plot from .csv file using plot.py
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot.py " CURRENT_BINARY_DIR
-              "/solution.csv " CURRENT_BINARY_DIR "/solution.eps");
+  systemcall::execute("python3 scripts/plot.py solution.csv solution.eps");
 
   return 0;
 }

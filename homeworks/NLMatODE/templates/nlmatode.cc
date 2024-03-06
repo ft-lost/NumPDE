@@ -7,9 +7,9 @@
 #include <limits>
 
 // Supplies class Ode45
-#include "../../../lecturecodes/Ode45/ode45.h"
+#include "ode45.h"
 // Supplied auxiliary function for linear regression
-#include "../../../lecturecodes/helperfiles/polyfit.h"
+#include "polyfit.h"
 
 namespace NLMatODE {
 

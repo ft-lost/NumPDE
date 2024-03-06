@@ -15,7 +15,7 @@ namespace dmxbc {
 TEST(StationaryCurrents, solveMixedBVP) {
   std::cout << "Test of function solveMIxedBVP" << std::endl;
   // Path to mesh .msh file
-  std::string mesh_path = CURRENT_SOURCE_DIR "/../../meshes/bentwire0.msh";
+  std::string mesh_path = "meshes/bentwire0.msh";
   // Read mesh and label nodes
   auto [mesh_p, edgeids] = readMeshWithTags(mesh_path);
   const lf::mesh::Mesh &mesh{*mesh_p};
@@ -42,7 +42,7 @@ TEST(StationaryCurrents, solveMixedBVP) {
 TEST(StationaryCurrents, stabFlux) {
   std::cout << "Test of function stabFlux" << std::endl;
   // Path to mesh .msh file
-  std::string mesh_path = CURRENT_SOURCE_DIR "/../../meshes/bentwire0.msh";
+  std::string mesh_path = "meshes/bentwire0.msh";
   // Read mesh and label nodes
   auto [mesh_p, edgeids] = readMeshWithTags(mesh_path);
   const lf::mesh::Mesh &mesh{*mesh_p};

@@ -91,7 +91,6 @@ Eigen::VectorXd solveDirichletBVP(
 }
 /* SAM_LISTING_END_7 */
 
-
 /* SAM_LISTING_BEGIN_8 */
 template <typename F_FUNCTOR>
 std::pair<Eigen::VectorXd, Eigen::VectorXd> solveModulatedHeatFlow(

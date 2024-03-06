@@ -12,8 +12,8 @@
 namespace SimpleLinearFiniteElements::test {
 
 constexpr double pi = 3.1415926535897;
-constexpr char meshfile1[] = CURRENT_SOURCE_DIR "/../../meshes/Square1.txt";
-constexpr char meshfile3[] = CURRENT_SOURCE_DIR "/../../meshes/Square3.txt";
+constexpr char meshfile1[] = "meshes/Square1.txt";
+constexpr char meshfile3[] = "meshes/Square3.txt";
 
 /**
  * @brief test ElmentMatrix_Mass_LFE implementation

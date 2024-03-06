@@ -36,8 +36,7 @@ TEST(SymplecticTimesteppingWaves, sympTimesteppingHarmonicOscillatorODE) {
 
 TEST(SymplecticTimesteppingWaves, assembleGalerkinMatrix) {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(
-      std::move(mesh_factory), CURRENT_SOURCE_DIR "/../../meshes/simple.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory), "meshes/simple.msh");
   auto mesh_p = reader.mesh();
 
   auto fe_space =
@@ -61,8 +60,7 @@ TEST(SymplecticTimesteppingWaves, assembleGalerkinMatrix) {
 
 TEST(SymplecticTimesteppingWaves, computeEnergies) {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(
-      std::move(mesh_factory), CURRENT_SOURCE_DIR "/../../meshes/simple.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory), "meshes/simple.msh");
   auto mesh_p = reader.mesh();
 
   auto fe_space =
@@ -85,8 +83,7 @@ TEST(SymplecticTimesteppingWaves, computeEnergies) {
 
 TEST(SymplecticTimesteppingWaves, solvewave) {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(
-      std::move(mesh_factory), CURRENT_SOURCE_DIR "/../../meshes/simple.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory), "meshes/simple.msh");
   auto mesh_p = reader.mesh();
 
   auto fe_space =

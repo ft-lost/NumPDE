@@ -39,7 +39,7 @@ int main() {
                                          Eigen::DontAlignCols, ", ", "\n");
   std::ofstream ofs;
   // Printing results to file for problem (A)
-  std::string filename = CURRENT_BINARY_DIR "/uA.csv";
+  std::string filename = "uA.csv";
   ofs.open(filename.c_str());
   if (ofs.is_open()) {
     ofs << uA.format(CSVFormat);
@@ -50,7 +50,7 @@ int main() {
     std::cout << "File uA.csv was not properly closed." << std::endl;
   }
   // Printing results to file for problem (B)
-  filename = CURRENT_BINARY_DIR "/uB.csv";
+  filename = "uB.csv";
   ofs.open(filename.c_str());
   if (ofs.is_open()) {
     ofs << uB.format(CSVFormat);
@@ -61,7 +61,7 @@ int main() {
     std::cout << "File uB.csv was not properly closed." << std::endl;
   }
   // Printing results to file for problem (C)
-  filename = CURRENT_BINARY_DIR "/uC.csv";
+  filename = "uC.csv";
   ofs.open(filename.c_str());
   if (ofs.is_open()) {
     ofs << uC.format(CSVFormat);

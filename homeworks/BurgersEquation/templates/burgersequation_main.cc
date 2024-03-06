@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "burgersequation.h"
+#include "systemcall.h"
 
 int main() {
   /* SAM_LISTING_BEGIN_1 */

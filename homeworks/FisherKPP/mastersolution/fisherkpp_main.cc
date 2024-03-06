@@ -23,8 +23,7 @@ void humanmigration();
 void humanmigration() {
   // Obtain mesh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(std::move(mesh_factory),
-                                  CURRENT_SOURCE_DIR "/../meshes/earth.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory), "meshes/earth.msh");
   std::shared_ptr<const lf::mesh::Mesh> mesh_p = reader.mesh();
   // Finite Element Space
   auto fe_space =
@@ -301,8 +300,7 @@ void modelproblem() {
             << std::endl;
   // Obtain mesh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(std::move(mesh_factory),
-                                  CURRENT_SOURCE_DIR "/../meshes/island.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory), "meshes/island.msh");
   std::shared_ptr<const lf::mesh::Mesh> mesh_p = reader.mesh();
   // Finite Element Space
   auto fe_space =
@@ -361,15 +359,22 @@ void modelproblem() {
 }
 /* SAM_LISTING_END_9 */
 
-int main(int /*argc*/, char ** /*argv*/) {
+int main(int argc, char **argv) {
+  std::cout << "Usage: " << argv[0] << " [h|m]" << std::endl;
+  std::cout << "h: human migration simulation" << std::endl;
+  std::cout << "m: model problem simulation" << std::endl;
   std::cout << "\nFinite-element simulation of the Fisher/KPP evolution"
             << std::endl;
-  std::cout
-      << "Select: h = human migration, m = model problem (your implementation)"
-      << std::endl;
-  std::string selection;
-  std::cout << "[h|m]: ";
-  std::getline(std::cin, selection);
+  std::cout << "===============================================" << std::endl;
+
+  if (argc < 2) {
+    std::cout << "No option selected: Will run both..." << std::endl;
+    humanmigration();
+    modelproblem();
+    return 0;
+  }
+
+  std::string selection(argv[1]);
   switch (selection[0]) {
     case 'h': {
       humanmigration();

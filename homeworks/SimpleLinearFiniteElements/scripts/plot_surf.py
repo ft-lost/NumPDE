@@ -10,6 +10,6 @@ x, y, z, triangles = mesh_reader(input_file)
 
 
 fig = figure(figsize=(10, 10))
-ax = fig.gca(projection='3d')
+ax = fig.add_subplot(projection='3d')
 ax.plot_trisurf(x, y, triangles, z, linewidth=0.2, antialiased=True, cmap=cm.Spectral)
 fig.savefig(output_file, bbox_inches='tight')
