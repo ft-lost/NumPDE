@@ -226,8 +226,8 @@ TEST(Homework_2_9, ConstructingZetaFromMu) {
   EXPECT_NEAR(rel_difference, 0, tol);
 }
 
-  TEST(Homework_2_9, convertDOFsLinearQuadratic) {
-      std::shared_ptr<const lf::mesh::Mesh> mesh =
+TEST(Homework_2_9, convertDOFsLinearQuadratic) {
+  std::shared_ptr<const lf::mesh::Mesh> mesh =
       lf::mesh::test_utils::GenerateHybrid2DTestMesh(3);
 
   lf::assemble::UniformFEDofHandler lin_dofh(
@@ -242,11 +242,10 @@ TEST(Homework_2_9, ConstructingZetaFromMu) {
              {lf::base::RefEl::kQuad(), 0}});   // 0 dofs in quadrilaterals
 
   Eigen::VectorXd mu = Eigen::VectorXd::Random(lin_dofh.NumDofs());
-  Eigen::VectorXd zeta =
-      convertDOFsLinearQuadratic(lin_dofh, quad_dofh, mu);
-  Eigen::VectorXd zeta_alt= 
+  Eigen::VectorXd zeta = convertDOFsLinearQuadratic(lin_dofh, quad_dofh, mu);
+  Eigen::VectorXd zeta_alt =
       convertDOFsLinearQuadratic_alt(lin_dofh, quad_dofh, mu);
-  EXPECT_NEAR((zeta-zeta_alt).norm(), 0.0, 1.0E-10);
-  }
+  EXPECT_NEAR((zeta - zeta_alt).norm(), 0.0, 1.0E-10);
+}
 
 }  // namespace LFPPDofHandling::test

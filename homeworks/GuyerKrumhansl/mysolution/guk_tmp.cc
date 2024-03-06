@@ -6,10 +6,10 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 
-#include "guyerkrumhansl.h"
-
 #include <iostream>
 #include <utility>
+
+#include "guyerkrumhansl.h"
 
 namespace GuyerKrumhansl {
 

@@ -112,10 +112,10 @@ void fixedPointNextIt(
   lf::assemble::COOMatrix<double> A(N_dofs, N_dofs);
   Eigen::VectorXd phi(N_dofs);
   phi.setZero();
-// ************************
-// Adjust the following code
-  lf::uscalfe::ReactionDiffusionElementMatrixProvider<
-      double, decltype(mf_one), decltype(mf_zero)>
+  // ************************
+  // Adjust the following code
+  lf::uscalfe::ReactionDiffusionElementMatrixProvider<double, decltype(mf_one),
+                                                      decltype(mf_zero)>
       elmat_provider(fes_p, mf_one, mf_zero);
   lf::assemble::AssembleMatrixLocally(0, dofh, dofh, elmat_provider, A);
 // ************************
