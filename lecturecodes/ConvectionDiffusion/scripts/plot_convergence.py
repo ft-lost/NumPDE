@@ -9,8 +9,10 @@ import importlib.util
 import subprocess
 
 # Check if mpltools is installed, if not, install it
+# This is done automatically because CI pipeline runners don't have it by default
 if importlib.util.find_spec('mpltools') is None:
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'mpltools'])
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'wheel'])
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--use-pep517', 'mpltools'])
 
 from mpltools import annotation
 
