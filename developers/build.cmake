@@ -19,6 +19,11 @@ function(build PROBLEM_NAME DIR SOLUTION)
     create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/scripts scripts)
   endif()
 
+  # create relative symbolic link to scripts exclusive to mastersolution
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/mastersolution/scripts)
+    create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/mastersolution/scripts ms_scripts)
+  endif()
+
   # problem
   build_problem(${PROBLEM_TARGET}_dev mastersolution ${PROBLEM_TARGET})
   target_compile_definitions(${PROBLEM_TARGET}_dev PRIVATE SOLUTION=${SOLUTION})
