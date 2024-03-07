@@ -203,7 +203,7 @@ Eigen::VectorXd convertDOFsLinearQuadratic_alt(
     // Just copy the coefficient
     zeta[quad_dofs[0]] = mu[lin_dofs[0]];
   }
-  // Run through all edges of the mesh 
+  // Run through all edges of the mesh
   for (const lf::mesh::Entity *edge : mesh_p->Entities(1)) {
     // Obtain pointers to endpoints of edge
     std::span<const lf::mesh::Entity *const> endpoints{edge->SubEntities(1)};
