@@ -36,7 +36,7 @@ struct TriaMesh2D {
   Eigen::Matrix<int, Eigen::Dynamic, 3> _elements;
 };
 /* SAM_LISTING_END_1 */
- 
+
 // Signature of a function computing the element matrix for a triangular cell
 // and piecewise linear Lagrangian finite elements
 typedef std::function<Eigen::Matrix3d(const TriGeo_t &)> LocalMatrixHandle_t;

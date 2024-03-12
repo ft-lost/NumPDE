@@ -29,3 +29,6 @@ target_link_libraries(lecturecodes.convectiondiffusion.convergence
     LF::lf.uscalfe
     LF::lf.refinement
 )
+
+create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/scripts scripts)
+create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/meshes meshes)

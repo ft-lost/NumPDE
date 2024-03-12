@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "1dwaveabsorbingbc.h"
+#include "systemcall.h"
 
 using namespace WaveAbsorbingBC1D;
 
@@ -36,9 +37,8 @@ int main() {
   tR.block(0, 1, m + 1, N + 1) = R;
   solution_file << tR.format(CSVFormat) << std::endl;
   solution_file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/solution.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/viswave.py " CURRENT_BINARY_DIR
-              "/solution.csv " CURRENT_BINARY_DIR "/solution.eps");
+  std::cout << "Generated solution.csv" << std::endl;
+  systemcall::execute("python3 scripts/viswave.py solution.csv solution.eps");
   /* SAM_LISTING_END_1 */
 
   std::pair<Eigen::VectorXd, Eigen::VectorXd> energies =
@@ -53,10 +53,10 @@ int main() {
                 << E_pot.transpose().format(CSVFormat) << std::endl
                 << E_kin.transpose().format(CSVFormat) << std::endl;
   energies_file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/energies.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/visenergies.py " CURRENT_BINARY_DIR
-              "/energies.csv " CURRENT_BINARY_DIR "/energies.eps");
+  std::cout << "Generated energies.csv" << std::endl;
+  systemcall::execute(
+      "python3 scripts/visenergies.py energies.csv "
+      "energies.eps");
 /* SAM_LISTING_END_2 */
 
   return 0;

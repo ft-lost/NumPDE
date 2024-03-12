@@ -30,5 +30,13 @@ function(build_test TARGET TARGET_TO_TEST DIR OUTPUT_NAME)
   target_compile_definitions(${TARGET} PRIVATE CURRENT_BINARY_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\")
   target_link_libraries(${TARGET} PUBLIC ${LIBRARIES} ${TARGET_TO_TEST}.static)
 
-  gtest_discover_tests(${TARGET})
+  # gtest_discover_tests(${TARGET}) Not necessary given that the CI pipeline runs the tests
 endfunction(build_test)
+
+# Helper function to create relative symbolic links from the current binary directory to the source directory
+function(create_relative_symlink_from_bin_dir target link_name)
+  # compute relative path from current binary directory to target
+  file(RELATIVE_PATH target_rel ${CMAKE_CURRENT_BINARY_DIR} ${target})
+  # create symbolic links
+  execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${target_rel} ${CMAKE_CURRENT_BINARY_DIR}/${link_name})
+endfunction()

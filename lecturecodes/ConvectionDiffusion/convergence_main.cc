@@ -22,6 +22,7 @@
 #include "cd_tools.h"
 #include "standard_fem.h"
 #include "supg.h"
+#include "systemcall.h"
 #include "upwind.h"
 
 int main() {
@@ -140,8 +141,7 @@ int main() {
   file.close();
 
   // Plot
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_convergence.py " CURRENT_BINARY_DIR);
+  systemcall::execute("python3 scripts/plot_convergence.py .");
 
   return 0;
 }

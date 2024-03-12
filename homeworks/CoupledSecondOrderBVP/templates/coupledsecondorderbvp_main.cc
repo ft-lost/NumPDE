@@ -22,8 +22,7 @@ using namespace CoupledSecondOrderBVP;
 int main(int /*argc*/, const char ** /*argv*/) {
   // Load mesh into a Lehrfem++ object
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(std::move(mesh_factory),
-                                  CURRENT_SOURCE_DIR "/../meshes/hex1.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory), "meshes/hex1.msh");
   auto mesh_p = reader.mesh();  // type shared_ptr< const lf::mesh::Mesh>
 
   // Load finite element space
@@ -44,8 +43,7 @@ int main(int /*argc*/, const char ** /*argv*/) {
   /* Output results to vtk file */
   // We store data by keeping only the coefficients of nodal basis functions
   // In that sense, we are plotting the values of the solution at the vertices
-  lf::io::VtkWriter vtk_writer(
-      mesh_p, CURRENT_BINARY_DIR "/CoupledSecondOrderBVP_solution.vtk");
+  lf::io::VtkWriter vtk_writer(mesh_p, "CoupledSecondOrderBVP_solution.vtk");
   // Write nodal data taking the values of the discrete solution at the vertices
   auto nodal_data = lf::mesh::utils::make_CodimMeshDataSet<double>(mesh_p, 2);
   for (int global_idx = 0; global_idx < N_dofs; global_idx++) {

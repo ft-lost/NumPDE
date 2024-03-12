@@ -19,7 +19,12 @@ clang-format-job:
     script:
       - echo "Checking if the code is well formated"
       - clang-format --version
+      - echo "Checking developers folder"
       - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/developers/
+      - echo "Checking include folder"
+      - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/include/
+      - echo "Checking lecturecodes folder"
+      - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/lecturecodes/
 
 # compilation on macos
 compile-developers-job-mac:
@@ -37,17 +42,14 @@ compile-developers-job-mac:
        - cd $CI_PROJECT_DIR/build_mac
        - export CXX=$COMPILER
        - echo $CXX
-       - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
+       - cmake .. -DHOMEWORKS=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
 
-       - echo "Building developer folder"
-       - cd developers
+       - echo "Building developer and lecturecodes folder"
        - make -j 4
-
-    cache:
-      key : developers-mac
-      paths : 
-        - $CI_PROJECT_DIR/build_mac/developers/
-       
+    artifacts:
+      paths:
+        - build_mac/*
+      expire_in: 1 days
 
 compile-developers-job-linux:
     stage: build
@@ -66,39 +68,40 @@ compile-developers-job-linux:
        - export CXX=$COMPILER
        - echo $CXX
 
-       - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
-       - echo "Building developer folder"
-       - cd developers
+       - cmake .. -DHOMEWORKS=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
+       - echo "Building developer and lecturecodes folder"
        - make -j 4
-    cache:
-      key : developers-linux
-      paths : 
-        - $CI_PROJECT_DIR/build_linux/developers/
+    artifacts:
+      paths:
+        - build_linux/*
+      expire_in: 1 days
 
 test-developer-job-mac:
   stage: test
   tags:
     - mac
+  dependencies:
+    - compile-developers-job-mac
   script:
        - echo "Testing developer folder master solutions"
        - cd $CI_PROJECT_DIR/build_mac
-       - chmod +x $CI_PROJECT_DIR/scripts/ci/test_developers.sh
+       - echo "Testing developer folder master solutions"
        - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
-  cache:
-    key : developers-mac
-    paths : 
-      - $CI_PROJECT_DIR/build_mac/developers/
+       - echo "Testing lecture codes"
+       - cd $CI_PROJECT_DIR/build_mac
+       - $CI_PROJECT_DIR/scripts/ci/run_lecturecodes.sh
 
 test-developer-job-linux:
   stage: test
   tags:
     - linux
+  dependencies:
+    - compile-developers-job-linux
   script:
        - echo "Testing developer folder master solutions"
        - cd $CI_PROJECT_DIR/build_linux
-       - chmod +x $CI_PROJECT_DIR/scripts/ci/test_developers.sh
+       - echo "Testing developer folder master solutions"
        - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
-  cache:
-    key : developers-linux
-    paths : 
-      - $CI_PROJECT_DIR/build_linux/developers/
+       - echo "Testing lecture codes"
+       - cd $CI_PROJECT_DIR/build_linux
+       - $CI_PROJECT_DIR/scripts/ci/run_lecturecodes.sh

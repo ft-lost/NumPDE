@@ -23,8 +23,7 @@ void humanmigration();
 void humanmigration() {
   // Obtain mesh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(std::move(mesh_factory),
-                                  CURRENT_SOURCE_DIR "/../meshes/earth.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory), "meshes/earth.msh");
   std::shared_ptr<const lf::mesh::Mesh> mesh_p = reader.mesh();
   // Finite Element Space
   auto fe_space =
@@ -301,8 +300,7 @@ void modelproblem() {
             << std::endl;
   // Obtain mesh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(std::move(mesh_factory),
-                                  CURRENT_SOURCE_DIR "/../meshes/island.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory), "meshes/island.msh");
   std::shared_ptr<const lf::mesh::Mesh> mesh_p = reader.mesh();
   // Finite Element Space
   auto fe_space =

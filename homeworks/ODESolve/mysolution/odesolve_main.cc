@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "odesolve.h"
+#include "systemcall.h"
 
 int main() {
   auto Psi = [](double h, const double y0) -> double { return (1 + h) * y0; };
@@ -51,10 +52,8 @@ int main() {
   }
   solution_file.close();
 
-  std::cout << "Generated " CURRENT_BINARY_DIR "/tangent.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_tangent.py " CURRENT_BINARY_DIR
-              "/tangent.csv " CURRENT_BINARY_DIR);
+  std::cout << "Generated tangent.csv" << std::endl;
+  systemcall::execute("python3 scripts/plot_tangent.py tangent.csv .");
 
   return 0;
 }

@@ -17,8 +17,7 @@ namespace CoupledBVPs::test {
 TEST(CoupledBVPs, BVPsolver) {
   // Define the file that contains the mesh
   std::filesystem::path here = __FILE__;
-  std::string mesh_file = here.parent_path().parent_path().string() +
-                          std::string("/data/hexagon.msh");
+  std::string mesh_file = "meshes/hexagon.msh";
 
   // Read and process the mesh file
   auto factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
@@ -83,8 +82,7 @@ TEST(CoupledBVPs, BVPsolver) {
 TEST(CoupledBVPs, solveModulatedHeatFlow2) {
   // Define the file that contains the mesh
   std::filesystem::path here = __FILE__;
-  std::string mesh_file = here.parent_path().parent_path().string() +
-                          std::string("/data/hexagon.msh");
+  std::string mesh_file = "meshes/hexagon.msh";
 
   // Read and process the mesh file
   auto factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);

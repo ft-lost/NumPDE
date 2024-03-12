@@ -27,8 +27,7 @@ int main() {
   /* SAM_LISTING_BEGIN_1 */
   // Read in mesh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/mesh.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/mesh.msh");
 
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader.mesh();
 

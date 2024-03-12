@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include "systemcall.h"
+
 #define CSV_FORMAT \
   Eigen::IOFormat( \
       Eigen::IOFormat(Eigen::FullPrecision, Eigen::DontAlignCols, ", ", "\n"))
@@ -119,18 +121,21 @@ void SemiLagrangeVis(int M, int K, double T) {
   solution_file.close();
 
   std::ostringstream oss;
-  oss << "python3 " CURRENT_SOURCE_DIR "/make_gif.py " CURRENT_BINARY_DIR
-         "/solution.csv " CURRENT_BINARY_DIR "/ "
-      << M << " " << K << " " << T;
+  oss << "python3 scripts/make_gif.py solution.csv " << M << " " << K << " "
+      << T;
 
   std::string ostring = oss.str();
   const char* arguments = ostring.c_str();
   // Generating gif
   std::cout << "Creating gif" << std::endl;
-  std::system("mkdir " CURRENT_BINARY_DIR
-              "/img");  // Creates the directory which will hold the images
+  try {
+    systemcall::execute(
+        "mkdir img");  // Creates the directory which will hold the images
+  } catch (std::exception& e) {
+    std::cout << "Directory img already exists" << std::endl;
+  }
 
-  std::system(arguments);  // Executes the pythong plotting
+  systemcall::execute(arguments);  // Executes the pythong plotting
 
 #else
   //====================

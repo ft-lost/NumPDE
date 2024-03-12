@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "fluxlimitedfv.h"
+#include "systemcall.h"
 
 typedef std::numeric_limits<double> dbl;
 
@@ -124,32 +125,28 @@ int main(int /*argc*/, char** /*argv*/) {
   const static Eigen::IOFormat CSVFormat(Eigen::StreamPrecision,
                                          Eigen::DontAlignCols, ", ", "\n");
   std::ofstream fluxlimAdvection_sol_A_csv;
-  fluxlimAdvection_sol_A_csv.open(CURRENT_BINARY_DIR
-                                  "/fluxlimAdvection_sol_A.csv");
+  fluxlimAdvection_sol_A_csv.open("fluxlimAdvection_sol_A.csv");
   fluxlimAdvection_sol_A_csv << x_advection.transpose().format(CSVFormat)
                              << std::endl;
   fluxlimAdvection_sol_A_csv
       << fluxlimAdvection_sol_A.transpose().format(CSVFormat) << std::endl;
   fluxlimAdvection_sol_A_csv.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/fluxlimAdvection_sol_A.csv"
-            << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot_sol.py " CURRENT_BINARY_DIR
-              "/fluxlimAdvection_sol_A.csv " CURRENT_BINARY_DIR
-              "/fluxlimAdvection_sol_A.eps");
+  std::cout << "Generated fluxlimAdvection_sol_A.csv" << std::endl;
+  systemcall::execute(
+      "python3 scripts/plot_sol.py fluxlimAdvection_sol_A.csv "
+      "fluxlimAdvection_sol_A.eps");
 
   std::ofstream fluxlimAdvection_sol_B_csv;
-  fluxlimAdvection_sol_B_csv.open(CURRENT_BINARY_DIR
-                                  "/fluxlimAdvection_sol_B.csv");
+  fluxlimAdvection_sol_B_csv.open("fluxlimAdvection_sol_B.csv");
   fluxlimAdvection_sol_B_csv << x_advection.transpose().format(CSVFormat)
                              << std::endl;
   fluxlimAdvection_sol_B_csv
       << fluxlimAdvection_sol_B.transpose().format(CSVFormat) << std::endl;
   fluxlimAdvection_sol_B_csv.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/fluxlimAdvection_sol_B.csv"
-            << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot_sol.py " CURRENT_BINARY_DIR
-              "/fluxlimAdvection_sol_B.csv " CURRENT_BINARY_DIR
-              "/fluxlimAdvection_sol_B.eps");
+  std::cout << "Generated fluxlimAdvection_sol_B.csv" << std::endl;
+  systemcall::execute(
+      "python3 scripts/plot_sol.py fluxlimAdvection_sol_B.csv "
+      "fluxlimAdvection_sol_B.eps");
 
   /* BURGERS FLUX PROBLEM */
   // Discretization parameters
@@ -183,16 +180,15 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   std::ofstream fluxlimBurgers_sol_csv;
-  fluxlimBurgers_sol_csv.open(CURRENT_BINARY_DIR "/fluxlimBurgers_sol.csv");
+  fluxlimBurgers_sol_csv.open("fluxlimBurgers_sol.csv");
   fluxlimBurgers_sol_csv << x_Burgers.transpose().format(CSVFormat)
                          << std::endl;
   fluxlimBurgers_sol_csv << fluxlimBurgers_sol.transpose().format(CSVFormat)
                          << std::endl;
   fluxlimBurgers_sol_csv.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/fluxlimBurgers_sol.csv"
-            << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot_sol.py " CURRENT_BINARY_DIR
-              "/fluxlimBurgers_sol.csv " CURRENT_BINARY_DIR
-              "/fluxlimBurgers_sol.eps");
+  std::cout << "Generated fluxlimBurgers_sol.csv" << std::endl;
+  systemcall::execute(
+      "python3 scripts/plot_sol.py fluxlimBurgers_sol.csv "
+      "fluxlimBurgers_sol.eps");
 
 }  // main

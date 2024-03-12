@@ -17,6 +17,7 @@
 #include "cd_tools.h"
 #include "standard_fem.h"
 #include "supg.h"
+#include "systemcall.h"
 #include "upwind.h"
 
 int main() {
@@ -35,7 +36,7 @@ int main() {
   const auto f = [](const Eigen::Vector2d &x) { return 0.0; };
 
   // Read Mesh from file
-  std::string mesh_file = CURRENT_SOURCE_DIR "/meshes/mesh_square.msh";
+  std::string mesh_file = "meshes/mesh_square.msh";
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   lf::io::GmshReader reader(std::move(mesh_factory), mesh_file);
   auto mesh_p = reader.mesh();
@@ -67,7 +68,6 @@ int main() {
                                           sol_supg_mf, 300);
 
   // Plot
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/plot_layer.py " CURRENT_BINARY_DIR);
+  systemcall::execute("python3 scripts/plot_layer.py .");
   return 0;
 }

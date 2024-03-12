@@ -114,8 +114,8 @@ int main() {
   // construct mesh function representing finite element solution
   lf::fe::MeshFunctionFE mf_sol(fe_space, sol_vec);
   // construct vtk writer
-  lf::io::VtkWriter vtk_writer(
-      mesh_p, CURRENT_BINARY_DIR "/upwind_quadrature_solution_unstable.vtk");
+  lf::io::VtkWriter vtk_writer(mesh_p,
+                               "upwind_quadrature_solution_unstable.vtk");
   // output data
   vtk_writer.WritePointData("upwind_quadrature_solution_unstable", mf_sol);
 
@@ -161,8 +161,8 @@ int main() {
   // construct mesh function representing finite element solution
   lf::fe::MeshFunctionFE mf_sol_stable(fe_space, sol_vec_stable);
   // construct vtk writer
-  lf::io::VtkWriter vtk_writer_stable(
-      mesh_p, CURRENT_BINARY_DIR "/upwind_quadrature_solution_stable.vtk");
+  lf::io::VtkWriter vtk_writer_stable(mesh_p,
+                                      "upwind_quadrature_solution_stable.vtk");
   // output data
   vtk_writer_stable.WritePointData("upwind_quadrature_solution_stable",
                                    mf_sol_stable);

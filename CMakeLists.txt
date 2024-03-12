@@ -78,7 +78,8 @@ if(LECTURECODES)
   find_package(Boost CONFIG REQUIRED program_options)
 endif()
 
-
+# include global include dir
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Add subdirectories
 if(HOMEWORKS)

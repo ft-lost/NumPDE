@@ -18,8 +18,8 @@ int main(int /*argc*/, const char ** /*argv*/) {
 
   // Load mesh into a Lehrfem++ object
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  const lf::io::GmshReader reader(std::move(mesh_factory), CURRENT_SOURCE_DIR
-                                  "/../meshes/OutputImpedanceBVP.msh");
+  const lf::io::GmshReader reader(std::move(mesh_factory),
+                                  "meshes/OutputImpedanceBVP.msh");
   auto mesh_p = reader.mesh();  // type shared_ptr< const lf::mesh::Mesh>
 
   // Finite element space
@@ -71,8 +71,7 @@ int main(int /*argc*/, const char ** /*argv*/) {
   }
 
   // Output results to vtk file
-  lf::io::VtkWriter vtk_writer(
-      mesh_p, CURRENT_BINARY_DIR "/OutputImpedanceBVP_solution.vtk");
+  lf::io::VtkWriter vtk_writer(mesh_p, "OutputImpedanceBVP_solution.vtk");
   // Write nodal data taking the values of the discrete solution at the vertices
   auto nodal_data = lf::mesh::utils::make_CodimMeshDataSet<double>(mesh_p, 2);
   for (int global_idx = 0; global_idx < N_dofs; global_idx++) {

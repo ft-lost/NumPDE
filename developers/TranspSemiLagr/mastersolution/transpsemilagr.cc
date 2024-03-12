@@ -111,8 +111,7 @@ void visSLSolution() {
 
   // The equation is solved on the test mesh circle.msh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/../meshes/circle.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/circle.msh");
   auto mesh_p = reader.mesh();
 
   // construct linear finite element space
@@ -150,8 +149,7 @@ void vistrp() {
 
   // The equation is solved on the test mesh circle.msh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/../meshes/circle.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/circle.msh");
   auto mesh_p = reader.mesh();
 
   // construct linear finite element space

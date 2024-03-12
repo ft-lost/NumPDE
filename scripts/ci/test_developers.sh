@@ -2,30 +2,7 @@
 # This is a slightly modified version of compile_test.sh to fit gitlab ci workflow
 
 task() {
-    if [[ $d =~ /AdvectionSUPG/ ]]; then #takes very long to check results
-      return
-    fi
-
-    if [[ $d =~ /SemiLagrangian/ ]]; then #takes very long to check result
-      return
-    fi
-
-    if [[ $d =~ /UnstableBVP/ ]]; then #takes very long to check results
-      return
-    fi
-
-    if [[ $d =~ /TranspSemiLagr/ ]]; then #takes very long to check results
-      return
-    fi
-
-    if [[ $d =~ /StableEvaluationAtAPoint/ ]]; then #takes very long to check results
-      return
-    fi
-
-    if [[ $d =~ /ElectrostaticForce/ ]]; then #takes very long to check results
-      return
-    fi
-
+  
     if [[ $d =~ /CMakeFiles/ ]]; then #should not be checked
       return
     fi

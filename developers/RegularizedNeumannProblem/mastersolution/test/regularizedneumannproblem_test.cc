@@ -100,8 +100,7 @@ TEST(RegularizedNeumannProblem, getGalerkinLSE) {
 TEST(RegularizedNeumannProblem, solution_test_dropDof_const) {
   // read mesh file
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/meshes/test.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/test.msh");
   auto mesh_p = reader.mesh();
 
   // source and boundary functions for testing
@@ -138,8 +137,7 @@ TEST(RegularizedNeumannProblem, solution_test_dropDof_const) {
 TEST(RegularizedNeumannProblem, solution_test_dropDof_gen) {
   // read  mesh file
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/meshes/test.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/test.msh");
   auto mesh_p = reader.mesh();
 
   // source and boundary functions for testing
@@ -176,8 +174,7 @@ TEST(RegularizedNeumannProblem, solution_test_dropDof_gen) {
 TEST(RegularizedNeumannProblem, solution_test_augment_const) {
   // read mesh file
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/meshes/test.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/test.msh");
   auto mesh_p = reader.mesh();
 
   // source and boundary functions for testing
@@ -215,8 +212,7 @@ TEST(RegularizedNeumannProblem, solution_test_augment_const) {
 TEST(RegularizedNeumannProblem, solution_test_augment_gen) {
   // read  mesh file
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/meshes/test.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/test.msh");
   auto mesh_p = reader.mesh();
 
   // source and boundary functions for testing

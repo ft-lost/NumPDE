@@ -11,7 +11,7 @@
 - 3.5-j) replace **boost::filesystem::path here = __FILE__;
 				   std::string filename = "/meshes/hex" + idx_str + ".msh";
 				   auto mesh_path = here.parent_path().parent_path() / filename;**
-	     with **std::string mesh_file = CURRENT_SOURCE_DIR "/../meshes/hex" + std::to_string(i) + ".msh";**
+	     with **std::string mesh_file = "meshes/hex" + std::to_string(i) + ".msh";**
 
 		 and replace **const lf::io::GmshReader reader(std::move(mesh_factory),mesh_path.string());** with const lf::io::GmshReader reader(std::move(mesh_factory), mesh_file);**
 

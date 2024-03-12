@@ -10,6 +10,7 @@
 
 #include "sdirkmethodoflines.h"
 #include "sdirkmethodoflines_ode.h"
+#include "systemcall.h"
 
 using namespace SDIRKMethodOfLines;
 

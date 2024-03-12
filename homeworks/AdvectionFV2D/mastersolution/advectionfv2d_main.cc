@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "advectionfv2d.h"
+#include "systemcall.h"
 
 // Use this function to plot your solution
 void write_vtk(const lf::assemble::DofHandler &dofh,
@@ -130,9 +131,9 @@ int main() {
   }
   csv_file.close();
 
-  std::system("python3 " CURRENT_SOURCE_DIR
-              "/advectionfv2d.py " CURRENT_BINARY_DIR
-              "/advectionfv2d.csv " CURRENT_BINARY_DIR "/solution.eps");
+  systemcall::execute(
+      "python3 scripts/advectionfv2d.py advectionfv2d.csv "
+      "solution.eps");
   /* SAM_LISTING_END_1 */
 
   /* SAM_LISTING_BEGIN_2 */

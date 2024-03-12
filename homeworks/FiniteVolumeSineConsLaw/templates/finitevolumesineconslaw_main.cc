@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "finitevolumesineconslaw.h"
+#include "systemcall.h"
 
 using namespace FiniteVolumeSineConsLaw;
 
@@ -34,8 +35,8 @@ int main() {
   // Use std::ofstream to write the solution to
   // the file "ufinal.csv". To plot this
   // file you may uncomment the following line:
-  // std::system("python3 " CURRENT_SOURCE_DIR "/plot.py " CURRENT_BINARY_DIR
-  // "/ufinal.csv " CURRENT_BINARY_DIR "/ufinal.eps");
+  // systemcall::execute("python3 scripts/plot.py ufinal.csv
+  // ufinal.eps");
   //====================
   /* SAM_LISTING_END_1 */
 
@@ -50,8 +51,8 @@ int main() {
   // Use std::ofstream to write the solution to
   // the file "ufinal_reaction.csv". To plot this
   // file you may uncomment the following line:
-  // std::system("python3 " CURRENT_SOURCE_DIR "/plot.py " CURRENT_BINARY_DIR
-  // "/ufinal_reaction.csv " CURRENT_BINARY_DIR "/ufinal_reaction.eps");
+  // systemcall::execute("python3 scripts/plot.py ufinal_reaction.csv
+  // ufinal_reaction.eps");
   //====================
 
   // Finding the optimal timestep (no reaction term)

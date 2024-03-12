@@ -74,8 +74,7 @@ TEST(UpwindFiniteVolume, computeCircumcenters) {
 
 TEST(ElementMatrixProvider, Eval) {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/mesh.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/mesh.msh");
 
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader.mesh();
 
@@ -132,8 +131,7 @@ TEST(ElementMatrixProvider, Eval) {
 
 TEST(ElementVectorProvider, Eval) {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/mesh.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/mesh.msh");
 
   std::shared_ptr<lf::mesh::Mesh> mesh_p = reader.mesh();
 

@@ -24,3 +24,5 @@ target_link_libraries(lecturecodes.highresevl
   PUBLIC Eigen3::Eigen
   PUBLIC Boost::boost
 )
+
+create_relative_symlink_from_bin_dir(${CMAKE_CURRENT_SOURCE_DIR}/scripts scripts)

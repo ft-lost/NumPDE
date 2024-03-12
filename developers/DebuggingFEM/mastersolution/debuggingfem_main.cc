@@ -23,14 +23,14 @@
 #include "locallaplaceqfe.h"
 #include "qfeinterpolator.h"
 #include "qfeprovidertester.h"
+#include "systemcall.h"
 
 using size_type = lf::base::size_type;
 
 int main() {
   // read mesh
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/../meshes/square_64.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/square_64.msh");
   auto mesh = reader.mesh();
 
   // refine mesh
@@ -105,12 +105,11 @@ int main() {
   const static Eigen::IOFormat CSVFormat(Eigen::FullPrecision,
                                          Eigen::DontAlignCols, ", ", "\n");
   std::ofstream error_file;
-  error_file.open(CURRENT_BINARY_DIR "/error.csv");
+  error_file.open("error.csv");
   error_file << data.format(CSVFormat) << std::endl;
   error_file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/error.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot_error.py " CURRENT_BINARY_DIR
-              "/error.csv " CURRENT_BINARY_DIR "/error.eps");
+  std::cout << "Generated error.csv" << std::endl;
+  systemcall::execute("python3 scripts/plot_error.py error.csv error.eps");
 
   return 0;
 }

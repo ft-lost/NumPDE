@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "finitevolumesineconslaw.h"
+#include "systemcall.h"
 
 using namespace FiniteVolumeSineConsLaw;
 
@@ -34,9 +35,8 @@ int main() {
   file << ufinal.transpose().format(CSVFormat) << std::endl;
   file.close();
 
-  std::cout << "Generated " CURRENT_BINARY_DIR "/ufinal.csv" << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot.py " CURRENT_BINARY_DIR
-              "/ufinal.csv " CURRENT_BINARY_DIR "/ufinal.eps");
+  std::cout << "Generated ufinal.csv" << std::endl;
+  systemcall::execute("python3 scripts/plot.py ufinal.csv ufinal.eps");
   /* SAM_LISTING_END_1 */
 
   // with reaction term: -c * u(x, t), where c = 1.0
@@ -50,11 +50,10 @@ int main() {
   file << ufinal_reaction.transpose().format(CSVFormat) << std::endl;
   file.close();
 
-  std::cout << "Generated " CURRENT_BINARY_DIR "/ufinal_reaction.csv"
-            << std::endl;
-  std::system("python3 " CURRENT_SOURCE_DIR "/plot.py " CURRENT_BINARY_DIR
-              "/ufinal_reaction.csv " CURRENT_BINARY_DIR
-              "/ufinal_reaction.eps");
+  std::cout << "Generated ufinal_reaction.csv" << std::endl;
+  systemcall::execute(
+      "python3 scripts/plot.py ufinal_reaction.csv "
+      "ufinal_reaction.eps");
 
   // Finding the optimal timestep (no reaction term)
   unsigned int M_small = findTimesteps();

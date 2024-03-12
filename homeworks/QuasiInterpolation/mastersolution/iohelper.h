@@ -27,7 +27,7 @@ void writeCSV(const Eigen::VectorXd &meshwidth, const Eigen::VectorXd &l2_error,
   file << l2_error.transpose().format(CSVFormat) << std::endl;
   file << h1_error.transpose().format(CSVFormat) << std::endl;
   file.close();
-  std::cout << "Generated " CURRENT_BINARY_DIR "/" + filename << std::endl;
+  std::cout << "Generated " + filename << std::endl;
 }
 
 void printError(const Eigen::VectorXd &meshwidth,

@@ -145,7 +145,7 @@ static auto psi_grad = [](Eigen::Vector2d x) -> Eigen::Vector2d {
 
 std::tuple<double, double, double> computePotential(std::string basename) {
   // Path to mesh .msh file
-  std::string mesh_path = CURRENT_SOURCE_DIR "/../meshes/" + basename + ".msh";
+  std::string mesh_path = "meshes/" + basename + ".msh";
   // Read mesh and label nodes
   auto [mesh_p, edgeids] = readMeshWithTags(mesh_path);
   const lf::mesh::Mesh &mesh{*mesh_p};
