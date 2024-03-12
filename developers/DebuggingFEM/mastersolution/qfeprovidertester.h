@@ -10,12 +10,12 @@
 #define NPDECODES_DEBUGGINGFEM_QFEPROVIDERTESTER_H_
 
 #include <lf/assemble/assemble.h>
+#include <lf/assemble/assemble_concepts.h>
 
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 
 #include "qfeinterpolator.h"
-#include <lf/assemble/assemble_concepts.h>
 
 namespace DebuggingFEM {
 
