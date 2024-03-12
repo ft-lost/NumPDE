@@ -33,7 +33,7 @@ int main() {
   solution_file.close();
   std::cout << "Generated solution.csv" << std::endl;
   systemcall::execute(
-      "python3 scripts/plot_solution.py solution.csv "
+      "python3 ms_scripts/plot_solution.py solution.csv "
       "solution.eps");
   /* SAM_LISTING_END_1 */
 
@@ -46,7 +46,7 @@ int main() {
   error_file << result.format(BurgersEquation::CSVFormat) << std::endl;
   error_file.close();
   std::cout << "Generated error.csv" << std::endl;
-  systemcall::execute("python3 scripts/plot_error.py error.csv error.eps");
+  systemcall::execute("python3 ms_scripts/plot_error.py error.csv error.eps");
   /* SAM_LISTING_END_2 */
 
   return 0;
