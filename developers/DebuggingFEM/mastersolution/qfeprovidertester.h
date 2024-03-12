@@ -15,11 +15,12 @@
 #include <Eigen/SparseCore>
 
 #include "qfeinterpolator.h"
+#include <lf/assemble/assemble_concepts.h>
 
 namespace DebuggingFEM {
 
 /* SAM_LISTING_BEGIN_1 */
-template <typename ENTITY_MATRIX_PROVIDER>
+template <lf::assemble::EntityMatrixProvider ENTITY_MATRIX_PROVIDER>
 class QFEProviderTester {
  public:
   /**
@@ -45,7 +46,7 @@ class QFEProviderTester {
 /* SAM_LISTING_END_1 */
 
 /* SAM_LISTING_BEGIN_2 */
-template <typename ENTITY_MATRIX_PROVIDER>
+template <lf::assemble::EntityMatrixProvider ENTITY_MATRIX_PROVIDER>
 QFEProviderTester<ENTITY_MATRIX_PROVIDER>::QFEProviderTester(
     const lf::assemble::DofHandler &dofh,
     ENTITY_MATRIX_PROVIDER &element_matrix_provider)
@@ -67,7 +68,7 @@ QFEProviderTester<ENTITY_MATRIX_PROVIDER>::QFEProviderTester(
 /* SAM_LISTING_END_2 */
 
 /* SAM_LISTING_BEGIN_3 */
-template <typename ENTITY_MATRIX_PROVIDER>
+template <lf::assemble::EntityMatrixProvider ENTITY_MATRIX_PROVIDER>
 template <typename FUNCTOR>
 double QFEProviderTester<ENTITY_MATRIX_PROVIDER>::energyOfInterpolant(
     FUNCTOR &&u) const {

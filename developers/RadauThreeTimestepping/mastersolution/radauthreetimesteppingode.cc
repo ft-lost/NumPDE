@@ -69,8 +69,8 @@ void testConvergenceTwoStageRadauLinScalODE() {
     // Computing approximate solution
     approx_sol_vec = twoStageRadauTimesteppingLinScalODE(m);
     // Computing the error in the maximum norm
+    max_norm_errors[k] = 0;
     for (int i = 0; i < m + 1; i++) {
-      max_norm_errors[k] = 0;
       diff = std::abs(approx_sol_vec.at(i) - exact_sol_vec.at(i));
       max_norm_errors[k] =
           (diff > max_norm_errors[k]) ? diff : max_norm_errors[k];

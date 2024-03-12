@@ -23,6 +23,7 @@
 #include "../meshes/mesh.h"
 #include "mylinearfeelementmatrix.h"
 #include "mylinearloadvector.h"
+#include <lf/assemble/assemble_concepts.h>
 
 namespace ElementMatrixComputation {
 
@@ -37,7 +38,7 @@ namespace ElementMatrixComputation {
  * @return     The solution vector
  */
 /* SAM_LISTING_BEGIN_1 */
-template <class ELMAT_PROVIDER, class ELVEC_PROVIDER>
+template <lf::assemble::EntityMatrixProvider ELMAT_PROVIDER, lf::assemble::EntityMatrixProvider ELVEC_PROVIDER>
 Eigen::VectorXd solve(ELMAT_PROVIDER &elmat_provider,
                       ELVEC_PROVIDER &elvec_provider) {
   // Use one of LehrFEM++'s default meshes. Try different meshes by changing the
