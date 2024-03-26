@@ -10,6 +10,7 @@
 #define SOLVE_H_
 
 #include <lf/assemble/assemble.h>
+#include <lf/assemble/assemble_concepts.h>
 #include <lf/fe/fe.h>
 #include <lf/mesh/test_utils/test_meshes.h>
 #include <lf/uscalfe/uscalfe.h>
@@ -37,7 +38,8 @@ namespace ElementMatrixComputation {
  * @return     The solution vector
  */
 /* SAM_LISTING_BEGIN_1 */
-template <class ELMAT_PROVIDER, class ELVEC_PROVIDER>
+template <lf::assemble::EntityMatrixProvider ELMAT_PROVIDER,
+          lf::assemble::EntityMatrixProvider ELVEC_PROVIDER>
 Eigen::VectorXd solve(ELMAT_PROVIDER &elmat_provider,
                       ELVEC_PROVIDER &elvec_provider) {
   // Use one of LehrFEM++'s default meshes. Try different meshes by changing the
