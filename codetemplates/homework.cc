@@ -1,13 +1,11 @@
 /**
- * @file XXX.cc
+ * @file xxx.cc
  * @brief NPDE homework XXX code
  * @author
  * @date
  * @copyright Developed at SAM, ETH Zurich
  */
 
-#include <Eigen/Core>
-
-#include "XXX.h"
+#include "xxx.h"
 
 namespace XXX {}  // namespace XXX
