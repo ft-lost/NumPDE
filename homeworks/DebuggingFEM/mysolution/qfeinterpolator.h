@@ -1,8 +1,8 @@
 /**
  * @file qfeinterpolator.h
  * @brief NPDE homework DebuggingFEM code
- * @author Simon Meierhans
- * @date 27/03/2019
+ * @author Simon Meierhans & Ralf Hiptmair
+ * @date 27/03/2019 & 27.03.2024
  * @copyright Developed at ETH Zurich
  */
 
@@ -39,13 +39,11 @@ Eigen::Vector2d globalCoordinate(int idx, const lf::mesh::Entity &cell);
 template <typename FUNCTOR>
 Eigen::VectorXd interpolateOntoQuadFE(const lf::assemble::DofHandler &dofh,
                                       FUNCTOR &&f) {
-  // get mesh and set up finite element space
+  // Obtain a pointer to the mesh object
   auto mesh = dofh.Mesh();
-
-  // initialize result vector
   const size_type N_dofs(dofh.NumDofs());
+  // variable for returning result vector
   Eigen::VectorXd result = Eigen::VectorXd::Zero(N_dofs);
-
   //====================
   // Your code goes here
   //====================
