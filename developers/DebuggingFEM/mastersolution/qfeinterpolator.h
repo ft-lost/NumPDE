@@ -1,8 +1,8 @@
 /**
  * @file qfeinterpolator.h
  * @brief NPDE homework DebuggingFEM code
- * @author Simon Meierhans
- * @date 27/03/2019
+ * @author Simon Meierhans & Ralf Hiptmair
+ * @date 27/03/2019 & 27.03.2024
  * @copyright Developed at ETH Zurich
  */
 
@@ -39,27 +39,29 @@ Eigen::Vector2d globalCoordinate(int idx, const lf::mesh::Entity &cell);
 template <typename FUNCTOR>
 Eigen::VectorXd interpolateOntoQuadFE(const lf::assemble::DofHandler &dofh,
                                       FUNCTOR &&f) {
-  // get mesh and set up finite element space
+  // Obtain a pointer to the mesh object
   auto mesh = dofh.Mesh();
-
-  // initialize result vector
   const size_type N_dofs(dofh.NumDofs());
+  // variable for returning result vector
   Eigen::VectorXd result = Eigen::VectorXd::Zero(N_dofs);
-
 #if SOLUTION
+  // Reference coordinates of the interpolation nodes of the triangle
+  Eigen::Matrix<double, 2, 6> refnodes(2, 6);
+  refnodes << 0.0, 1.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0, 1.0, 0.0, 0.5, 0.5;
+  // Loop over the cells of the mesh (codim-0 entities)
   for (const lf::mesh::Entity *cell : mesh->Entities(0)) {
-    // get local to global map for the cell
+    LF_ASSERT_MSG(cell->RefEl() == lf::base::RefEl::kTria(),
+                  "Implemented for triangles only");
+    // Fetch pointer to asscoiated geometry object
+    const lf::geometry::Geometry *geom = cell->Geometry();
+    // Obtain actual coordinates of interpolation nodes
+    Eigen::MatrixXd nodes{geom->Global(refnodes)};
+    // get local to global index map for the current cell
     auto glob_ind = dofh.GlobalDofIndices(*cell);
-    // This is a rather clumsy implementation. A much better way to accomplish
-    // this is to pass a full matrix of reference coorindates to the Global()
-    // methof of the current cell entity. This will immediately give the global
-    // coorindates of all local interpolation nodes and we can dispense with the
-    // auxiliary function. Afterwards we can loop over the columns of the
-    // matrix.
+    // Loop over local interpolation nodes
     for (int i = 0; i < 6; i++) {
       // update the result vector
-      auto coords = globalCoordinate(i, *cell);
-      result(glob_ind[i]) = f(coords);
+      result(glob_ind[i]) = f(nodes.col(i));
     }
   }
 #else
