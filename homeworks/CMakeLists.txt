@@ -30,7 +30,7 @@ add_subdirectory(ExponentialIntegrator)
 add_subdirectory(ExtendedMUSCL)
 add_subdirectory(FiniteVolumeRobin)
 add_subdirectory(FiniteVolumeSineConsLaw)
-# add_subdirectory(FisherKPP) # missing unit tests
+add_subdirectory(FisherKPP)
 add_subdirectory(FluxLimitedFV)
 add_subdirectory(GaussLobattoParabolic)
 add_subdirectory(GradientFlow)
