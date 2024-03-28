@@ -98,9 +98,11 @@ struct AssemblerLocalFunc {
     const double vol = lf::geometry::Volume(*el.Geometry());
     return res * vol / 3.;
 #else
-// ========================================
-// Your code here
-// ========================================
+    Eigen::Vector3d res = Eigen::Vector3d::Zero();
+    // ========================================
+    // Your code here
+    // ========================================
+    return res;
 #endif
   };
 };
