@@ -100,21 +100,23 @@ TEST(IMEX, TimeStepTest) {
 
   Eigen::VectorXd u = Eigen::VectorXd::Zero(N);
 
-  auto initial_values = [](const Eigen::Vector2d& x){
-    return std::sin(x(0)*2.0*M_PI)*std::sin(x(1)*2.0*M_PI)+1;
+  auto initial_values = [](const Eigen::Vector2d& x) {
+    return std::sin(x(0) * 2.0 * M_PI) * std::sin(x(1) * 2.0 * M_PI) + 1;
   };
   lf::mesh::utils::MeshFunctionGlobal mf_init(initial_values);
-  lf::fe::ScalarLoadElementVectorProvider element_vector_provider(fe_space, mf_init);
-  lf::assemble::AssembleVectorLocally(0, fe_space->LocGlobMap(), element_vector_provider,u);
-  lf::assemble::AssembleVectorLocally(0, fe_space->LocGlobMap(), element_vector_provider,u_ref);
+  lf::fe::ScalarLoadElementVectorProvider element_vector_provider(fe_space,
+                                                                  mf_init);
+  lf::assemble::AssembleVectorLocally(0, fe_space->LocGlobMap(),
+                                      element_vector_provider, u);
+  lf::assemble::AssembleVectorLocally(0, fe_space->LocGlobMap(),
+                                      element_vector_provider, u_ref);
 
   const double tau = 1. / M;
-  const IMEXTimestep Timestepper(fe_space,tau);
-  for (unsigned int i=0 ; i<M;++i) {
+  const IMEXTimestep Timestepper(fe_space, tau);
+  for (unsigned int i = 0; i < M; ++i) {
     Timestepper.compTimestep(fe_space, tau, u);
     Timestepper.compTimestep_inefficient(fe_space, tau, u_ref);
   }
-
 
   ASSERT_NEAR(0.0, (u - u_ref).array().abs().maxCoeff(), 1e-6);
 }

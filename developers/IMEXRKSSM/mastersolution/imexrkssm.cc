@@ -135,7 +135,8 @@ Eigen::VectorXd compNonlinearTerm(
 
 /* SAM_LISTING_BEGIN_3 */
 IMEXTimestep::IMEXTimestep(
-    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test , double tau) {
+    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
+    double tau) {
 #if SOLUTION
   // Define some helper functions that we can pass to compGalerkinMatrix as
   // alpha, beta and gamma
@@ -173,15 +174,16 @@ IMEXTimestep::IMEXTimestep(
 
   const double gamma = (3.0 + std::sqrt(3)) / 6.0;
 
-  for (unsigned int i = 0; i<solver_MplustauA_.size(); ++i) {
-    MplustauA_[i] = (M_ + tau*gamma*A_);
+  for (unsigned int i = 0; i < solver_MplustauA_.size(); ++i) {
+    MplustauA_[i] = (M_ + tau * gamma * A_);
     solver_MplustauA_[i].analyzePattern(MplustauA_[i]);
     solver_MplustauA_[i].factorize(MplustauA_[i]);
     LF_ASSERT_MSG(solver_MplustauA_[i].info() == Eigen::Success,
                   "Solver did not manage to factorize MplustauA_[" << i << "]");
   }
-  //TODO: delete MInvA_ and MInvphi_ in case Comptimestep_inefficient is removed
-  // Precompute $M^{-1} * A$ and $M^{-1}\phi$
+  // TODO: delete MInvA_ and MInvphi_ in case Comptimestep_inefficient is
+  // removed
+  //  Precompute $M^{-1} * A$ and $M^{-1}\phi$
   MInvA_ = solver_M_.solve(A_);
   MInvphi_ = solver_M_.solve(phi_);
 #else
@@ -218,7 +220,7 @@ void IMEXTimestep::compTimestep_inefficient(
 #if SOLUTION
   // Define the functions f and g !!!PAY ATTENTION TO THE SIGNS!!!
   auto f = [this, fe_test](const Eigen::VectorXd& x) -> Eigen::VectorXd {
-    return -solver_M_.solve(compNonlinearTerm(fe_test,x));
+    return -solver_M_.solve(compNonlinearTerm(fe_test, x));
   };
   auto g = [this](const Eigen::VectorXd& x) -> Eigen::VectorXd {
     return MInvphi_ - MInvA_ * x;
@@ -246,7 +248,7 @@ void IMEXTimestep::compTimestep_inefficient(
     k_hat.col(i + 1) = f(u);
     tmp.setZero();
   }
-  y += tau * (k*b + k_hat*b_hat);
+  y += tau * (k * b + k_hat * b_hat);
 #else
   // ========================================
   // Your code here
@@ -277,7 +279,8 @@ void IMEXTimestep::compTimestep(
 
 #if SOLUTION
   // Define the functions f and g !!!PAY ATTENTION TO THE SIGNS!!!
-  auto f_efficient = [this, fe_test](const Eigen::VectorXd& x) -> Eigen::VectorXd {
+  auto f_efficient = [this,
+                      fe_test](const Eigen::VectorXd& x) -> Eigen::VectorXd {
     return -compNonlinearTerm(fe_test, x);
   };
   auto g_efficient = [this](const Eigen::VectorXd& x) -> Eigen::VectorXd {
@@ -299,13 +302,13 @@ void IMEXTimestep::compTimestep(
 
     tmp += a(i, i) * phi_;
 
-    u = solver_MplustauA_[i].solve(M_*y + tau * tmp);
+    u = solver_MplustauA_[i].solve(M_ * y + tau * tmp);
     k.col(i) = g_efficient(u);
     k_hat.col(i + 1) = f_efficient(u);
     tmp.setZero();
   }
 
-  y += tau * (k*b + k_hat*b_hat);
+  y += tau * (k * b + k_hat * b_hat);
 
 #else
   // ========================================
@@ -322,15 +325,17 @@ Eigen::VectorXd solveTestProblem(
 
   IMEXTimestep Timestepper(fe_space, tau);
 
-  //Initialize $u_0 = sin(x*2pi)*sin(y*2pi)+1$
+  // Initialize $u_0 = sin(x*2pi)*sin(y*2pi)+1$
   Eigen::VectorXd u = Eigen::VectorXd::Zero(N);
 
-  auto initial_values = [](const Eigen::Vector2d& x){
-    return std::sin(x(0)*2.0*M_PI)*std::sin(x(1)*2.0*M_PI)+1.0;
+  auto initial_values = [](const Eigen::Vector2d& x) {
+    return std::sin(x(0) * 2.0 * M_PI) * std::sin(x(1) * 2.0 * M_PI) + 1.0;
   };
   lf::mesh::utils::MeshFunctionGlobal mf_init(initial_values);
-  lf::fe::ScalarLoadElementVectorProvider element_vector_provider(fe_space, mf_init);
-  lf::assemble::AssembleVectorLocally(0, fe_space->LocGlobMap(), element_vector_provider,u);
+  lf::fe::ScalarLoadElementVectorProvider element_vector_provider(fe_space,
+                                                                  mf_init);
+  lf::assemble::AssembleVectorLocally(0, fe_space->LocGlobMap(),
+                                      element_vector_provider, u);
 
   for (unsigned int i = 0; i < M; ++i) {
     Timestepper.compTimestep(fe_space, tau, u);

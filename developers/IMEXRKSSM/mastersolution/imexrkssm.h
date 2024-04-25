@@ -111,7 +111,8 @@ struct AssemblerLocalFunc {
 class IMEXTimestep {
  public:
   IMEXTimestep(
-      std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test , double tau);
+      std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
+      double tau);
   void compTimestep(
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
       double tau, Eigen::VectorXd& y) const;
@@ -122,14 +123,15 @@ class IMEXTimestep {
  private:
   Eigen::SparseMatrix<double> M_;
   Eigen::SparseMatrix<double> A_;
-  std::array<Eigen::SparseMatrix<double>,2> MplustauA_;
+  std::array<Eigen::SparseMatrix<double>, 2> MplustauA_;
 
   Eigen::VectorXd phi_;
   // Feel free to add more data members
 
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver_M_;
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver_A_;
-  std::array<Eigen::SparseLU<Eigen::SparseMatrix<double>>,2> solver_MplustauA_; //size needs to be known at compile time
+  std::array<Eigen::SparseLU<Eigen::SparseMatrix<double>>, 2>
+      solver_MplustauA_;  // size needs to be known at compile time
   Eigen::MatrixXd MInvA_;
   Eigen::VectorXd MInvphi_;
 };
