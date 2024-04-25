@@ -72,8 +72,10 @@ TEST(IMEX, TimeStepTest) {
   auto fe_space =
       std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh);
   const int N = fe_space->LocGlobMap().NumDofs();
-  Eigen::VectorXd u_ref(N);
+  Eigen::VectorXd u_ref = Eigen::VectorXd::Zero(N);
+
   int M = 1024;
+  /*
   u_ref << 0.0434425, 0.0434457, 0.0434434, 0.0434492, 0.0293169, 0.0309144,
       0.0210828, 0.0298132, 0.0198744, 0.0307305, 0.0292886, 0.0293121,
       0.0308709, 0.0207334, 0.0309517, 0.0192963, 0.0307029, 0.0292573,
@@ -94,14 +96,27 @@ TEST(IMEX, TimeStepTest) {
       -4.52379e-05, 0.000231246, 0.000312819, 0.000306226, 0.000312481,
       -5.29099e-06, 2.43659e-05, -0.00315849, -0.00317134, -0.0031774,
       -0.00316244, -0.00311926, -0.00302435, -0.0030816, -0.00308685;
+  */
 
-  const IMEXTimestep Timestepper(fe_space);
+  Eigen::VectorXd u = Eigen::VectorXd::Zero(N);
+
+  auto initial_values = [](const Eigen::Vector2d& x){
+    return std::sin(x(0)*2.0*M_PI)*std::sin(x(1)*2.0*M_PI)+1;
+  };
+  lf::mesh::utils::MeshFunctionGlobal mf_init(initial_values);
+  lf::fe::ScalarLoadElementVectorProvider element_vector_provider(fe_space, mf_init);
+  lf::assemble::AssembleVectorLocally(0, fe_space->LocGlobMap(), element_vector_provider,u);
+  lf::assemble::AssembleVectorLocally(0, fe_space->LocGlobMap(), element_vector_provider,u_ref);
+
   const double tau = 1. / M;
+  const IMEXTimestep Timestepper(fe_space,tau);
+  for (unsigned int i=0 ; i<M;++i) {
+    Timestepper.compTimestep(fe_space, tau, u);
+    Timestepper.compTimestep_inefficient(fe_space, tau, u_ref);
+  }
 
-  Eigen::VectorXd u = Eigen::VectorXd::Constant(N, 0.0);
-  Timestepper.compTimestep(fe_space, tau, u);
 
-  ASSERT_NEAR(0.0, (u - u_ref).norm(), 1e-6);
+  ASSERT_NEAR(0.0, (u - u_ref).array().abs().maxCoeff(), 1e-6);
 }
 
 }  // namespace IMEX::test
