@@ -339,6 +339,9 @@ Eigen::VectorXd solveTestProblem(
 
   for (unsigned int i = 0; i < M; ++i) {
     Timestepper.compTimestep(fe_space, tau, u);
+    std::stringstream step_string;
+    step_string << "solution_step_" << i << ".vtk";
+    visSolution(fe_space, u, step_string.str());
   }
   return u;
 }

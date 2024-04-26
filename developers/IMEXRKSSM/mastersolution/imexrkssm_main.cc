@@ -49,9 +49,10 @@ void TestSquareMesh() {
   const lf::assemble::DofHandler& dofh{fe_space->LocGlobMap()};
 
   std::cout << "Computing reference solution" << std::endl;
-  Eigen::VectorXd mu_exact = IMEX::solveTestProblem(fe_space, std::pow(2, 11));
+  Eigen::VectorXd mu_exact = IMEX::solveTestProblem(fe_space, std::pow(2, 10));
   std::vector<double> err;
   // Convergence analysis by halving step size
+  /*
   std::cout << "Test IMEXRK on square Mesh" << std::endl;
   std::cout << "M" << std::setw(20) << "Error" << std::endl;
   for (int M = 2; M < std::pow(2, 11); M *= 2) {
@@ -60,7 +61,8 @@ void TestSquareMesh() {
     err.push_back(error);
     std::cout << M << std::setw(20) << error << std::endl;
   }
-  IMEX::visSolution(fe_space, mu_exact, "square_solution.vtk");
+   */
+  // IMEX::visSolution(fe_space, mu_exact, "square_solution.vtk");
 }
 int main(int /*argc*/, char** /*argv*/) {
   // TestConvergence();
