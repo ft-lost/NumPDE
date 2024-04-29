@@ -6,6 +6,7 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 #include <lf/assemble/assemble.h>
+#include <lf/assemble/coomatrix.h>
 #include <lf/base/base.h>
 #include <lf/fe/fe.h>
 #include <lf/mesh/utils/utils.h>
@@ -48,51 +49,78 @@ class SemiLagrStep {
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
       FUNCTOR v)
       : fe_space_(fe_space),
-        v_(v),
-        A_lm_(fe_space->LocGlobMap().NumDofs(),
-              fe_space->LocGlobMap().NumDofs()) {
-    // lumped mass matrix $A_lm$
-    LumpedMassElementMatrixProvider lumped_mass_element_matrix_provider(
-        [](Eigen::Vector2d /*x*/) { return 1.0; });
+        A_COO_(fe_space->LocGlobMap().NumDofs(),
+               fe_space->LocGlobMap().NumDofs()),
+        Up_(fe_space->LocGlobMap().NumDofs()),  // mass vector
+        vp_(2, fe_space->LocGlobMap().NumDofs()),
+        N_dofs_(fe_space->LocGlobMap().NumDofs())
+  {
+    // precalculate matrix $A = \int gradu gradv dx$
+    lf::uscalfe::ReactionDiffusionElementMatrixProvider
+        galerkin_element_matrix_provider(
+            fe_space_, lf::mesh::utils::MeshFunctionConstant(1.0),
+            lf::mesh::utils::MeshFunctionConstant(0.0));
     lf::assemble::AssembleMatrixLocally(
         0, fe_space->LocGlobMap(), fe_space->LocGlobMap(),
-        lumped_mass_element_matrix_provider, A_lm_);
+        galerkin_element_matrix_provider, A_COO_);
+
+    // precalculate Up_, note nhat maxx_matrix will be a diagonal matrix
+    // because the eval function of LumpedMassElementMatrixProcider always
+    // returns diagonal matrizes
+    LumpedMassElementMatrixProvider lumped_mass_element_matrix_provider(
+        [](const Eigen::Vector2d& /*x*/) { return 1.; });
+    lf::assemble::COOMatrix<double> mass_matrix(N_dofs_, N_dofs_);
+    lf::assemble::AssembleMatrixLocally(
+        0, fe_space->LocGlobMap(), fe_space->LocGlobMap(),
+        lumped_mass_element_matrix_provider, mass_matrix);
+    Eigen::SparseMatrix<double> mass_sparse = mass_matrix.makeSparse();
+    Up_ = mass_sparse.diagonal();
+
+    // precalculate vp_, v evaluated at each node in the mesh
+    for (const auto& node : fe_space->Mesh()->Entities(2)) {
+      const lf::geometry::Geometry* geo_ptr = node->Geometry();
+      Eigen::Vector2d position = lf::geometry::Corners(*geo_ptr);
+      const lf::assemble::size_type idx = fe_space->Mesh()->Index(*node);
+      vp_.col(idx) = v(position);
+    }
   };
 
   Eigen::VectorXd step(const Eigen::VectorXd& u0_vector, double tau) {
-    // Assemble left hand side $A = A_lm + tau*A_s$
-    // stiffness matrix $tau*A_s$
-    lf::assemble::COOMatrix<double> A = A_lm_;
-    lf::uscalfe::ReactionDiffusionElementMatrixProvider
-        stiffness_element_matrix_provider(
-            fe_space_, lf::mesh::utils::MeshFunctionConstant(tau),
-            lf::mesh::utils::MeshFunctionConstant(0.0));
-    lf::assemble::AssembleMatrixLocally(0, fe_space_->LocGlobMap(),
-                                        fe_space_->LocGlobMap(),
-                                        stiffness_element_matrix_provider, A);
+    lf::assemble::COOMatrix<double> A_tmp = A_COO_;
+
+    // add the scaled diagonal values of Up to the matrix
+    for (int i = 0; i < N_dofs_; i++) {
+      A_tmp.AddToEntry(i, i, Up_(i) / tau);
+    }
+
     // warp u0 into a mesh function (required by the Vector provider) \&
     // assemble rhs.
     auto u0_mf = lf::fe::MeshFunctionFE(fe_space_, u0_vector);
     UpwindLagrangianElementVectorProvider vector_provider(
-        v_, tau, fe_space_->Mesh(), u0_mf);
+        vp_, tau, fe_space_->Mesh(), u0_mf);
+
     Eigen::VectorXd b(fe_space_->LocGlobMap().NumDofs());
     b.setZero();
     lf::assemble::AssembleVectorLocally(0, fe_space_->LocGlobMap(),
                                         vector_provider, b);
-
-    enforce_zero_boundary_conditions(fe_space_, A, b);
+    // Note that this cannot be done in the constructor because b
+    // and the diagonal values of A are not known there
+    enforce_zero_boundary_conditions(fe_space_, A_tmp, b);
 
     // solve LSE
-    const Eigen::SparseMatrix<double> A_sparse = A.makeSparse();
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-    solver.compute(A_sparse);
+    solver.compute(A_tmp.makeSparse());
+
     return solver.solve(b);
   }
 
  private:
   std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space_;
-  FUNCTOR v_;
-  lf::assemble::COOMatrix<double> A_lm_;
+  lf::assemble::COOMatrix<double> A_COO_;
+  Eigen::VectorXd Up_;
+  Eigen::MatrixXd vp_;
+  const lf::uscalfe::size_type N_dofs_;
+
 };
 /* SAM_LISTING_END_1 */
 

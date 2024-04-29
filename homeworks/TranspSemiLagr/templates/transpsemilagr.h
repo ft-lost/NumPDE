@@ -6,6 +6,7 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 #include <lf/assemble/assemble.h>
+#include <lf/assemble/coomatrix.h>
 #include <lf/base/base.h>
 #include <lf/fe/fe.h>
 #include <lf/mesh/utils/utils.h>
@@ -47,22 +48,13 @@ class SemiLagrStep {
   SemiLagrStep(
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
       FUNCTOR v)
-      : fe_space_(fe_space),
-        v_(v),
-        A_lm_(fe_space->LocGlobMap().NumDofs(),
-              fe_space->LocGlobMap().NumDofs()) {
-    // lumped mass matrix $A_lm$
-    LumpedMassElementMatrixProvider lumped_mass_element_matrix_provider(
-        [](Eigen::Vector2d /*x*/) { return 1.0; });
-    lf::assemble::AssembleMatrixLocally(
-        0, fe_space->LocGlobMap(), fe_space->LocGlobMap(),
-        lumped_mass_element_matrix_provider, A_lm_);
+  {
+    //====================
+    // Your code goes here
+    //====================
   };
 
   Eigen::VectorXd step(const Eigen::VectorXd& u0_vector, double tau) {
-    // Assemble left hand side $A = A_lm + tau*A_s$
-    // stiffness matrix $tau*A_s$
-    lf::assemble::COOMatrix<double> A = A_lm_;
     //====================
     // Your code goes here
     //====================
@@ -70,9 +62,6 @@ class SemiLagrStep {
   }
 
  private:
-  std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space_;
-  FUNCTOR v_;
-  lf::assemble::COOMatrix<double> A_lm_;
 };
 /* SAM_LISTING_END_1 */
 
