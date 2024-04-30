@@ -266,8 +266,8 @@ void IMEXTimestep::compTimestep(
 
   // Define the increment Vectors and store the in the columns of a
   // Eigen::Matrix
-  Eigen::MatrixXd k(N, 2);
-  Eigen::MatrixXd k_hat(N, 3);
+  Eigen::MatrixXd kappa(N, 2);
+  Eigen::MatrixXd kappa_hat(N, 3);
 
   // Define the butcher Matrices
   Eigen::Matrix2d a;
@@ -278,13 +278,13 @@ void IMEXTimestep::compTimestep(
   const Eigen::Vector3d b_hat{0.0, 0.5, 0.5};
 
 #if SOLUTION
-  // Define the functions f and g !!!PAY ATTENTION TO THE SIGNS!!!
-  auto f_efficient = [this,
-                      fe_test](const Eigen::VectorXd& x) -> Eigen::VectorXd {
+  auto update_kappa = [this,
+                       fe_test](const Eigen::VectorXd& x) -> Eigen::VectorXd {
     return -compNonlinearTerm(fe_test, x);
   };
-  auto g_efficient = [this](const Eigen::VectorXd& x) -> Eigen::VectorXd {
-    return phi_ - A_ * x;
+
+  auto update_kappa_hat = [this](const Eigen::VectorXd& x) -> Eigen::VectorXd {
+    return phi_ - (A_ * x);
   };
 
   // Define some temporary helper variables
@@ -293,22 +293,27 @@ void IMEXTimestep::compTimestep(
   Eigen::VectorXd u(N);
 
   // We now perform one step of the IMEXRKSSM
-  k_hat.col(0) = f_efficient(y);
+  kappa_hat.col(0) = update_kappa_hat(y);
+
   for (unsigned int i = 0; i < 2; ++i) {
     for (unsigned int j = 0; j < i; ++j) {
-      tmp += a(i, j) * k.col(j) + a_hat(i + 1, j) * k_hat.col(j);
+      tmp += tau * a(i, j) * kappa.col(j) +
+             tau * a_hat(i + 1, j) * kappa_hat.col(j);
     }
-    tmp += a_hat(i + 1, i) * k_hat.col(i);
+    tmp += tau * a_hat(i + 1, i) * kappa_hat.col(i);
 
-    tmp += a(i, i) * phi_;
+    tmp += tau * a(i, i) * phi_;
 
-    u = solver_MplustauA_[i].solve(M_ * y + tau * tmp);
-    k.col(i) = g_efficient(u);
-    k_hat.col(i + 1) = f_efficient(u);
+    u = solver_MplustauA_[i].solve(M_ * y + tmp);
+    kappa.col(i) = update_kappa(u);
+    kappa_hat.col(i + 1) = update_kappa_hat(u);
     tmp.setZero();
   }
 
-  y += tau * (k * b + k_hat * b_hat);
+  Eigen::MatrixXd k = solver_M_.solve(kappa);
+  Eigen::MatrixXd k_hat = solver_M_.solve(kappa_hat);
+
+  y += tau * k * b + tau * k_hat * b_hat;
 
 #else
   // ========================================
