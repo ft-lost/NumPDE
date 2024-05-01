@@ -49,22 +49,29 @@ class SemiLagrStep {
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
       FUNCTOR v)
       : fe_space_(fe_space),
-        A_COO_(fe_space->LocGlobMap().NumDofs(),
-               fe_space->LocGlobMap().NumDofs()),
+        A_(fe_space->LocGlobMap().NumDofs(), fe_space->LocGlobMap().NumDofs()),
+        Atmp_(fe_space->LocGlobMap().NumDofs(),
+              fe_space->LocGlobMap().NumDofs()),
         Up_(fe_space->LocGlobMap().NumDofs()),  // mass vector
         vp_(2, fe_space->LocGlobMap().NumDofs()),
         N_dofs_(fe_space->LocGlobMap().NumDofs())
   {
     // precalculate matrix $A = \int gradu gradv dx$
+    lf::assemble::COOMatrix<double> A_COO(N_dofs_, N_dofs_);
     lf::uscalfe::ReactionDiffusionElementMatrixProvider
         galerkin_element_matrix_provider(
             fe_space_, lf::mesh::utils::MeshFunctionConstant(1.0),
             lf::mesh::utils::MeshFunctionConstant(0.0));
     lf::assemble::AssembleMatrixLocally(
         0, fe_space->LocGlobMap(), fe_space->LocGlobMap(),
-        galerkin_element_matrix_provider, A_COO_);
+        galerkin_element_matrix_provider, A_COO);
+    Eigen::VectorXd b_dummy = Eigen::VectorXd::Zero(N_dofs_);
+    enforce_zero_boundary_conditions(fe_space_, A_COO, b_dummy);
 
-    // precalculate Up_, note nhat maxx_matrix will be a diagonal matrix
+    A_ = A_COO.makeSparse();
+    Atmp_ = A_;
+
+    // precalculate Up_, note that mass_matrix will be a diagonal matrix
     // because the eval function of LumpedMassElementMatrixProcider always
     // returns diagonal matrizes
     LumpedMassElementMatrixProvider lumped_mass_element_matrix_provider(
@@ -86,11 +93,9 @@ class SemiLagrStep {
   };
 
   Eigen::VectorXd step(const Eigen::VectorXd& u0_vector, double tau) {
-    lf::assemble::COOMatrix<double> A_tmp = A_COO_;
-
-    // add the scaled diagonal values of Up to the matrix
+    // add the scaled diagonal values of Up_ to the matrix
     for (int i = 0; i < N_dofs_; i++) {
-      A_tmp.AddToEntry(i, i, Up_(i) / tau);
+      Atmp_.coeffRef(i, i) = A_.coeff(i, i) + Up_(i) / tau;
     }
 
     // warp u0 into a mesh function (required by the Vector provider) \&
@@ -99,28 +104,35 @@ class SemiLagrStep {
     UpwindLagrangianElementVectorProvider vector_provider(
         vp_, tau, fe_space_->Mesh(), u0_mf);
 
-    Eigen::VectorXd b(fe_space_->LocGlobMap().NumDofs());
-    b.setZero();
+    Eigen::VectorXd b = Eigen::VectorXd::Zero(N_dofs_);
     lf::assemble::AssembleVectorLocally(0, fe_space_->LocGlobMap(),
                                         vector_provider, b);
-    // Note that this cannot be done in the constructor because b
-    // and the diagonal values of A are not known there
-    enforce_zero_boundary_conditions(fe_space_, A_tmp, b);
+
+    // set rhs vector to zero for all boundary nodes to ensure
+    // that the Dirichlet boundary conditions are enforced correctly
+    lf::mesh::utils::CodimMeshDataSet<bool> bd_flags{
+        lf::mesh::utils::flagEntitiesOnBoundary(fe_space_->Mesh(), 2)};
+    auto entities = fe_space_->Mesh()->Entities(2);
+    for (int i = 0; i < b.size(); i++) {
+      if (bd_flags(*entities[i])) {
+        b(i) = 0.;
+      }
+    }
 
     // solve LSE
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-    solver.compute(A_tmp.makeSparse());
+    solver.compute(Atmp_);
 
     return solver.solve(b);
   }
 
  private:
   std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space_;
-  lf::assemble::COOMatrix<double> A_COO_;
+  Eigen::SparseMatrix<double> A_;
+  Eigen::SparseMatrix<double> Atmp_;
   Eigen::VectorXd Up_;
   Eigen::MatrixXd vp_;
   const lf::uscalfe::size_type N_dofs_;
-
 };
 /* SAM_LISTING_END_1 */
 
