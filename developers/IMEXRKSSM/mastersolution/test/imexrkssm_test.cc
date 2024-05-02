@@ -74,7 +74,7 @@ TEST(IMEX, TimeStepTest) {
   const int N = fe_space->LocGlobMap().NumDofs();
   Eigen::VectorXd u_ref = Eigen::VectorXd::Zero(N);
 
-  int M = std::pow(2, 12);
+  int M = std::pow(2, 8);
 
   Eigen::VectorXd u = Eigen::VectorXd::Zero(N);
 
@@ -90,13 +90,20 @@ TEST(IMEX, TimeStepTest) {
                                       element_vector_provider, u_ref);
 
   const double tau = 1. / M;
-  const IMEXTimestep Timestepper(fe_space, tau);
+  const double gamma = (3.0 + std::sqrt(3)) / 6.0;
+  // Define the butcher Matrix a
+  Eigen::Matrix2d a;
+  a << gamma, 0.0, 1.0 - 2.0 * gamma, gamma;
+
+  // Create the timestepper
+  IMEXTimestep Timestepper(fe_space, tau, a.diagonal());
+
   for (unsigned int i = 0; i < M; ++i) {
     Timestepper.compTimestep(fe_space, tau, u);
     Timestepper.compTimestep_inefficient(fe_space, tau, u_ref);
   }
 
-  ASSERT_NEAR(0.0, (u - u_ref).array().abs().maxCoeff(), 1e-3);
+  ASSERT_NEAR(0.0, (u - u_ref).array().abs().maxCoeff(), 1e-7);
 }
 
 }  // namespace IMEX::test

@@ -112,7 +112,7 @@ class IMEXTimestep {
  public:
   IMEXTimestep(
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
-      double tau);
+      const double tau, const Eigen::VectorXd& butcher_matrix_diag);
   void compTimestep(
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
       double tau, Eigen::VectorXd& y) const;
@@ -130,8 +130,7 @@ class IMEXTimestep {
 
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver_M_;
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver_A_;
-  std::array<Eigen::SparseLU<Eigen::SparseMatrix<double>>, 2>
-      solver_MplustauA_;  // size needs to be known at compile time
+  std::array<Eigen::SparseLU<Eigen::SparseMatrix<double>>, 2> solver_MplustauA_;
   Eigen::MatrixXd MInvA_;
   Eigen::VectorXd MInvphi_;
 };

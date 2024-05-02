@@ -32,7 +32,9 @@ void TestSquareMesh() {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   lf::io::GmshReader reader(std::move(mesh_factory), "meshes/square.msh");
   auto initial_mesh_p = reader.mesh();
-  /* Debugging with finer meshes
+
+  // Uncomment lines for further mesh refinement
+  /*
   // Generate a sequence of meshes by regular refinement.
   std::cout<< "Genereatring Mesh sequence" << std::endl;
   const int reflevels = 2;
@@ -49,17 +51,19 @@ void TestSquareMesh() {
   const lf::assemble::DofHandler& dofh{fe_space->LocGlobMap()};
 
   std::cout << "Computing reference solution" << std::endl;
-  Eigen::VectorXd mu_exact = IMEX::solveTestProblem(fe_space, std::pow(2, 12));
+  Eigen::VectorXd mu_exact = IMEX::solveTestProblem(fe_space, std::pow(2, 10));
+
   std::vector<double> err;
-  // Convergence analysis by halving step size
+  // Convergence analysis by halving the step size
   std::cout << "Test IMEXRK on square Mesh" << std::endl;
   std::cout << "M" << std::setw(20) << "Error" << std::endl;
-  for (int M = 2; M < std::pow(2, 12); M *= 2) {
+  for (int M = 2; M < std::pow(2, 10); M *= 2) {
     const Eigen::VectorXd mu = IMEX::solveTestProblem(fe_space, M);
     const double error = (mu_exact - mu).array().abs().maxCoeff();
     err.push_back(error);
     std::cout << M << std::setw(20) << error << std::endl;
   }
+  IMEX::visSolution(fe_space, mu_exact, "square_solution.vtk");
 }
 
 int main(int /*argc*/, char** /*argv*/) {

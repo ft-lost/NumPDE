@@ -78,15 +78,29 @@ Eigen::VectorXd compNonlinearTerm(
 
 /* SAM_LISTING_BEGIN_3 */
 IMEXTimestep::IMEXTimestep(
-    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test) {
+    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
+    const double tau, const Eigen::VectorXd& butcher_matrix_diag) {
   // ========================================
   // Your code here
+  // Define some helper functions that we can pass to compGalerkinMatrix as
+  // alpha, beta and gamma
+
+  // Compute the rhs vector
+
+  // Compute the LHS time independent Matrices
+
+  // Do some pre-computations to initialize the sparse solvers
+
   // ========================================
+
+  //  The following solvers are only used in the inefficient time stepping
+  //  method Precompute $M^{-1} * A$ and $M^{-1}\phi$
+  MInvA_ = solver_M_.solve(A_);
+  MInvphi_ = solver_M_.solve(phi_);
 }
 /* SAM_LISTING_END_3 */
 
-/* SAM_LISTING_BEGIN_4 */
-void IMEXTimestep::compTimestep(
+void IMEXTimestep::compTimestep_inefficient(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
     double tau, Eigen::VectorXd& y) const {
   // Compute the time dependant non-linear term
@@ -108,6 +122,60 @@ void IMEXTimestep::compTimestep(
   a_hat << 0., 0., 0., gamma, 0., 0., gamma - 1., 2.0 * (1.0 - gamma), 0.;
   const Eigen::Vector3d b_hat{0.0, 0.5, 0.5};
 
+  // Define the functions f and g !!!PAY ATTENTION TO THE SIGNS!!!
+  auto f = [this, fe_test](const Eigen::VectorXd& x) -> Eigen::VectorXd {
+    return -solver_M_.solve(compNonlinearTerm(fe_test, x));
+  };
+  auto g = [this](const Eigen::VectorXd& x) -> Eigen::VectorXd {
+    return MInvphi_ - MInvA_ * x;
+  };
+
+  const Eigen::MatrixXd Id_N = Eigen::MatrixXd::Identity(N, N);
+
+  // Define some temporary helper variables
+  Eigen::VectorXd tmp(N);
+  tmp.setZero();
+  Eigen::VectorXd u(N);
+
+  // We now perform one step of the IMEXRKSSM
+  k_hat.col(0) = f(y);
+  for (unsigned int i = 0; i < 2; ++i) {
+    for (unsigned int j = 0; j < i; ++j) {
+      tmp += a(i, j) * k.col(j) + a_hat(i + 1, j) * k_hat.col(j);
+    }
+    tmp += a_hat(i + 1, i) * k_hat.col(i);
+
+    tmp += a(i, i) * MInvphi_;
+
+    u = (Id_N + tau * a(i, i) * MInvA_).lu().solve(y + tau * tmp);
+    k.col(i) = g(u);
+    k_hat.col(i + 1) = f(u);
+    tmp.setZero();
+  }
+  y += tau * (k * b + k_hat * b_hat);
+}
+
+/* SAM_LISTING_BEGIN_4 */
+void IMEXTimestep::compTimestep(
+    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
+    double tau, Eigen::VectorXd& y) const {
+  // Define gamma
+  const double gamma = (3.0 + std::sqrt(3)) / 6.0;
+  const int N = fe_test->LocGlobMap().NumDofs();
+
+  // Define the increment Vectors and store the in the columns of a
+  // Eigen::Matrix
+  Eigen::MatrixXd kappa(N, 2);
+  Eigen::MatrixXd kappa_hat(N, 3);
+
+  // Define the butcher Matrices
+  Eigen::Matrix2d a;
+  a << gamma, 0.0, 1.0 - 2.0 * gamma, gamma;
+  const Eigen::Vector2d b{0.5, 0.5};
+  Eigen::Matrix3d a_hat;
+  a_hat << 0., 0., 0., gamma, 0., 0., gamma - 1., 2.0 * (1.0 - gamma), 0.;
+  const Eigen::Vector3d b_hat{0.0, 0.5, 0.5};
+
   // ========================================
   // Your code here
   // ========================================
@@ -117,14 +185,37 @@ void IMEXTimestep::compTimestep(
 Eigen::VectorXd solveTestProblem(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
     int M) {
-  IMEXTimestep Timestepper(fe_space);
   const unsigned int N = fe_space->LocGlobMap().NumDofs();
   const double tau = 1. / M;
+  const double gamma = (3.0 + std::sqrt(3)) / 6.0;
+  // Define the butcher Matrix a
+  Eigen::Matrix2d a;
+  a << gamma, 0.0, 1.0 - 2.0 * gamma, gamma;
 
-  Eigen::VectorXd u = Eigen::VectorXd::Constant(N, 0.0);
+  // Create the timestepper
+  IMEXTimestep Timestepper(fe_space, tau, a.diagonal());
+
+  // Initialize $u_0 = sin(x*2pi)*sin(y*2pi)+1$
+  Eigen::VectorXd u = Eigen::VectorXd::Zero(N);
+
+  auto initial_values_sin = [](const Eigen::Vector2d& x) {
+    return std::sin(x(0) * 2.0 * M_PI) * std::sin(x(1) * 2.0 * M_PI) + 1.0;
+  };
+
+  lf::mesh::utils::MeshFunctionGlobal mf_init(initial_values_sin);
+  lf::fe::ScalarLoadElementVectorProvider element_vector_provider(fe_space,
+                                                                  mf_init);
+  lf::assemble::AssembleVectorLocally(0, fe_space->LocGlobMap(),
+                                      element_vector_provider, u);
 
   for (unsigned int i = 0; i < M; ++i) {
     Timestepper.compTimestep(fe_space, tau, u);
+    // Uncomment the following lines to get a visualization of the whole
+    // timeseries
+
+    // std::stringstream step_string;
+    // step_string << "solution_step_" << i << ".vtk";
+    // visSolution(fe_space, u, step_string.str());
   }
   return u;
 }
