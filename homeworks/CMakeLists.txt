@@ -39,7 +39,7 @@ add_subdirectory(ImplRK3Prey)
 add_subdirectory(IncidenceMatrices)
 add_subdirectory(InitCondLV)
 add_subdirectory(IPDGFEM)
-# add_subdirectory(LaxWendroffScheme) # test_mastersolution takes too long
+add_subdirectory(LaxWendroffScheme) # test_mastersolution takes too long
 add_subdirectory(LengthOfBoundary)
 add_subdirectory(LFPPDofHandling)
 add_subdirectory(LinearFE1D)
