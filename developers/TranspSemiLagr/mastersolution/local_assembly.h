@@ -7,6 +7,7 @@
  */
 
 #include <lf/base/base.h>
+#include <lf/base/ref_el.h>
 #include <lf/geometry/geometry.h>
 #include <lf/mesh/mesh.h>
 #include <lf/mesh/utils/utils.h>
@@ -30,11 +31,11 @@ namespace TranspSemiLagr {
  *
  * The local vector is given by
  *
- * v^K_i = 1/3*|K|*u0(p_i - \tau*v(p_i)) , i=1,...,3
+ * v^K_i = 1/(3 * tau)*|K|*u0(p_i - \tau*v(p_i)) , i=1,...,3
  *
  * where p_i is the i-th node of the triangle K.
  */
-template <typename FUNCTOR, typename MESH_FUNCTION>
+template <typename MESH_FUNCTION>
 class UpwindLagrangianElementVectorProvider {
   static_assert(lf::mesh::utils::MeshFunction<MESH_FUNCTION>);
 
@@ -47,9 +48,9 @@ class UpwindLagrangianElementVectorProvider {
    * @param U0 solution at previous time step
    */
   UpwindLagrangianElementVectorProvider(
-      FUNCTOR v, double tau, std::shared_ptr<const lf::mesh::Mesh> mesh_p,
-      MESH_FUNCTION U0)
-      : v_(v), tau_(tau), mesh_p_(std::move(mesh_p)), U0_(U0) {}
+      Eigen::MatrixXd vp, double tau,
+      std::shared_ptr<const lf::mesh::Mesh> mesh_p, MESH_FUNCTION U0)
+      : vp_(std::move(vp)), tau_(tau), mesh_p_(std::move(mesh_p)), U0_(U0) {}
 
   /**
    * @brief actual computation of the element vector
@@ -73,15 +74,14 @@ class UpwindLagrangianElementVectorProvider {
   Eigen::Vector2d pull_back_(Eigen::Vector2d x,
                              const lf::geometry::Geometry& geo);
 
-  double tau_;        // time step size
-  FUNCTOR v_;         // velocity field
-  MESH_FUNCTION U0_;  // solution at previous time step
+  double tau_;          // time step size
+  Eigen::MatrixXd vp_;  // velocity field evaluated at each point p
+  MESH_FUNCTION U0_;    // solution at previous time step
   std::shared_ptr<const lf::mesh::Mesh> mesh_p_;  // pointer to underlying mesh
 };
 
-template <typename FUNCTOR, typename MESH_FUNCTION>
-Eigen::Vector3d
-UpwindLagrangianElementVectorProvider<FUNCTOR, MESH_FUNCTION>::Eval(
+template <typename MESH_FUNCTION>
+Eigen::Vector3d UpwindLagrangianElementVectorProvider<MESH_FUNCTION>::Eval(
     const lf::mesh::Entity& entity) {
   LF_ASSERT_MSG(lf::base::RefEl::kTria() == entity.RefEl(),
                 "Function only defined for triangular cells");
@@ -95,10 +95,14 @@ UpwindLagrangianElementVectorProvider<FUNCTOR, MESH_FUNCTION>::Eval(
   const Eigen::MatrixXd corners = lf::geometry::Corners(*geo_ptr);
   const double area = lf::geometry::Volume(*geo_ptr);
 
+  const std::span<const lf::mesh::Entity* const> subentities =
+      entity.SubEntities(2);
+
   // evaluate the three components of the element vector
   for (unsigned int i = 0; i < 3; ++i) {
     // compute evaluation point for i-th coordinate
-    Eigen::Vector2d y = corners.col(i) - tau_ * v_(corners.col(i));
+    Eigen::Vector2d y =
+        corners.col(i) - tau_ * vp_.col((mesh_p_->Index(*subentities[i])));
 
     // Since U0 is given as a mesh function, we need to find the triangle
     // in which the evaluation point y lies.
@@ -109,16 +113,16 @@ UpwindLagrangianElementVectorProvider<FUNCTOR, MESH_FUNCTION>::Eval(
       // reference triangle. This is the case if and only if y lies in cell
       if (yhat(0) >= 0 && yhat(1) >= 0 && yhat.sum() <= 1) {
         // evaluate mesh function at the correct local coordinates.
-        result(i) = U0_(*cell, yhat)[0] * area / 3.0;
+        result(i) = U0_(*cell, yhat)[0] * area / (3.0 * tau_);
       }
     }
   }
   return result;
 }
 
-template <typename FUNCTOR, typename MESH_FUNCTION>
+template <typename MESH_FUNCTION>
 Eigen::Vector2d
-UpwindLagrangianElementVectorProvider<FUNCTOR, MESH_FUNCTION>::pull_back_(
+UpwindLagrangianElementVectorProvider<MESH_FUNCTION>::pull_back_(
     Eigen::Vector2d x, const lf::geometry::Geometry& geo) {
   const Eigen::MatrixXd corners = lf::geometry::Corners(geo);
   const Eigen::MatrixXd InvJacobian = geo.Jacobian(corners.col(0)).inverse();
