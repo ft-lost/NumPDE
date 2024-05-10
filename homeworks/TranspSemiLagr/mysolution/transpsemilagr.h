@@ -45,6 +45,7 @@ void enforce_zero_boundary_conditions(
 template <typename FUNCTOR>
 class SemiLagrStep {
  public:
+  /* SAM_LISTING_BEGIN_6 */
   SemiLagrStep(
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
       FUNCTOR v)
@@ -53,13 +54,16 @@ class SemiLagrStep {
     // Your code goes here
     //====================
   };
+  /* SAM_LISTING_END_6 */
 
+  /* SAM_LISTING_BEGIN_7 */
   Eigen::VectorXd step(const Eigen::VectorXd& u0_vector, double tau) {
     //====================
     // Your code goes here
     //====================
     return Eigen::VectorXd::Ones(u0_vector.size());
   }
+  /* SAM_LISTING_END_7 */
 
  private:
 };
