@@ -97,10 +97,11 @@ TEST(IMEX, TimeStepTest) {
 
   // Create the timestepper
   IMEXTimestep Timestepper(fe_space, tau, a.diagonal());
+  IMEXTimestep_inefficient InefficientTimestepper(fe_space);
 
   for (unsigned int i = 0; i < M; ++i) {
     Timestepper.compTimestep(fe_space, tau, u);
-    Timestepper.compTimestep_inefficient(fe_space, tau, u_ref);
+    InefficientTimestepper.compTimestep(fe_space, tau, u_ref);
   }
 
   ASSERT_NEAR(0.0, (u - u_ref).array().abs().maxCoeff(), 1e-7);

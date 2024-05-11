@@ -116,9 +116,6 @@ class IMEXTimestep {
   void compTimestep(
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
       double tau, Eigen::VectorXd& y) const;
-  void compTimestep_inefficient(
-      std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
-      double tau, Eigen::VectorXd& y) const;
 
  private:
   Eigen::SparseMatrix<double> M_;
@@ -131,6 +128,25 @@ class IMEXTimestep {
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver_M_;
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver_A_;
   std::array<Eigen::SparseLU<Eigen::SparseMatrix<double>>, 2> solver_MplustauA_;
+};
+
+class IMEXTimestep_inefficient {
+ public:
+  IMEXTimestep_inefficient(
+      std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test);
+  void compTimestep(
+      std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
+      double tau, Eigen::VectorXd& y) const;
+
+ private:
+  Eigen::SparseMatrix<double> M_;
+  Eigen::SparseMatrix<double> A_;
+
+  Eigen::VectorXd phi_;
+  // Feel free to add more data members
+
+  Eigen::SparseLU<Eigen::SparseMatrix<double>> solver_M_;
+  Eigen::SparseLU<Eigen::SparseMatrix<double>> solver_A_;
   Eigen::MatrixXd MInvA_;
   Eigen::VectorXd MInvphi_;
 };
