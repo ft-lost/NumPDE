@@ -97,6 +97,7 @@
     "AsymptoticCvgFEM/",
     "GuyerKrumhansl/",
     "CoupledBVPs/",
-    "PLaplacian/"
+    "PLaplacian/",
+    "IMEXRKSSM/"
   ]
 }

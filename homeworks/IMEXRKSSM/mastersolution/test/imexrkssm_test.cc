@@ -30,8 +30,7 @@ TEST(IMEX, IMEXError) {
 
 TEST(IMEX, compNonlinearTerm) {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/../../meshes/square.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/square.msh");
   auto mesh = reader.mesh();
   // obtain dofh for lagrangian finite element space
   auto fe_space =
@@ -67,43 +66,45 @@ TEST(IMEX, compNonlinearTerm) {
 
 TEST(IMEX, TimeStepTest) {
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            CURRENT_SOURCE_DIR "/../../meshes/square.msh");
+  lf::io::GmshReader reader(std::move(mesh_factory), "meshes/square.msh");
   auto mesh = reader.mesh();
   // obtain dofh for lagrangian finite element space
   auto fe_space =
       std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh);
   const int N = fe_space->LocGlobMap().NumDofs();
-  Eigen::VectorXd u_ref(N);
-  int M = 1024;
-  u_ref << 0.0434425, 0.0434457, 0.0434434, 0.0434492, 0.0293169, 0.0309144,
-      0.0210828, 0.0298132, 0.0198744, 0.0307305, 0.0292886, 0.0293121,
-      0.0308709, 0.0207334, 0.0309517, 0.0192963, 0.0307029, 0.0292573,
-      0.0293152, 0.0309175, 0.0210519, 0.0308338, 0.018709, 0.0304284,
-      0.0292672, 0.0293112, 0.0308736, 0.0205944, 0.0307722, 0.0201742,
-      0.0306995, 0.0292917, 1.86984e-05, 0.000399992, -2.91491e-05, 0.000185663,
-      0.000241825, 0.000971097, 0.000896618, 0.000938677, 0.00102834,
-      0.00135137, 0.00146696, 0.00142012, 0.00151964, -0.000131932, 8.86764e-06,
-      -0.000159586, -0.00210476, -0.00241515, -0.00214354, -0.00200367,
-      -0.00199297, -0.00217797, -0.0024125, -0.0021389, -6.59751e-05,
-      -0.00012574, -7.67701e-05, 0.00013639, 0.000179789, -0.00462553,
-      -0.00367534, -0.00410778, -0.00369735, 0.000162301, 9.24702e-05,
-      -0.00454552, -0.00442071, -0.00442195, -0.00453451, -0.00447883,
-      -0.00443405, -0.0045019, -0.00432522, 4.99375e-05, 2.77087e-05,
-      7.22009e-05, 4.92161e-06, -0.00337608, -0.00335778, -0.00341243,
-      -0.00350629, 5.42904e-05, -0.00957099, -0.00957767, -0.00957913,
-      -0.00955876, 0.000341966, 0.000354395, 0.0003674, 0.000361194,
-      -4.52379e-05, 0.000231246, 0.000312819, 0.000306226, 0.000312481,
-      -5.29099e-06, 2.43659e-05, -0.00315849, -0.00317134, -0.0031774,
-      -0.00316244, -0.00311926, -0.00302435, -0.0030816, -0.00308685;
+  Eigen::VectorXd u_ref = Eigen::VectorXd::Zero(N);
 
-  const IMEXTimestep Timestepper(fe_space);
+  int M = std::pow(2, 8);
+
+  Eigen::VectorXd u = Eigen::VectorXd::Zero(N);
+
+  auto initial_values = [](const Eigen::Vector2d& x) {
+    return std::sin(x(0) * 2.0 * M_PI) * std::sin(x(1) * 2.0 * M_PI) + 1.0;
+  };
+  lf::mesh::utils::MeshFunctionGlobal mf_init(initial_values);
+  lf::fe::ScalarLoadElementVectorProvider element_vector_provider(fe_space,
+                                                                  mf_init);
+  lf::assemble::AssembleVectorLocally(0, fe_space->LocGlobMap(),
+                                      element_vector_provider, u);
+  lf::assemble::AssembleVectorLocally(0, fe_space->LocGlobMap(),
+                                      element_vector_provider, u_ref);
+
   const double tau = 1. / M;
+  const double gamma = (3.0 + std::sqrt(3)) / 6.0;
+  // Define the butcher Matrix a
+  Eigen::Matrix2d a;
+  a << gamma, 0.0, 1.0 - 2.0 * gamma, gamma;
 
-  Eigen::VectorXd u = Eigen::VectorXd::Constant(N, 0.0);
-  Timestepper.compTimestep(fe_space, tau, u);
+  // Create the timestepper
+  IMEXTimestep Timestepper(fe_space, tau, a.diagonal());
+  IMEXTimestep_inefficient InefficientTimestepper(fe_space);
 
-  ASSERT_NEAR(0.0, (u - u_ref).norm(), 1e-6);
+  for (unsigned int i = 0; i < M; ++i) {
+    Timestepper.compTimestep(fe_space, tau, u);
+    InefficientTimestepper.compTimestep(fe_space, tau, u_ref);
+  }
+
+  ASSERT_NEAR(0.0, (u - u_ref).array().abs().maxCoeff(), 1e-7);
 }
 
 }  // namespace IMEX::test

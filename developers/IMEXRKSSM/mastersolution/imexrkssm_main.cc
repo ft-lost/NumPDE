@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "imexrkssm.h"
+
 void TestConvergence() {
   std::vector<int> M(8);
   M[0] = 8;
@@ -30,24 +31,41 @@ void TestSquareMesh() {
   // read in mesh and set up finite element space
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   lf::io::GmshReader reader(std::move(mesh_factory), "meshes/square.msh");
-  auto mesh = reader.mesh();
+  auto initial_mesh_p = reader.mesh();
+
+  // Uncomment lines for further mesh refinement
+  /*
+  // Generate a sequence of meshes by regular refinement.
+  std::cout<< "Genereatring Mesh sequence" << std::endl;
+  const int reflevels = 2;
+  std::shared_ptr<lf::refinement::MeshHierarchy> multi_mesh_p =
+      lf::refinement::GenerateMeshHierarchyByUniformRefinemnt(initial_mesh_p,
+                                                              reflevels);
+  lf::refinement::MeshHierarchy& multi_mesh{*multi_mesh_p};
+  std::shared_ptr<lf::mesh::Mesh> mesh_p = multi_mesh.getMesh(2);
+  */
+
   // obtain dofh for lagrangian finite element space
   auto fe_space =
-      std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh);
+      std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(initial_mesh_p);
   const lf::assemble::DofHandler& dofh{fe_space->LocGlobMap()};
-  Eigen::VectorXd mu_exact = IMEX::solveTestProblem(fe_space, 2048);
+
+  std::cout << "Computing reference solution" << std::endl;
+  Eigen::VectorXd mu_exact = IMEX::solveTestProblem(fe_space, std::pow(2, 15));
+
   std::vector<double> err;
-  // Solve test problem
+  // Convergence analysis by halving the step size
   std::cout << "Test IMEXRK on square Mesh" << std::endl;
   std::cout << "M" << std::setw(20) << "Error" << std::endl;
-  for (int M = 2; M < 2048; M *= 2) {
+  for (int M = 2; M < std::pow(2, 15); M *= 2) {
     const Eigen::VectorXd mu = IMEX::solveTestProblem(fe_space, M);
-    const double error = (mu_exact - mu).norm();
+    const double error = (mu_exact - mu).array().abs().maxCoeff();
     err.push_back(error);
     std::cout << M << std::setw(20) << error << std::endl;
   }
   IMEX::visSolution(fe_space, mu_exact, "square_solution.vtk");
 }
+
 int main(int /*argc*/, char** /*argv*/) {
   TestConvergence();
   TestSquareMesh();
