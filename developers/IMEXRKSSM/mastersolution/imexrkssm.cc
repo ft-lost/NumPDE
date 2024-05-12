@@ -166,12 +166,11 @@ IMEXTimestep::IMEXTimestep(
   solver_A_.factorize(A_);
   LF_ASSERT_MSG(solver_A_.info() == Eigen::Success,
                 "Solver did not manage to factorize A");
-
   solver_M_.analyzePattern(M_);
   solver_M_.factorize(M_);
   LF_ASSERT_MSG(solver_M_.info() == Eigen::Success,
                 "Solver did not manage to factorize M");
-
+  // Build and factorize matrices $\VM+\tau a_{i,i}\VA$
   for (unsigned int i = 0; i < solver_MplustauA_.size(); ++i) {
     MplustauA_[i] = (M_ + tau * butcher_matrix_diag[i] * A_);
     solver_MplustauA_[i].analyzePattern(MplustauA_[i]);

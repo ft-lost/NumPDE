@@ -1,4 +1,3 @@
-
 #ifndef IMEX_H
 #define IMEX_H
 /**
@@ -139,6 +138,7 @@ class IMEXTimestep_inefficient {
 
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver_M_;
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver_A_;
+  // Very bad: huge dense matrices! Must be avoided!
   Eigen::MatrixXd MInvA_;
   Eigen::VectorXd MInvphi_;
 };
