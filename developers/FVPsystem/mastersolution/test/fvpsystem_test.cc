@@ -6,13 +6,10 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 
+#include "../fvpsystem.h"
+
 #include <gtest/gtest.h>
 
 #include <Eigen/Core>
 
-#include "../fvpsystem.h"
-
-namespace FVPsystem::test {
-
-  
-}  // namespace FVPsystem::test
+namespace FVPsystem::test {}  // namespace FVPsystem::test
