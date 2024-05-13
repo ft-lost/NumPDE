@@ -6,13 +6,10 @@
  * @copyright Developed at SAM, ETH Zurich
  */
 
+#include "../linhypdampwavesys.h"
+
 #include <gtest/gtest.h>
 
 #include <Eigen/Core>
 
-#include "../linhypdampwavesys.h"
-
-namespace LinHypDampWaveSys::test {
-
-  
-}  // namespace LinHypDampWaveSys::test
+namespace LinHypDampWaveSys::test {}  // namespace LinHypDampWaveSys::test
