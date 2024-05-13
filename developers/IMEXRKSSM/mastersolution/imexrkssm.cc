@@ -136,7 +136,8 @@ Eigen::VectorXd compNonlinearTerm(
 /* SAM_LISTING_BEGIN_3 */
 IMEXTimestep::IMEXTimestep(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
-    const double tau, const Eigen::VectorXd& butcher_matrix_diag) {
+    const double tau, const Eigen::VectorXd& butcher_matrix_diag)
+    : tau_(tau) {
 #if SOLUTION
   // Define some helper functions that we can pass to compGalerkinMatrix as
   // alpha, beta and gamma
@@ -172,7 +173,7 @@ IMEXTimestep::IMEXTimestep(
                 "Solver did not manage to factorize M");
   // Build and factorize matrices $\VM+\tau a_{i,i}\VA$
   for (unsigned int i = 0; i < solver_MplustauA_.size(); ++i) {
-    MplustauA_[i] = (M_ + tau * butcher_matrix_diag[i] * A_);
+    MplustauA_[i] = (M_ + tau_ * butcher_matrix_diag[i] * A_);
     solver_MplustauA_[i].analyzePattern(MplustauA_[i]);
     solver_MplustauA_[i].factorize(MplustauA_[i]);
     LF_ASSERT_MSG(solver_MplustauA_[i].info() == Eigen::Success,
@@ -199,7 +200,7 @@ IMEXTimestep::IMEXTimestep(
 /* SAM_LISTING_BEGIN_4 */
 void IMEXTimestep::compTimestep(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
-    double tau, Eigen::VectorXd& y) const {
+    Eigen::VectorXd& y) const {
   // Define gamma
   const double gamma = (3.0 + std::sqrt(3)) / 6.0;
   const int N = fe_test->LocGlobMap().NumDofs();
@@ -243,13 +244,13 @@ void IMEXTimestep::compTimestep(
 
     tmp += a(i, i) * phi_;
 
-    u = solver_MplustauA_[i].solve(M_ * y + tau * tmp);
+    u = solver_MplustauA_[i].solve(M_ * y + tau_ * tmp);
     kappa.col(i) = update_kappa(u);
     kappa_hat.col(i + 1) = update_kappa_hat(u);
     tmp.setZero();
   }
 
-  y += tau * solver_M_.solve(kappa * b + kappa_hat * b_hat);
+  y += tau_ * solver_M_.solve(kappa * b + kappa_hat * b_hat);
 
 #else
   // ========================================
@@ -286,7 +287,7 @@ Eigen::VectorXd solveTestProblem(
                                       element_vector_provider, u);
 
   for (unsigned int i = 0; i < M; ++i) {
-    Timestepper.compTimestep(fe_space, tau, u);
+    Timestepper.compTimestep(fe_space, u);
     // Uncomment the following lines to get a visualization of the whole
     // timeseries
 

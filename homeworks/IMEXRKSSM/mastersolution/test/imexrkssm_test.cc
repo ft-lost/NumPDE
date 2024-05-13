@@ -100,7 +100,7 @@ TEST(IMEX, TimeStepTest) {
   IMEXTimestep_inefficient InefficientTimestepper(fe_space);
 
   for (unsigned int i = 0; i < M; ++i) {
-    Timestepper.compTimestep(fe_space, tau, u);
+    Timestepper.compTimestep(fe_space, u);
     InefficientTimestepper.compTimestep(fe_space, tau, u_ref);
   }
 
