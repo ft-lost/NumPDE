@@ -79,7 +79,8 @@ Eigen::VectorXd compNonlinearTerm(
 /* SAM_LISTING_BEGIN_3 */
 IMEXTimestep::IMEXTimestep(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
-    const double tau, const Eigen::VectorXd& butcher_matrix_diag) {
+    const double tau, const Eigen::VectorXd& butcher_matrix_diag)
+    : tau_(tau) {
   // ========================================
   // Your code here
   // Define some helper functions that we can pass to compGalerkinMatrix as
@@ -98,7 +99,7 @@ IMEXTimestep::IMEXTimestep(
 /* SAM_LISTING_BEGIN_4 */
 void IMEXTimestep::compTimestep(
     std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
-    double tau, Eigen::VectorXd& y) const {
+    Eigen::VectorXd& y) const {
   // Define gamma
   const double gamma = (3.0 + std::sqrt(3)) / 6.0;
   const int N = fe_test->LocGlobMap().NumDofs();
@@ -149,7 +150,7 @@ Eigen::VectorXd solveTestProblem(
                                       element_vector_provider, u);
 
   for (unsigned int i = 0; i < M; ++i) {
-    Timestepper.compTimestep(fe_space, tau, u);
+    Timestepper.compTimestep(fe_space, u);
     // Uncomment the following lines to get a visualization of the whole
     // timeseries
 

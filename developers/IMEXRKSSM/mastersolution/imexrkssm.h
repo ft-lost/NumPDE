@@ -114,7 +114,7 @@ class IMEXTimestep {
       const double tau, const Eigen::VectorXd& butcher_matrix_diag);
   void compTimestep(
       std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
-      double tau, Eigen::VectorXd& y) const;
+      Eigen::VectorXd& y) const;
 
  private:
   Eigen::SparseMatrix<double> M_;
@@ -122,6 +122,7 @@ class IMEXTimestep {
   std::array<Eigen::SparseMatrix<double>, 2> MplustauA_;
 
   Eigen::VectorXd phi_;
+  const double tau_;
   // Feel free to add more data members
 
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver_M_;
