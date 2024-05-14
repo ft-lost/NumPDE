@@ -54,7 +54,7 @@ class SemiLagrStep {
         A_(fe_space->LocGlobMap().NumDofs(), fe_space->LocGlobMap().NumDofs()),
         Atmp_(fe_space->LocGlobMap().NumDofs(),
               fe_space->LocGlobMap().NumDofs()),
-        Up_(fe_space->LocGlobMap().NumDofs()),  // mass vector
+        Up_(fe_space->LocGlobMap().NumDofs()),
         vp_(2, fe_space->LocGlobMap().NumDofs()),
         N_dofs_(fe_space->LocGlobMap().NumDofs())
 #else
@@ -149,11 +149,20 @@ class SemiLagrStep {
 
  private:
 #if SOLUTION
+  // Finite Element Space
   std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space_;
+  // Galerkin matrix corresponding to the negative Laplacian $a(u,v) \mapsto
+  // \int_\Omega gradu gradv d\Bx$ with zero dirichlet boundary condition
   Eigen::SparseMatrix<double> A_;
+  // copy of A where the diagonal entries have to be modified in each step
   Eigen::SparseMatrix<double> Atmp_;
+  // mass vector where $Up\_(i) = 1/3|U_i|$, where |U_i| represents the sum of
+  // the areas of all triangles adjacent to p
+  // $=> D(tau) = 1/tau * diag(Up\_)$
   Eigen::VectorXd Up_;
+  // v evaluated at each node in the mesh, vp\_.col(i) = v(i)
   Eigen::MatrixXd vp_;
+  // number of nodes in mesh
   const lf::uscalfe::size_type N_dofs_;
 #else
 #endif
