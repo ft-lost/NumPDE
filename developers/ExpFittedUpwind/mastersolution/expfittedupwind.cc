@@ -100,10 +100,10 @@ Eigen::Matrix3d ExpFittedEMP::Eval(const lf::mesh::Entity& cell) {
   Eigen::Vector3d b = beta_loc(cell);
 
   // evaluate the element matrix using the formula in subproblem h)
-  result << AK(0, 1) * b(0) + AK(0, 2) * b(2), -AK(0, 1) * b(0),
-      -AK(0, 2) * b(2), -AK(0, 1) * b(0), AK(0, 1) * b(0) + AK(1, 2) * b(1),
-      -AK(1, 2) * b(1), -AK(0, 2) * b(2), -AK(1, 2) * b(1),
-      AK(0, 2) * b(2) + AK(1, 2) * b(1);
+  result << -AK(0, 1) * b(0) - AK(0, 2) * b(2), AK(0, 1) * b(0),
+      AK(0, 2) * b(2), AK(0, 1) * b(0), -AK(0, 1) * b(0) - AK(1, 2) * b(1),
+      AK(1, 2) * b(1), AK(0, 2) * b(2), AK(1, 2) * b(1),
+      -AK(0, 2) * b(2) - AK(1, 2) * b(1);
 
   Eigen::Vector3d mu_exp = (-mu_loc(cell)).array().exp();
   result *= mu_exp.asDiagonal();
