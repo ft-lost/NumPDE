@@ -10,6 +10,7 @@
 
 #include <gtest/gtest.h>
 #include <lf/assemble/assemble.h>
+#include <lf/io/io.h>
 #include <lf/mesh/test_utils/test_meshes.h>
 #include <lf/mesh/utils/utils.h>
 #include <lf/uscalfe/uscalfe.h>
@@ -102,24 +103,24 @@ TEST(ExpFittedEMP, Psi_const) {
       std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_p);
   Eigen::VectorXd mu = lf::fe::NodalProjection(*fe_space, mf_Psi);
 
-  // Imploemented exponentially fitted upwind provider
+  // Implemented exponentially fitted upwind provider
   ExpFittedEMP upwind_provider(fe_space, mu);
 
-  // Lehrfem++ element matrix provider for the the minus laplcian
+  // Lehrfem++ element matrix provider for the the minus laplacian
   lf::uscalfe::LinearFELaplaceElementMatrix standard_provider;
 
-  // Expect that for Psi=const the ExpFitted Element matrix is -A_k
+  // Expect that for Psi=const the ExpFitted Element matrix is A_k
   for (auto *cell : mesh_p->Entities(0)) {
     Eigen::Matrix3d E_k = upwind_provider.Eval(*cell);
     Eigen::Matrix3d A_k = standard_provider.Eval(*cell).block<3, 3>(0, 0);
 
-    EXPECT_NEAR((E_k + A_k).norm(), 0.0, 1.0E-10);
+    EXPECT_NEAR((E_k - A_k).norm(), 0.0, 1.0E-10);
   }
 }
 
 // The last two tests are based on the fact, that
 // the expontially Fitted upwind scheme provides a system matrix  A that
-// corresponds to the bilinear form (u,v) -> b(u,v) \int_{\Omega} j(u,Psi) *
+// corresponds to the bilinear form (u,v) -> b(u,v) \int_{\Omega} -j(u,Psi) *
 // grad v dx (j(u,Psi) = const ) In particular this value can be approximated by
 // b_v^T * A * b_u, where b_v and b_u are the nodal projections of v and u into
 // the underlying FE space
@@ -155,7 +156,7 @@ TEST(ExpFittedEMP, Bilinear_form_1) {
 // Psi = q' * x
 // u = c (--> j(u) = c*q)
 // v = r' *x
-// b(u,v) = |\Omega|*c*q'*r
+// b(u,v) = -|\Omega|*c*q'*r
 TEST(ExpFittedEMP, Bilinear_form_2) {
   auto mesh_p = lf::mesh::test_utils::GenerateHybrid2DTestMesh(3);
   double area = 9.0;
@@ -184,8 +185,68 @@ TEST(ExpFittedEMP, Bilinear_form_2) {
   Eigen::SparseMatrix<double> A_crs = A.makeSparse();
 
   double value = v_vec.transpose() * A_crs * u_vec;
-  double reference = area * u_value * r.dot(q);
+  double reference = -area * u_value * r.dot(q);
   EXPECT_NEAR(value, reference, 1.0E-10);
+}
+// Psi = q * x
+// dirichlet bc with g = exp(Psi(x))
+// => u(x) = exp(Psi(x))
+// Note that this test would not detect a sign error in the
+// eval function of the ExpFittedEMP class because f == 0 and we provide proper
+// dirichlet data
+TEST(ExpFittedEMP, SolveDriftEquation) {
+  auto mesh_p = lf::mesh::test_utils::GenerateHybrid2DTestMesh(3);
+  auto fe_space =
+      std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_p);
+
+  Eigen::Vector2d q = Eigen::Vector2d::Ones(2);
+  auto Psi = [&q](const Eigen::Vector2d &x) { return q.dot(x); };
+  auto mf_Psi = lf::mesh::utils::MeshFunctionGlobal(Psi);
+  Eigen::VectorXd mu = lf::fe::NodalProjection(*fe_space, mf_Psi);
+
+  auto exp_psi = [&Psi](const Eigen::VectorXd &x) { return std::exp(Psi(x)); };
+  auto f_zero = [](const Eigen::VectorXd & /*x*/) { return 0.; };
+
+  Eigen::VectorXd res =
+      solveDriftDiffusionDirBVP(fe_space, mu, f_zero, exp_psi);
+
+  auto mf_exp_psi = lf::mesh::utils::MeshFunctionGlobal(exp_psi);
+  Eigen::VectorXd res_analytically =
+      lf::fe::NodalProjection(*fe_space, mf_exp_psi);
+
+  EXPECT_NEAR((res - res_analytically).norm(), 0.0, 1e-10);
+}
+
+// Test with Phi == const, f == c
+// In this case, we solve the equation
+// div(- grad u) = c => u = -(c * (x_1^2 + x_2^2))/4.
+// use g = u on boundary
+TEST(ExpFittedEMP, TestPhiZero) {
+  auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
+  const lf::io::GmshReader reader(std::move(mesh_factory), "meshes/island.msh");
+
+  std::shared_ptr<const lf::mesh::Mesh> mesh_p = reader.mesh();
+  auto fe_space =
+      std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_p);
+
+  auto Psi = [](const Eigen::Vector2d & /*x*/) { return 0.; };
+  auto mf_Psi = lf::mesh::utils::MeshFunctionGlobal(Psi);
+  Eigen::VectorXd mu = lf::fe::NodalProjection(*fe_space, mf_Psi);
+
+  const double c = 3.;
+  auto f_const = [c](const Eigen::VectorXd & /*x*/) { return c; };
+
+  auto g = [&c](const Eigen::Vector2d &x) { return -c * x.dot(x) * .25; };
+
+  Eigen::VectorXd res = solveDriftDiffusionDirBVP(fe_space, mu, f_const, g);
+
+  auto mf_g = lf::mesh::utils::MeshFunctionGlobal(g);
+  Eigen::VectorXd res_analytically = lf::fe::NodalProjection(*fe_space, mf_g);
+
+  // note that we have to choose a high tolerance here because the
+  // solution is quadratic and we interpolate it with piecewise linear funcitons
+  // on a relatively big mesh
+  EXPECT_NEAR((res - res_analytically).lpNorm<Eigen::Infinity>(), 0.0, 1e-1);
 }
 
 }  // namespace ExpFittedUpwind::test

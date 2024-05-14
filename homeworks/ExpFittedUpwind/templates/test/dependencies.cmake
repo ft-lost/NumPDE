@@ -10,4 +10,5 @@ set(LIBRARIES
   LF::lf.mesh.utils
   LF::lf.mesh.test_utils
   LF::lf.uscalfe
+  LF::lf.io
 )
