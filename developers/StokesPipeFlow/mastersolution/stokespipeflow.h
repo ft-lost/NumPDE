@@ -98,7 +98,7 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
           dofh.InteriorGlobalDofIndices(*node)};
       LF_ASSERT_MSG(dof_idx.size() == 3, "Node must carry 3 dofs!");
       // Position of node
-      Eigen::Vector2d pos{Corners(*(node->Geometry())).col(0)};
+      const Eigen::Vector2d pos{Corners(*(node->Geometry())).col(0)};
       // Dirichlet data
       const Eigen::Vector2d g_val{g(pos)};
       // x-component of the velocity
@@ -108,8 +108,6 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
     }
   }
   // Visit edges on the boundasry
-  Eigen::MatrixXd edc(1, 2);  // Reference coordinates
-  edc << 1, 0, 0, 1;
   for (const lf::mesh::Entity *edge : mesh_p->Entities(1)) {
     if (bd_flags(*edge)) {
       // Indices of global shape functions associated with the edge
@@ -118,7 +116,7 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
       LF_ASSERT_MSG(dof_idx.size() == 2, "Edge must carry 2 dofs!");
       // Midpoint of edge
       const Eigen::MatrixXd endpoints{Corners(*(edge->Geometry()))};
-      Eigen::Vector2d pos{0.5 * (endpoints.col(0) + endpoints.col(1))};
+      const Eigen::Vector2d pos{0.5 * (endpoints.col(0) + endpoints.col(1))};
       // Dirichlet data
       const Eigen::Vector2d g_val{g(pos)};
       // x-component of the velocity
