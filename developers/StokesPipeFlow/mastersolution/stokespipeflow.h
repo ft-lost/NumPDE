@@ -11,17 +11,22 @@
 
 // Include almost all parts of LehrFEM++; soem my not be needed
 #include <lf/assemble/assemble.h>
+#include <lf/assemble/assembly_types.h>
 #include <lf/assemble/coomatrix.h>
 #include <lf/assemble/dofhandler.h>
+#include <lf/base/lf_assert.h>
+#include <lf/base/ref_el.h>
 #include <lf/fe/fe.h>
 #include <lf/geometry/geometry_interface.h>
 #include <lf/io/io.h>
 #include <lf/mesh/hybrid2d/hybrid2d.h>
+#include <lf/mesh/utils/special_entity_sets.h>
 #include <lf/mesh/utils/utils.h>
 #include <lf/uscalfe/uscalfe.h>
 
 #include <Eigen/Core>
 #include <Eigen/Sparse>
+#include <cstddef>
 
 namespace StokesPipeFlow {
 /**
@@ -66,17 +71,83 @@ lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
  * @param dofh DofHandler object for all FE spaces
  * @param g functor providing Dirchlet boundary data
  */
+/* SAM_LISTING_BEGIN_2 */
 template <typename gFunctor>
 Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
                               gFunctor &&g) {
-  // Total number of FE d.o.f.s without Lagrangian multiplier
-  lf::assemble::size_type n = dofh.NumDofs();
-  // Vector of all basis expansion coefficients of Taylor-Hood finite element
-  // solution of pipe flow problem. This covers both velocity and pressure.
-  Eigen::VectorXd dofvec{n};
+  // Number of d.o.f. in FE spaces
+  size_t n = dofh.NumDofs();
+  // Obtain full Galerkin matrix in triplet format
+  lf::assemble::COOMatrix<double> A{buildTaylorHoodGalerkinMatrix(dofh)};
+  LF_VERIFY_MSG(A.cols() == A.rows(), "Matrix A must be square");
 
+  // Impose Dirichlet boundary conditions
+  const std::shared_ptr<const lf::mesh::Mesh> mesh_p = dofh.Mesh();
+  // Flag \cor{any} entity located on the boundary
+  auto bd_flags{lf::mesh::utils::flagEntitiesOnBoundary(mesh_p)};
+  // Auxiliary right-hnad side vector
+  Eigen::VectorXd phi(A.cols());
+  phi.setZero();
+  // Flag vector for d.o.f. on the boundary
+  std::vector<std::pair<bool, double>> ess_dof_select(n + 1, {false, 0.0});
+  // Visit nodes on the boundary
+  for (const lf::mesh::Entity *node : mesh_p->Entities(2)) {
+    if (bd_flags(*node)) {
+      // Indices of global shape functions sitting at node
+      std::span<const lf::assemble::gdof_idx_t> dof_idx{
+          dofh.InteriorGlobalDofIndices(*node)};
+      LF_ASSERT_MSG_CONSTEXPR(dof_idx.size() == 3, "Node must carry 3 dofs!");
+      // Position of node
+      Eigen::Vector2d pos{Corners(*(node->Geometry())).col(0)};
+      // Dirichlet data
+      const Eigen::Vector2d g_val{g(pos)};
+      // x-component of the velocity
+      ess_dof_select[dof_idx[0]] = {true, g_val[0]};
+      // y-component of the velocity
+      ess_dof_select[dof_idx[1]] = {true, g_val[1]};
+    }
+  }
+  // Visit edges on the boundasry
+  Eigen::MatrixXd edc(1, 2);  // Reference coordinates
+  edc << 1, 0, 0, 1;
+  for (const lf::mesh::Entity *edge : mesh_p->Entities(1)) {
+    if (bd_flags(*edge)) {
+      // Indices of global shape functions associated with the edge
+      std::span<const lf::assemble::gdof_idx_t> dof_idx{
+          dofh.InteriorGlobalDofIndices(*edge)};
+      LF_ASSERT_MSG_CONSTEXPR(dof_idx.size() == 2, "Edge must carry 2 dofs!");
+      // Midpoint of edge
+      const Eigen::MatrixXd endpoints{Corners(*(edge->Geometry()))};
+      Eigen::Vector2d pos{0.5 * (endpoints.col(0) + endpoints.col(1))};
+      // Dirichlet data
+      const Eigen::Vector2d g_val{g(pos)};
+      // x-component of the velocity
+      ess_dof_select[dof_idx[0]] = {true, g_val[0]};
+      // y-component of the velocity
+      ess_dof_select[dof_idx[1]] = {true, g_val[1]};
+    }
+  }
+  // modify linear system of equations
+  lf::assemble::FixFlaggedSolutionComponents<double>(
+      [&ess_dof_select](lf::assemble::glb_idx_t dof_idx)
+          -> std::pair<bool, double> { return ess_dof_select[dof_idx]; },
+      A, phi);
+  // Assembly completed: Convert COO matrix A into CRS format using Eigen's
+  // internal conversion routines.
+  const Eigen::SparseMatrix<double> A_crs = A.makeSparse();
+
+  // Solve linear system using Eigen's sparse direct elimination
+  // Examine return status of solver in case the matrix is singular
+  Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+  solver.compute(A_crs);
+  LF_VERIFY_MSG(solver.info() == Eigen::Success, "LU decomposition failed");
+  const Eigen::VectorXd dofvec = solver.solve(phi);
+  LF_VERIFY_MSG(solver.info() == Eigen::Success, "Solving LSE failed");
+  // This is the coefficient vector for the FE solution; Dirichlet
+  // boundary conditions are included 
   return dofvec;
 }
+/* SAM_LISTING_END_2 */
 
 }  // namespace StokesPipeFlow
 
