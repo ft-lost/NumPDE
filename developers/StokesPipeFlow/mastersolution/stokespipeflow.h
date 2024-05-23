@@ -108,7 +108,7 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
     }
   }
   // Visit edges on the boundasry
-  Eigen::MatrixXd edc(1, 2);  // Reference coordinates
+  Eigen::MatrixXd edc(2, 2);  // Reference coordinates
   edc << 1, 0, 0, 1;
   for (const lf::mesh::Entity *edge : mesh_p->Entities(1)) {
     if (bd_flags(*edge)) {
