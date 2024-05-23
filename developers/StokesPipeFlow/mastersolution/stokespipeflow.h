@@ -11,6 +11,8 @@
 
 // Include almost all parts of LehrFEM++; soem my not be needed
 #include <lf/assemble/assemble.h>
+#include <lf/assemble/coomatrix.h>
+#include <lf/assemble/dofhandler.h>
 #include <lf/fe/fe.h>
 #include <lf/geometry/geometry_interface.h>
 #include <lf/io/io.h>
@@ -43,10 +45,38 @@ class TaylorHoodElementMatrixProvider {
     return true;
   }
   [[nodiscard]] ElemMat Eval(const lf::mesh::Entity &cell);
-private:
+
+ private:
   ElemMat AK_;
 };
 /* SAM_LISTING_END_1 */
+
+/**
+ * @brief Assembly of full Galerkin matrix in triplet format
+ *
+ * @param dofh DofHandler object for all FE spaces
+ */
+lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
+    const lf::assemble::DofHandler &dofh);
+
+/**
+ * @brief Taylor-Hood FE solultion of pipe flow problem
+ *
+ * @tparam functor type taking a 2-vector and returning a 2-vector
+ * @param dofh DofHandler object for all FE spaces
+ * @param g functor providing Dirchlet boundary data
+ */
+template <typename gFunctor>
+Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
+                              gFunctor &&g) {
+  // Total number of FE d.o.f.s without Lagrangian multiplier
+  lf::assemble::size_type n = dofh.NumDofs();
+  // Vector of all basis expansion coefficients of Taylor-Hood finite element
+  // solution of pipe flow problem. This covers both velocity and pressure.
+  Eigen::VectorXd dofvec{n};
+
+  return dofvec;
+}
 
 }  // namespace StokesPipeFlow
 
