@@ -96,7 +96,7 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
       // Indices of global shape functions sitting at node
       std::span<const lf::assemble::gdof_idx_t> dof_idx{
           dofh.InteriorGlobalDofIndices(*node)};
-      LF_ASSERT_MSG_CONSTEXPR(dof_idx.size() == 3, "Node must carry 3 dofs!");
+      LF_ASSERT_MSG(dof_idx.size() == 3, "Node must carry 3 dofs!");
       // Position of node
       Eigen::Vector2d pos{Corners(*(node->Geometry())).col(0)};
       // Dirichlet data
@@ -115,7 +115,7 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
       // Indices of global shape functions associated with the edge
       std::span<const lf::assemble::gdof_idx_t> dof_idx{
           dofh.InteriorGlobalDofIndices(*edge)};
-      LF_ASSERT_MSG_CONSTEXPR(dof_idx.size() == 2, "Edge must carry 2 dofs!");
+      LF_ASSERT_MSG(dof_idx.size() == 2, "Edge must carry 2 dofs!");
       // Midpoint of edge
       const Eigen::MatrixXd endpoints{Corners(*(edge->Geometry()))};
       Eigen::Vector2d pos{0.5 * (endpoints.col(0) + endpoints.col(1))};
