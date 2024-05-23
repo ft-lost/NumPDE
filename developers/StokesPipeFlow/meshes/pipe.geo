@@ -21,4 +21,4 @@ Line(7) = {7, 8};
 Line(8) = {8, 1};
 // Domain
 Curve Loop(1) = {1, 2, 3, 4, 5, 6, 7, 8};	
-Plane Surface("Omega") = {1};
+Plane Surface(1) = {1};
