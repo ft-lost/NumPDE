@@ -18,7 +18,7 @@ int main(int /*argc*/, char** /*argv*/) {
   lf::io::GmshReader reader(std::move(mesh_factory), "meshes/simple.msh");
 
 
-  StokesPipeFlow::allPipeFlow(StokesPipeFlow::VOLUME, true, "meshes/simple.msh", "out.txt");
+  StokesPipeFlow::allPipeFlow(StokesPipeFlow::VOLUME, true, "meshes/simple.msh", "out.vtk");
 
   return 0;
 }

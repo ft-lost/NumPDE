@@ -149,6 +149,7 @@ lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
 double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
                    const char* outfile) {
   const std::string& meshfile_str = std::string(meshfile);
+  const std::string& outfile_str = std::string(outfile);
 
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   lf::io::GmshReader reader(std::move(mesh_factory), meshfile_str);
@@ -229,7 +230,7 @@ double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
 
   // lf::fe::fe::MeshFUnctionFE<double,double> mf_o2()
 
-  lf::io::VtkWriter vtk_writer(mesh_ptr, "test.vtk");
+  lf::io::VtkWriter vtk_writer(mesh_ptr, outfile_str);
 
   vtk_writer.WritePointData("u1", mf_o2_u1);
   vtk_writer.WritePointData("u2", mf_o2_u2);
