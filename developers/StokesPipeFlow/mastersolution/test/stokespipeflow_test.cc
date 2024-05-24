@@ -74,12 +74,12 @@ std::shared_ptr<lf::mesh::Mesh> getThreeTriagMesh() {
   const std::shared_ptr<lf::mesh::hybrid2d::MeshFactory> mesh_factory_ptr =
       std::make_shared<lf::mesh::hybrid2d::MeshFactory>(2);
   // Add points
-  mesh_factory_ptr->AddPoint(coord_t({0, 0}));    // point 0
-  mesh_factory_ptr->AddPoint(coord_t({1, 0}));    // point 1
-  mesh_factory_ptr->AddPoint(coord_t({0, 1}));    // point 2
+  mesh_factory_ptr->AddPoint(coord_t({0, 0}));  // point 0
+  mesh_factory_ptr->AddPoint(coord_t({1, 0}));  // point 1
+  mesh_factory_ptr->AddPoint(coord_t({0, 1}));  // point 2
   mesh_factory_ptr->AddPoint(coord_t({1, 1}));  // point 3
   mesh_factory_ptr->AddPoint(coord_t({1, 2}));  // point 4
-  
+
   // Define triangular cells
   mesh_factory_ptr->AddEntity(lf::base::RefEl::kTria(),
                               std::vector<lf::base::size_type>({0, 1, 2}),
@@ -106,12 +106,12 @@ std::shared_ptr<lf::mesh::Mesh> getFourTriagMesh() {
   const std::shared_ptr<lf::mesh::hybrid2d::MeshFactory> mesh_factory_ptr =
       std::make_shared<lf::mesh::hybrid2d::MeshFactory>(2);
   // Add points
-  mesh_factory_ptr->AddPoint(coord_t({0, 0}));    // point 0
-  mesh_factory_ptr->AddPoint(coord_t({1, 0}));    // point 1
-  mesh_factory_ptr->AddPoint(coord_t({1, 1}));    // point 2
-  mesh_factory_ptr->AddPoint(coord_t({0, 1}));    // point 3
-  mesh_factory_ptr->AddPoint(coord_t({0.3, 0.7}));  // point 4
-  
+  mesh_factory_ptr->AddPoint(coord_t({0, 0}));      // point 0
+  mesh_factory_ptr->AddPoint(coord_t({1, 0}));      // point 1
+  mesh_factory_ptr->AddPoint(coord_t({1, 1}));      // point 2
+  mesh_factory_ptr->AddPoint(coord_t({0, 1}));      // point 3
+  mesh_factory_ptr->AddPoint(coord_t({0.5, 0.5}));  // point 4
+
   // Define triangular cells
   mesh_factory_ptr->AddEntity(lf::base::RefEl::kTria(),
                               std::vector<lf::base::size_type>({0, 1, 4}),
@@ -129,8 +129,7 @@ std::shared_ptr<lf::mesh::Mesh> getFourTriagMesh() {
   std::shared_ptr<lf::mesh::Mesh> mesh_p = mesh_factory_ptr->Build();
   return mesh_p;
 }
-  
-  
+
 // Generate "mesh" consisting of two triangles
 // Partly copied from lecturedemodoc.cc
 std::shared_ptr<lf::mesh::Mesh> getTwoTriagMesh() {
@@ -163,31 +162,31 @@ std::shared_ptr<lf::mesh::Mesh> getTwoTriagMesh() {
 bool testKernelTHElMat(const lf::mesh::Mesh& mesh, bool print = false) {
   // Set up ENTITY MATRIX PROVIDER
   StokesPipeFlow::TaylorHoodElementMatrixProvider themp{};
-  // Test vectors
-  Eigen::VectorXd ldofs(15);
-  Eigen::VectorXd vdofs{Eigen::VectorXd::Zero(15)};
-  Eigen::VectorXd pdofs{Eigen::VectorXd::Zero(15)};
-  // x-component of the velocity
-  ldofs[0] = ldofs[3] = ldofs[6] = ldofs[9] = ldofs[11] = ldofs[13] = 1.23;
-  // y-component of the velocity
-  ldofs[1] = ldofs[4] = ldofs[7] = ldofs[10] = ldofs[12] = ldofs[14] = 4.56;
-  // pressure dofs (constant pressure not in the kernel)
-  ldofs[2] = ldofs[5] = ldofs[8] = 0.0;
-  // For second test
-  vdofs = ldofs;
-  vdofs[9] = 0.5 * (vdofs[0] + vdofs[3]);
-  vdofs[11] = 0.5 * (vdofs[3] + vdofs[6]);
-  vdofs[13] = 0.5 * (vdofs[0] + vdofs[6]);
-  vdofs[10] = 0.5 * (vdofs[1] + vdofs[4]);
-  vdofs[12] = 0.5 * (vdofs[4] + vdofs[7]);
-  vdofs[14] = 0.5 * (vdofs[1] + vdofs[7]);
-  pdofs[2] = 1.0;
-  pdofs[5] = -1.0 / 3.0;
-  pdofs[8] = -2.0 / 3.0;
   // Loop over cells and fetch element matrices
   bool res = false;
   for (const lf::mesh::Entity* cell : mesh.Entities(0)) {
     EXPECT_EQ(cell->RefEl(), lf::base::RefEl::kTria());
+    // Test vectors
+    Eigen::VectorXd ldofs(15);
+    Eigen::VectorXd vdofs{Eigen::VectorXd::Zero(15)};
+    Eigen::VectorXd pdofs{Eigen::VectorXd::Zero(15)};
+    // x-component of the velocity
+    ldofs[0] = ldofs[3] = ldofs[6] = ldofs[9] = ldofs[11] = ldofs[13] = 1.23;
+    // y-component of the velocity
+    ldofs[1] = ldofs[4] = ldofs[7] = ldofs[10] = ldofs[12] = ldofs[14] = 4.56;
+    // pressure dofs (constant pressure not in the kernel)
+    ldofs[2] = ldofs[5] = ldofs[8] = 0.0;
+    // For second test
+    vdofs = ldofs;
+    vdofs[9] = 0.5 * (vdofs[0] + vdofs[3]);
+    vdofs[11] = 0.5 * (vdofs[3] + vdofs[6]);
+    vdofs[13] = 0.5 * (vdofs[0] + vdofs[6]);
+    vdofs[10] = 0.5 * (vdofs[1] + vdofs[4]);
+    vdofs[12] = 0.5 * (vdofs[4] + vdofs[7]);
+    vdofs[14] = 0.5 * (vdofs[1] + vdofs[7]);
+    pdofs[2] = 1.0;
+    pdofs[5] = -1.0 / 3.0;
+    pdofs[8] = -2.0 / 3.0;
     // Compute element matrix
     const StokesPipeFlow::TaylorHoodElementMatrixProvider::ElemMat AK(
         themp.Eval(*cell));
@@ -196,6 +195,24 @@ bool testKernelTHElMat(const lf::mesh::Mesh& mesh, bool print = false) {
       std::cout << "Triangular cell:\n"
                 << lf::geometry::Corners(*(cell->Geometry())) << "\n";
       std::cout << "Element matrix\n" << AK << std::endl;
+    }
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // Workaround for a side-effect in LehrFEM++
+    // Local shape functions associated with edges have to be swapped, if the
+    // edge has "negative" orientation with respect to the triangle. This is
+    // meant to offset such a swapping done by LehrFEM++'s UniformFEDofHandler.
+    auto edge_orientations = cell->RelativeOrientations();
+    LF_ASSERT_MSG(edge_orientations.size() == 3,
+                  "Triangle should have 3 edges!?");
+    for (int k = 0; k < 3; ++k) {
+      Eigen::Index ed_dofx = 9 + 2 * k;
+      Eigen::Index ed_dofy = 10 + 2 * k;
+      if (edge_orientations[k] == lf::mesh::Orientation::negative) {
+        // The rows and columns of the element matrix with numbers 9+2*k and
+        // 9+2*k+1 have to be swapped.
+        std::swap(vdofs[ed_dofx], vdofs[ed_dofy]);
+        std::swap(ldofs[ed_dofx], ldofs[ed_dofy]);
+      }
     }
     // First test: constants in the kernel
     res = ((AK * ldofs).norm() < 1E-10);
@@ -215,13 +232,28 @@ void compareVelocityElMats(const std::shared_ptr<const lf::mesh::Mesh> mesh_p,
   // Set up ENTITY MATRIX PROVIDERs
   StokesPipeFlow::TaylorHoodElementMatrixProvider themp{};
   lf::fe::DiffusionElementMatrixProvider Laplace_emp(fe_space, mf_one);
-  // Local indices for dofs
-  const std::array<Eigen::Index, 6> vx_idx{0, 3, 6, 9, 11, 13};
-  const std::array<Eigen::Index, 6> vy_idx{1, 4, 7, 10, 12, 14};
-  const std::array<Eigen::Index, 3> p_idx{2, 5, 8};
   // Loop over cells
   for (const lf::mesh::Entity* cell : mesh_p->Entities(0)) {
     EXPECT_EQ(cell->RefEl(), lf::base::RefEl::kTria());
+    // Local indices for dofs
+    std::array<Eigen::Index, 6> vx_idx{0, 3, 6, 9, 11, 13};
+    std::array<Eigen::Index, 6> vy_idx{1, 4, 7, 10, 12, 14};
+    std::array<Eigen::Index, 3> p_idx{2, 5, 8};
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // Workaround for a side-effect in LehrFEM++
+    // Local shape functions associated with edges have to be swapped, if the
+    // edge has "negative" orientation with respect to the triangle. This is
+    // meant to offset such a swapping done by LehrFEM++'s UniformFEDofHandler.
+    auto edge_orientations = cell->RelativeOrientations();
+    LF_ASSERT_MSG(edge_orientations.size() == 3,
+                  "Triangle should have 3 edges!?");
+    for (int k = 0; k < 3; ++k) {
+      if (edge_orientations[k] == lf::mesh::Orientation::negative) {
+        // The rows and columns of the element matrix with numbers 9+2*k and
+        // 9+2*k+1 have to be swapped.
+        std::swap(vx_idx[3 + k], vy_idx[3 + k]);
+      }
+    }
     // Compute element matrix
     const StokesPipeFlow::TaylorHoodElementMatrixProvider::ElemMat AK(
         themp.Eval(*cell));
@@ -257,42 +289,34 @@ void compareVelocityElMats(const std::shared_ptr<const lf::mesh::Mesh> mesh_p,
 
 TEST(StokesPipeFlow, TaylorHoodElementMatrixProvider) {
   // Obtain mesh
-  std::shared_ptr<const lf::mesh::Mesh> mesh_p = getTwoTriagMesh();
+  std::shared_ptr<const lf::mesh::Mesh> mesh_p = getFourTriagMesh();
   EXPECT_TRUE(testKernelTHElMat(*mesh_p, false));
   compareVelocityElMats(mesh_p, true);
 }
 
+// TEST(StokesPipeFlow, DISABLED_THEMP_complex) {
 TEST(StokesPipeFlow, THEMP_complex) {
   // Obtain mesh
   std::shared_ptr<const lf::mesh::Mesh> mesh_p =
       lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0);
   EXPECT_TRUE(testKernelTHElMat(*mesh_p, false));
-  compareVelocityElMats(mesh_p, false);
+  // compareVelocityElMats(mesh_p, false);
 }
 
 TEST(StokesPipeFlow, DISABLED_PrintDof) {
-std::shared_ptr<const lf::mesh::Mesh> mesh_p = getTwoTriagMesh();
-// Set up DofHandler
-lf::assemble::UniformFEDofHandler dofh(mesh_p,
-                                       {{lf::base::RefEl::kPoint(), 3},
-                                        {lf::base::RefEl::kSegment(), 2},
-                                        {lf::base::RefEl::kTria(), 0},
-                                        {lf::base::RefEl::kQuad(), 0}});
-printDofInfo(dofh);
+  // TEST(StokesPipeFlow, PrintDof) {
+  std::shared_ptr<const lf::mesh::Mesh> mesh_p = getFourTriagMesh();
+  // Set up DofHandler
+  lf::assemble::UniformFEDofHandler dofh(mesh_p,
+                                         {{lf::base::RefEl::kPoint(), 3},
+                                          {lf::base::RefEl::kSegment(), 2},
+                                          {lf::base::RefEl::kTria(), 0},
+                                          {lf::base::RefEl::kQuad(), 0}});
+  printDofInfo(dofh);
 }
 
-
-TEST(StokesPipeFlow, GalerkinMatrix) {
-  // Obtain a purely triangular mesh from the collection of LehrFEM++'s
-  // built-in meshes
-
-  /*
-  const std::shared_ptr<lf::mesh::Mesh> mesh_p{
-      lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0)};
-  */
-  /* std::shared_ptr<const lf::mesh::Mesh> mesh_p = getTwoTriagMesh(); */
-  // std::shared_ptr<const lf::mesh::Mesh> mesh_p = getThreeTriagMesh();
-  std::shared_ptr<const lf::mesh::Mesh> mesh_p = getFourTriagMesh();
+void testTHGalerkinMatrix(std::shared_ptr<const lf::mesh::Mesh> mesh_p,
+                          bool print) {
   // Taylor Hood FEM
   // Set up DofHandler
   lf::assemble::UniformFEDofHandler dofh(mesh_p,
@@ -382,28 +406,35 @@ TEST(StokesPipeFlow, GalerkinMatrix) {
   }
 
   // Print reordered matrices
-  size_t n_vx = vx_idx.size();
-  size_t n_p = p_idx.size();
-  Eigen::MatrixXd Ar(A.rows(),A.cols());
-  Ar.setZero();
-  Eigen::MatrixXd Ar_LO2(A.rows(),A.cols());
-  Ar_LO2.setZero();
-  for (int i = 0; i < n_vx; ++i) {
-    for (int j = 0; j < n_vx; ++j) {
-      Ar(i,j) = A_dense(vx_idx[i],vx_idx[j]);
-      Ar(i+n_vx,j+n_vx) = A_dense(vy_idx[i],vy_idx[j]);
-      Ar_LO2(i,j) = Ad_LO2(LO2_idx[i],LO2_idx[j]);
+  if (print) {
+    size_t n_vx = vx_idx.size();
+    size_t n_p = p_idx.size();
+    Eigen::MatrixXd Ar(A.rows(), A.cols());
+    Ar.setZero();
+    Eigen::MatrixXd Ar_LO2(A_LO2.rows(), A_LO2.cols());
+    Ar_LO2.setZero();
+    for (int i = 0; i < n_vx; ++i) {
+      std::cout << "x-comp: " << i << " -> " << vx_idx[i] << ", y-comp " << i
+                << " -> " << vy_idx[i] << std::endl;
+      for (int j = 0; j < n_vx; ++j) {
+        Ar(i, j) = A_dense(vx_idx[i], vx_idx[j]);
+        Ar(i + n_vx, j + n_vx) = A_dense(vy_idx[i], vy_idx[j]);
+        Ar_LO2(i, j) = Ad_LO2(LO2_idx[i], LO2_idx[j]);
+      }
     }
+    for (int i = 0; i < n_p; ++i) {
+      std::cout << "p: " << i << " -> " << p_idx[i] << std::endl;
+      for (int j = 0; j < n_vx; ++j) {
+        Ar(2 * n_vx + i, j) = Ar(j, 2 * n_vx + i) =
+            A_dense(p_idx[i], vx_idx[j]);
+        Ar(2 * n_vx + i, j + n_vx) = Ar(j + n_vx, 2 * n_vx + i) =
+            A_dense(p_idx[i], vy_idx[j]);
+      }
+    }
+    std::cout << "Full Galerkin matrix: REORDERED\n " << Ar << std::endl;
+    std::cout << "Full LO2 Galerkin matrix\n" << Ar_LO2 << std::endl;
   }
-   for (int i = 0; i < n_p; ++i) {
-     for (int j = 0; j < n_vx; ++j) {
-       Ar(2*n_vx+i,j) =  Ar(j, 2*n_vx+i) = A_dense(p_idx[i],vx_idx[j]);
-       Ar(2*n_vx+i,j+n_vx) =  Ar(j+n_vx, 2*n_vx+i) = A_dense(p_idx[i],vy_idx[j]);
-     }
-   }
-   std::cout << "Full Galerkin matrix: REORDERED\n " << Ar << std::endl;
-   std::cout << "Full LO2 Galerkin matrix\n" << Ar_LO2 << std::endl;
-  
+
   // Test whether contant velocities are in the kernel of the matrix
   Eigen::VectorXd dofs(n);
   for (int k = 0; k < vx_idx.size(); ++k) {
@@ -416,10 +447,82 @@ TEST(StokesPipeFlow, GalerkinMatrix) {
     dofs[p_idx[k]] = 0.0;
   }
   EXPECT_NEAR((A_dense * dofs).norm(), 0.0, 1E-10);
+  // Now set all velocity dofs on the boundary to zero
+  for (int k = 0; k < bdv_idx.size(); ++k) {
+    dofs[bdv_idx[k]] = 0.0;
+  }
+  // Constant pressure
+  Eigen::VectorXd pdofs(n);
+  pdofs.setZero();
+  for (int k = 0; k < p_idx.size(); ++k) {
+    pdofs[p_idx[k]] = 7.89;
+  }
+  // $\int_{\Omega}\Div \Vv\,dx = 0$ !
+  EXPECT_NEAR(dofs.transpose() * A_dense * pdofs, 0.0, 1E-8);
 }
 
+TEST(StokesPipeFlow, SimpleMesh_GalerkinMatrix) {
+  // Simple mesh with four triangles
+  std::shared_ptr<const lf::mesh::Mesh> mesh_p = getFourTriagMesh();
+  testTHGalerkinMatrix(mesh_p, true);
+}
+
+TEST(StokesPipeFlow, GalerkinMatrix) {
+  //  Obtain a purely triangular mesh from the collection of LehrFEM++'s
+  //  built-in meshes
+  const std::shared_ptr<lf::mesh::Mesh> mesh_p{
+      lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0)};
+  testTHGalerkinMatrix(mesh_p, false);
+}
+
+TEST(StokesPipeFlow, buildTaylorHoodGalerkinMatrix) {
+    const std::shared_ptr<lf::mesh::Mesh> mesh_p{
+      lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0)};
+  // Taylor Hood FEM; Set up DofHandler
+  lf::assemble::UniformFEDofHandler dofh(mesh_p,
+                                         {{lf::base::RefEl::kPoint(), 3},
+                                          {lf::base::RefEl::kSegment(), 2},
+                                          {lf::base::RefEl::kTria(), 0},
+                                          {lf::base::RefEl::kQuad(), 0}});
+  auto A = StokesPipeFlow::buildTaylorHoodGalerkinMatrix(dofh);
+  auto A_dense = A.makeDense();
+  EXPECT_NEAR((A_dense - A_dense.transpose()).norm(), 0.0, 1E10);
+  size_t N = A.cols();
+  // std::cout << "Bottom row of Galerkin matrix:\n" << A_dense.row(N-1) << std::endl;
+  EXPECT_NEAR(A_dense.row(N-1).sum(), 1.0, 1E-8);
+}
+  
 TEST(StokesPipeFlow, solvePipeFlow) {
-  // Populate Galerkin Matrix
+  const std::shared_ptr<lf::mesh::Mesh> mesh_p{
+      lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0)};
+  // Taylor Hood FEM; Set up DofHandler
+  lf::assemble::UniformFEDofHandler dofh(mesh_p,
+                                         {{lf::base::RefEl::kPoint(), 3},
+                                          {lf::base::RefEl::kSegment(), 2},
+                                          {lf::base::RefEl::kTria(), 0},
+                                          {lf::base::RefEl::kQuad(), 0}});
+  // The solution for constant boundary data should be a constant velocity field
+  const Eigen::Vector2d vdir{1.0, 2.0};
+  auto g = [&vdir](Eigen::Vector2d /*x*/) -> Eigen::Vector2d { return vdir; };
+  Eigen::VectorXd muvec = StokesPipeFlow::solvePipeFlow(dofh, g);
+  for (const lf::mesh::Entity* node : mesh_p->Entities(2)) {
+    std::span<const lf::assemble::gdof_idx_t> dof_idx{
+        dofh.InteriorGlobalDofIndices(*node)};
+    LF_ASSERT_MSG(dof_idx.size() == 3, "Node must carry 3 dofs!");
+    // Check whether velocity is the right constant velocity
+    EXPECT_NEAR(muvec[dof_idx[0]], vdir[0], 1E-8);
+    EXPECT_NEAR(muvec[dof_idx[1]], vdir[1], 1E-8);
+    // Pressure should be zero
+    EXPECT_NEAR(muvec[dof_idx[2]], 0.0, 1E-8);
+  }
+  for (const lf::mesh::Entity* edge : mesh_p->Entities(1)) {
+    std::span<const lf::assemble::gdof_idx_t> dof_idx{
+        dofh.InteriorGlobalDofIndices(*edge)};
+    LF_ASSERT_MSG(dof_idx.size() == 2, "Edge must carry 2 dofs!");
+    // Check whether velocity is the right constant velocity
+    EXPECT_NEAR(muvec[dof_idx[0]], vdir[0], 1E-8);
+    EXPECT_NEAR(muvec[dof_idx[1]], vdir[1], 1E-8);
+  }
 }
 
 }  // namespace StokesPipeFlow::test

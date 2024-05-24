@@ -80,14 +80,14 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
   // Obtain full Galerkin matrix in triplet format
   lf::assemble::COOMatrix<double> A{buildTaylorHoodGalerkinMatrix(dofh)};
   LF_VERIFY_MSG(A.cols() == A.rows(), "Matrix A must be square");
-
-  // Impose Dirichlet boundary conditions
-  const std::shared_ptr<const lf::mesh::Mesh> mesh_p = dofh.Mesh();
-  // Flag \cor{any} entity located on the boundary
-  auto bd_flags{lf::mesh::utils::flagEntitiesOnBoundary(mesh_p)};
   // Auxiliary right-hnad side vector
   Eigen::VectorXd phi(A.cols());
   phi.setZero();
+  // Impose Dirichlet boundary conditions
+#if SOLUTION
+  const std::shared_ptr<const lf::mesh::Mesh> mesh_p = dofh.Mesh();
+  // Flag \cor{any} entity located on the boundary
+  auto bd_flags{lf::mesh::utils::flagEntitiesOnBoundary(mesh_p)};
   // Flag vector for d.o.f. on the boundary
   std::vector<std::pair<bool, double>> ess_dof_select(n + 1, {false, 0.0});
   // Visit nodes on the boundary
@@ -130,6 +130,11 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
       [&ess_dof_select](lf::assemble::glb_idx_t dof_idx)
           -> std::pair<bool, double> { return ess_dof_select[dof_idx]; },
       A, phi);
+#else
+  /* **********************************************************************
+     Your code here
+     ********************************************************************** */
+#endif
   // Assembly completed: Convert COO matrix A into CRS format using Eigen's
   // internal conversion routines.
   const Eigen::SparseMatrix<double> A_crs = A.makeSparse();
@@ -150,7 +155,7 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
 /**
  * @brief Convergence test for Tyalor-Hood FEM
  */
-void testCvgTaylorHood() ;
+void testCvgTaylorHood(unsigned int refsteps = 5);
 
 enum PowerFlag { NOCMOP, VOLUME, BOUNDARY };
 

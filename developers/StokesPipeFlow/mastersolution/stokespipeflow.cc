@@ -16,6 +16,7 @@
 #include <lf/base/ref_el.h>
 #include <lf/geometry/geometry_interface.h>
 #include <lf/mesh/entity.h>
+#include <lf/mesh/test_utils/test_meshes.h>
 
 #include <cstddef>
 
@@ -33,8 +34,9 @@ TaylorHoodElementMatrixProvider::ElemMat TaylorHoodElementMatrixProvider::Eval(
   Eigen::Matrix<double, 3, 3> X;  // temporary matrix
   X.block<3, 1>(0, 0) = Eigen::Vector3d::Ones();
   X.block<3, 2>(0, 1) = endpoints.transpose();
-  // Thios matrix contains $\cob{\grad \lambda_i}$ in its columns
+  // This matrix contains $\cob{\grad \lambda_i}$ in its columns
   const auto G{X.inverse().block<2, 3>(1, 0)};
+#if SOLUTION
   // Dummy lambda functions for barycentric coordinates
   std::array<std::function<double(Eigen::Vector3d)>, 3> lambda{
       [](Eigen::Vector3d c) -> double { return c[0]; },
@@ -98,8 +100,38 @@ TaylorHoodElementMatrixProvider::ElemMat TaylorHoodElementMatrixProvider::Eval(
       AK_(p_idx[i], vy_idx[j]) = AK_(vy_idx[j], p_idx[i]) = gql_ij[1];
     }
   }
+  AK_ *= area / 3.0;
+#else
+/* **********************************************************************
+   Your code here
+   ********************************************************************** */
+#endif
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // Workaround for a side-effect in LehrFEM++
+  // Local shape functions associated with edges have to be swapped, if the edge
+  // has "negative" orientation with respect to the triangle. This is meant to
+  // offset such a swapping done by LehrFEM++'s UniformFEDofHandler.
+  auto edge_orientations = cell.RelativeOrientations();
+  LF_ASSERT_MSG(edge_orientations.size() == 3,
+                "Triangle should have 3 edges!?");
+  Eigen::VectorXd tmp(15);
+  for (int k = 0; k < 3; ++k) {
+    const lf::assemble::ldof_idx_t ed_dofx = 9 + 2 * k;
+    const lf::assemble::ldof_idx_t ed_dofy = 10 + 2 * k;
+    if (edge_orientations[k] == lf::mesh::Orientation::negative) {
+      // The rows and columns of the element matrix with numbers 9+2*k and
+      // 9+2*k+1 have to be swapped.
+      tmp = AK_.col(ed_dofx);
+      AK_.col(ed_dofx) = AK_.col(ed_dofy);
+      AK_.col(ed_dofy) = tmp;
+      tmp = AK_.row(ed_dofx);
+      AK_.row(ed_dofx) = AK_.row(ed_dofy);
+      AK_.row(ed_dofy) = tmp;
+    }
+  }
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // Finally multiply with the quadrature weight
-  return area / 3.0 * AK_;
+  return AK_;
 }
 /* SAM_LISTING_END_1 */
 
@@ -116,10 +148,11 @@ lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
   // Assemble \cor{full} Galerkin matrix for Taylor-Hood FEM
   lf::assemble::AssembleMatrixLocally(0, dofh, dofh, themp, A);
 
-  // Add bottom row and right column corresponding to Lagrange multiplier
-  // You cannot use AssembleMatrixLocally() because the DofHandler does
-  // not know about this extra unknown.
-  // Do cell-oriented assembly "manually"
+// Add bottom row and right column corresponding to Lagrange multiplier
+// You cannot use AssembleMatrixLocally() because the DofHandler does
+// not know about this extra unknown.
+// Do cell-oriented assembly "manually"
+#if SOLUTION
   for (const lf::mesh::Entity* cell : dofh.Mesh()->Entities(0)) {
     LF_ASSERT_MSG(cell->RefEl() == lf::base::RefEl::kTria(),
                   "Only implemented for triangles");
@@ -141,6 +174,11 @@ lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
       A.AddToEntry(tent_idx, n, area / 3.0);
     }
   }
+#else
+/* **********************************************************************
+   Your code here
+   ********************************************************************** */
+#endif
   // Rely on return value optimization
   return A;
 }
@@ -148,92 +186,100 @@ lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
 
 double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
                    const char* outfile) {
-  const std::string& meshfile_str = std::string(meshfile);
-  const std::string& outfile_str = std::string(outfile);
+  LF_VERIFY_MSG((meshfile != nullptr), "Must provide a mesh file");
+  const std::string meshfile_str = std::string(meshfile);
 
+  /* SAM_LISTING_BEGIN_5 */
   auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
   lf::io::GmshReader reader(std::move(mesh_factory), meshfile_str);
 
   const std::shared_ptr<const lf::mesh::Mesh> mesh_ptr = reader.mesh();
   const lf::mesh::Mesh& mesh{*mesh_ptr};
 
-  // Initialize dof handler for the Stokes solver
+  // Initialize dof handler for Taylor-Hood FEM
   lf::assemble::UniformFEDofHandler dofh(mesh_ptr,
                                          {{lf::base::RefEl::kPoint(), 3},
                                           {lf::base::RefEl::kSegment(), 2},
                                           {lf::base::RefEl::kTria(), 0},
                                           {lf::base::RefEl::kQuad(), 0}});
-
-  // Initialize dof handler for the components of the velocity
-  lf::assemble::UniformFEDofHandler dofh_u(mesh_ptr,
-                                           {{lf::base::RefEl::kPoint(), 1},
-                                            {lf::base::RefEl::kSegment(), 1},
-                                            {lf::base::RefEl::kTria(), 0},
-                                            {lf::base::RefEl::kQuad(), 0}});
-
-  // Initialize dof handler for the pressure p
-  lf::assemble::UniformFEDofHandler dofh_p(mesh_ptr,
-                                           {{lf::base::RefEl::kPoint(), 1},
-                                            {lf::base::RefEl::kSegment(), 0},
-                                            {lf::base::RefEl::kTria(), 0},
-                                            {lf::base::RefEl::kQuad(), 0}});
-
-  // We define the right-hand side
-  auto g = [](Eigen::VectorXd x) -> Eigen::VectorXd {
-    Eigen::VectorXd out(2);
-    out(0) = 1.;
-    out(1) = 0.;
-    return out;
+// We define function providing the boundary values for the velocity
+#if SOLUTION
+  auto g = [](Eigen::Vector2d x) -> Eigen::Vector2d {
+    if (x[0] < 1E-8) {
+      // Left boundary: inlet, parabolic velocity profile
+      return {(1.0 - x[1]) * (x[1] - 0.5), 0.0};
+    }
+    if (x[0] > 0.99999) {
+      // Right boundary: outlet
+      return {(0.5 - x[1]) * x[1], 0.0};
+    }
+    return {0.0, 0.0};
   };
-
+#else
+  /* **********************************************************************
+     Replace this placeholder code
+     ********************************************************************** */
+  auto g = [&vdir](Eigen::Vector2d /*x*/) -> Eigen::Vector2d {
+    return {0.0, 0.0};
+  };
+#endif
   // Solve the system
   auto res = StokesPipeFlow::solvePipeFlow(dofh, g);
 
-  // Coefficient vectors for the first and second component of the velocity
-  Eigen::VectorXd coeff_vec_u1(dofh_u.NumDofs());
-  Eigen::VectorXd coeff_vec_u2(dofh_u.NumDofs());
+  if (producevtk) {
+    LF_VERIFY_MSG(outfile != nullptr,
+                  "Filename for .vtk files has to be provided");
+    // Define first- and second-order Lagrangian FE spaces for the piecewise
+    // linear Taylor-Hood pressure approximation and the piecewise quadratic
+    auto fes_o1_ptr =
+        std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_ptr);
+    auto fes_o2_ptr =
+        std::make_shared<lf::uscalfe::FeSpaceLagrangeO2<double>>(mesh_ptr);
+    // Fetch dof handler for the components of the velocity
+    const lf::assemble::DofHandler& dofh_u = fes_o2_ptr->LocGlobMap();
+    //  Fetch dof handler for the pressure p
+    const lf::assemble::DofHandler& dofh_p = fes_o1_ptr->LocGlobMap();
 
-  // Coefficient vector for the pressure
-  Eigen::VectorXd coeff_vec_p(dofh_p.NumDofs());
+    // Coefficient vectors for the first and second component of the velocity
+    Eigen::VectorXd coeff_vec_u1(dofh_u.NumDofs());
+    Eigen::VectorXd coeff_vec_u2(dofh_u.NumDofs());
+    // Coefficient vector for the pressure
+    Eigen::VectorXd coeff_vec_p(dofh_p.NumDofs());
 
-  // We first loop over vertices, then over edges
-  for (int codim = 2; codim >= 1; codim--) {
-    for (auto e : mesh.Entities(2)) {
-      // Global indices for u1, u2 for the respective vertex or edge
-      auto glob_idxs = dofh.GlobalDofIndices(*e);
-      auto glob_idx_o2 = dofh_u.GlobalDofIndices(*e)[0];
+    // Loop over vertices and edges to remap the basis expansion coefficients
+    for (int codim = 2; codim >= 1; codim--) {
+      for (auto e : mesh.Entities(codim)) {
+        // Global indices for u1, u2 for the respective vertex or edge
+        auto glob_idxs = dofh.GlobalDofIndices(*e);
+        auto glob_idx_o2 = dofh_u.GlobalDofIndices(*e)[0];
 
-      // Global indices for p for the respective vertex
-      lf::assemble::gdof_idx_t glob_idx_o1 = -1;
-      if (codim == 2) glob_idx_o1 = dofh_p.GlobalDofIndices(*e)[0];
+        // Extract the correct elements for the coefficient matrix of the
+        // components of u
+        coeff_vec_u1(glob_idx_o2) = res(glob_idxs[0]);
+        coeff_vec_u2(glob_idx_o2) = res(glob_idxs[1]);
 
-      // Extract the correct elements for the coefficient matrix of the
-      // components of u
-      coeff_vec_u1(glob_idx_o2) = res(glob_idxs[0]);
-      coeff_vec_u2(glob_idx_o2) = res(glob_idxs[1]);
-
-      // The pressure is only defined on vertices
-      if (codim == 2) coeff_vec_p(glob_idx_o1) = res(glob_idxs[2]);
+        // Global indices for p for the respective vertex
+        lf::assemble::gdof_idx_t glob_idx_o1 = -1;
+        // The pressure is only defined on vertices
+        if (codim == 2) {
+          glob_idx_o1 = dofh_p.GlobalDofIndices(*e)[0];
+          coeff_vec_p(glob_idx_o1) = res(glob_idxs[2]);
+        }
+      }
     }
+
+    // Define finite-element mesh functions
+    lf::fe::MeshFunctionFE<double, double> mf_o2_u1(fes_o2_ptr, coeff_vec_u1);
+    lf::fe::MeshFunctionFE<double, double> mf_o2_u2(fes_o2_ptr, coeff_vec_u2);
+    lf::fe::MeshFunctionFE<double, double> mf_o1_p(fes_o1_ptr, coeff_vec_p);
+
+    const std::string outfile_str = std::string(outfile);
+    lf::io::VtkWriter vtk_writer(mesh_ptr, outfile_str);
+    vtk_writer.WritePointData("u1", mf_o2_u1);
+    vtk_writer.WritePointData("u2", mf_o2_u2);
+    vtk_writer.WritePointData("p", mf_o1_p);
   }
-
-  // Define first- and second-order FE spaces
-  auto fes_o1_ptr =
-      std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_ptr);
-  auto fes_o2_ptr =
-      std::make_shared<lf::uscalfe::FeSpaceLagrangeO2<double>>(mesh_ptr);
-
-  // Define finite-element mesh functions
-  lf::fe::MeshFunctionFE<double, double> mf_o2_u1(fes_o2_ptr, coeff_vec_u1);
-  lf::fe::MeshFunctionFE<double, double> mf_o2_u2(fes_o2_ptr, coeff_vec_u2);
-  lf::fe::MeshFunctionFE<double, double> mf_o1_p(fes_o1_ptr, coeff_vec_p);
-
-  lf::io::VtkWriter vtk_writer(mesh_ptr, outfile_str);
-
-  vtk_writer.WritePointData("u1", mf_o2_u1);
-  vtk_writer.WritePointData("u2", mf_o2_u2);
-  vtk_writer.WritePointData("p", mf_o1_p);
-
+  /* SAM_LISTING_END_5 */
   return 0;
 }
 
@@ -249,20 +295,26 @@ double computeDissipatedPoweBdr(const char* meshfile) {
   return allPipeFlow(BOUNDARY, false, meshfile);
 }
 
-void testCvgTaylorHood() {
-  // We consider a simple square mesh
-  auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
-  lf::io::GmshReader reader(std::move(mesh_factory),
-                            "simple/simple.msh");  // read the mesh
-  int refsteps = 5;                                // number of refinements
+void testCvgTaylorHood(unsigned int refsteps) {
+  // Analytic solution for velocity and pressure
+  const Eigen::Vector2d d{1.0, 2.0};
+  auto v_ex = [&d](Eigen::Vector2d x) -> Eigen::Vector2d {
+    x += Eigen::Vector2d(0.5, 0.5);
+    const double nx = x.norm();
+    return 0.25 * (-std::log(nx) * d + x * (x.dot(d)) / (nx * nx));
+  };
+  auto p_ex = [&d](Eigen::Vector2d x) -> double {
+    x += Eigen::Vector2d(0.5, 0.5);
+    return -0.5 * x.dot(d) / x.squaredNorm();
+  };
 
-  // Define the mesh refinements
-  const std::shared_ptr<lf::mesh::Mesh> mesh_ptr = reader.mesh();
+  // Generate a small unstructured triangular mesh
+  const std::shared_ptr<lf::mesh::Mesh> mesh_ptr =
+      lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0);
   const std::shared_ptr<lf::refinement::MeshHierarchy> multi_mesh_p =
       lf::refinement::GenerateMeshHierarchyByUniformRefinemnt(mesh_ptr,
                                                               refsteps);
   lf::refinement::MeshHierarchy& multi_mesh{*multi_mesh_p};
-
   // Ouput summary information about hierarchy of nested meshes
   std::cout << "\t Sequence of nested meshes created\n";
   multi_mesh.PrintInfo(std::cout);
@@ -274,101 +326,72 @@ void testCvgTaylorHood() {
   for (int level = 0; level < L; ++level) {
     const std::shared_ptr<const lf::mesh::Mesh> lev_mesh_p =
         multi_mesh.getMesh(level);
-
-    // Initialize dof handler for the Stokes solver
+    // Initialize dof handler for Taylor-Hood FEM
     lf::assemble::UniformFEDofHandler dofh(lev_mesh_p,
                                            {{lf::base::RefEl::kPoint(), 3},
                                             {lf::base::RefEl::kSegment(), 2},
                                             {lf::base::RefEl::kTria(), 0},
                                             {lf::base::RefEl::kQuad(), 0}});
-
-    // Initialize dof handler for the components of the velocity
-    lf::assemble::UniformFEDofHandler dofh_u(lev_mesh_p,
-                                             {{lf::base::RefEl::kPoint(), 1},
-                                              {lf::base::RefEl::kSegment(), 1},
-                                              {lf::base::RefEl::kTria(), 0},
-                                              {lf::base::RefEl::kQuad(), 0}});
-
-    // Initialize dof handler for the pressure p
-    lf::assemble::UniformFEDofHandler dofh_p(lev_mesh_p,
-                                             {{lf::base::RefEl::kPoint(), 1},
-                                              {lf::base::RefEl::kSegment(), 0},
-                                              {lf::base::RefEl::kTria(), 0},
-                                              {lf::base::RefEl::kQuad(), 0}});
-
-    // We define the right-hand side
-    auto g = [](Eigen::VectorXd x) -> Eigen::VectorXd {
-      Eigen::VectorXd out(2);
-      out(0) = 1.;
-      out(1) = 0.;
-      return out;
-    };
-
-    // Solve the system
-    auto res = StokesPipeFlow::solvePipeFlow(dofh, g);
-
+    // Define first- and second-order Lagrangian FE spaces for the piecewise
+    // linear Taylor-Hood pressure approximation and the piecewise quadratic
+    auto fes_o1_ptr =
+        std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(lev_mesh_p);
+    auto fes_o2_ptr =
+        std::make_shared<lf::uscalfe::FeSpaceLagrangeO2<double>>(lev_mesh_p);
+    // Fetch dof handler for the components of the velocity
+    const lf::assemble::DofHandler& dofh_u = fes_o2_ptr->LocGlobMap();
+    //  Fetch dof handler for the pressure p
+    const lf::assemble::DofHandler& dofh_p = fes_o1_ptr->LocGlobMap();
+    // Solve the system with trace of the exact velocity solution as Dirichlet
+    // data
+    auto res = StokesPipeFlow::solvePipeFlow(dofh, v_ex);
     // Coefficient vectors for the first and second component of the velocity
     Eigen::VectorXd coeff_vec_u1(dofh_u.NumDofs());
     Eigen::VectorXd coeff_vec_u2(dofh_u.NumDofs());
-
     // Coefficient vector for the pressure
     Eigen::VectorXd coeff_vec_p(dofh_p.NumDofs());
 
-    // We first loop over vertices, then over edges
+    // Remapping dofs: We first loop over vertices, then over edges
     for (int codim = 2; codim >= 1; codim--) {
-      for (auto e : lev_mesh_p->Entities(2)) {
+      for (auto e : lev_mesh_p->Entities(codim)) {
         // Global indices for u1, u2 for the respective vertex or edge
         auto glob_idxs = dofh.GlobalDofIndices(*e);
         auto glob_idx_o2 = dofh_u.GlobalDofIndices(*e)[0];
-
-        // Global indices for p for the respective vertex
-        lf::assemble::gdof_idx_t glob_idx_o1 = -1;
-        if (codim == 2) glob_idx_o1 = dofh_p.GlobalDofIndices(*e)[0];
-
         // Extract the correct elements for the coefficient matrix of the
         // components of u
         coeff_vec_u1(glob_idx_o2) = res(glob_idxs[0]);
         coeff_vec_u2(glob_idx_o2) = res(glob_idxs[1]);
-
         // The pressure is only defined on vertices
-        if (codim == 2) coeff_vec_p(glob_idx_o1) = res(glob_idxs[2]);
+        if (codim == 2) {
+          // Global indices for p for the respective vertex
+          lf::assemble::gdof_idx_t glob_idx_o1 = dofh_p.GlobalDofIndices(*e)[0];
+          coeff_vec_p(glob_idx_o1) = res(glob_idxs[2]);
+        }
       }
     }
-
-    // Define first- and second-order FE spaces
-    auto fes_o1_ptr =
-        std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_ptr);
-    auto fes_o2_ptr =
-        std::make_shared<lf::uscalfe::FeSpaceLagrangeO2<double>>(mesh_ptr);
-
     // Define finite-element mesh functions
     lf::fe::MeshFunctionFE<double, double> mf_o2_u1(fes_o2_ptr, coeff_vec_u1);
     lf::fe::MeshFunctionFE<double, double> mf_o2_u2(fes_o2_ptr, coeff_vec_u2);
     lf::fe::MeshFunctionFE<double, double> mf_o1_p(fes_o1_ptr, coeff_vec_p);
 
-    // Exact solution first component velocity
-    auto u1 = [](Eigen::Vector2d x) -> double { return 1.; };
+    // Exact solution for the first component of the velocity
+    auto u1 = [&v_ex](Eigen::Vector2d x) -> double { return v_ex(x)[0]; };
     const lf::mesh::utils::MeshFunctionGlobal mf_u1{u1};
-
-    // Exact solution second component velocity
-    auto u2 = [](Eigen::Vector2d x) -> double { return 0.; };
+    // Exact solution second component of  the velocity
+    auto u2 = [&v_ex](Eigen::Vector2d x) -> double { return v_ex(x)[1]; };
     const lf::mesh::utils::MeshFunctionGlobal mf_u2{u2};
-
-    // Exact solution pressure
-    auto p = [](Eigen::Vector2d x) -> double { return 0.; };
-    const lf::mesh::utils::MeshFunctionGlobal mf_p{p};
-
-    // compute errors with 3rd order quadrature rules
+    // Mesh funcvtion for exact solution pressure
+    const lf::mesh::utils::MeshFunctionGlobal mf_p{p_ex};
+    // compute errors with 5th order quadrature rules
     double L2err_u1 = std::sqrt(lf::fe::IntegrateMeshFunction(
-        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o2_u1 - mf_u1), 2));
+        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o2_u1 - mf_u1), 4));
     double L2err_u2 = std::sqrt(lf::fe::IntegrateMeshFunction(
-        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o2_u2 - mf_u2), 2));
+        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o2_u2 - mf_u2), 4));
     double L2err_p = std::sqrt(lf::fe::IntegrateMeshFunction(
-        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o1_p - mf_p), 2));
-    std::cout << "L2 Error u1: " << L2err_u1 << std::endl;
-    std::cout << "L2 Error u2: " << L2err_u2 << std::endl;
-    std::cout << "L2 Error p: " << L2err_p << std::endl;
-    std::cout << std::endl;
+        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o1_p - mf_p), 4));
+    std::cout << "Level " << level << ": L2 Error u1: " << L2err_u1
+              << ", L2 Error u2: " << L2err_u2 << ", L2 Error p: " << L2err_p
+              << std::endl;
   }
 }
 
