@@ -59,9 +59,14 @@ int main(int /*argc*/, char** /*argv*/) {
 
   Eigen::VectorXd coeff_vec_u1(dofh_u.NumDofs());
   Eigen::VectorXd coeff_vec_u2(dofh_u.NumDofs());
-  for (int i = 0; i < numVertices; ++i) {
-    coeff_vec_u1(i) = res(3 * i);
-    coeff_vec_u2(i) = res(3 * i + 1);
+  for (auto e : mesh.Entities(0)) {
+    auto glob_idxs = dofh.GlobalDofIndices(*e);
+
+    auto glob_idx_o2 = dofh.GlobalDofIndices(*e)[0];
+
+    coeff_vec_u1(glob_idx_o2) = res(glob_idxs[0]);
+    coeff_vec_u2(glob_idx_o2) = res(glob_idxs[1]);
+
   }
   for (int i = 0; i < numEdges; ++i) {
     coeff_vec_u1(numVertices + i) = res(3 * numVertices + i * 2);
@@ -75,7 +80,6 @@ int main(int /*argc*/, char** /*argv*/) {
   lf::fe::MeshFunctionFE<double, double> mf_o2_u2(fes_o2_p, coeff_vec_u2);
 
   // lf::fe::fe::MeshFUnctionFE<double,double> mf_o2()
-
 
   lf::io::VtkWriter vtk_writer(mesh_ptr, "test.vtk");
 
