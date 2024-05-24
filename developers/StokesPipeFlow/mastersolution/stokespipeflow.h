@@ -9,7 +9,7 @@
 #ifndef StokesPipeFlow_H_
 #define StokesPipeFlow_H_
 
-// Include almost all parts of LehrFEM++; soem my not be needed
+// Include almost all parts of LehrFEM++; some my not be needed
 #include <lf/assemble/assemble.h>
 #include <lf/assemble/assembly_types.h>
 #include <lf/assemble/coomatrix.h>
@@ -142,11 +142,54 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
   const Eigen::VectorXd dofvec = solver.solve(phi);
   LF_VERIFY_MSG(solver.info() == Eigen::Success, "Solving LSE failed");
   // This is the coefficient vector for the FE solution; Dirichlet
-  // boundary conditions are included 
+  // boundary conditions are included
   return dofvec;
 }
 /* SAM_LISTING_END_2 */
 
+/**
+ * @brief Convergence test for Tyalor-Hood FEM
+ */
+void testCvgTaylorHood();
+
+enum PowerFlag { NOCMOP, VOLUME, BOUNDARY };
+
+/**
+ * @brief Taylor-Hood FEM for pipe flow: visualization of flow field and
+ *computation of dissipated power by different formulas.
+ *
+ * @param powerflag: If NOCMOP, do not compute dissipated power, if VOLUME, use
+ * integral of squared norm of curl v, if BOUNDARY use pressure-based integral
+ * over boundary.
+ * @param producevtk: If true write solution to .vtk file for visualization with
+ * Paraview
+ * @param meshfile name of the gmsh mesh file to read triangulation from
+ * @param outfile base name of .vtk output files
+ *
+ */
+double allPipeFlow(PowerFlag powerflag, bool producevtk, const char *meshfile,
+                   const char *outfile = nullptr);
+
+/**
+ * @brief Visualization of FEM solution for pipe flow setting
+ *
+ * @param meshfile name of the gmsh mesh file to read triangulation from
+ * @param outfile base name of .vtk output files
+ */
+void visualizeTHPipeFlow(const char *meshfile = "pipe.msh",
+                         const char *outfile = "pipeflow");
+
+/**
+ * @brief Compute dissipated power based on Taylor-Hood FEM simulation:
+ * volume-integration based formuls
+ */
+  double computeDissipatedPower(const char *meshfile = "pipe.msh");
+/**
+ * @brief Compute dissipated power based on Taylor-Hood FEM simulation:
+ * volume-integration based formuls
+ */
+  double computeDissipatedPowerBd(const char *meshfile = "pipe.msh");
+  
 }  // namespace StokesPipeFlow
 
 #endif

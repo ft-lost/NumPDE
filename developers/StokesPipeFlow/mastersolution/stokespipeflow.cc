@@ -146,4 +146,19 @@ lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
 }
 /* SAM_LISTING_END_3 */
 
+double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
+                   const char* outfile) {}
+
+void visualizeTHPipeFlow(const char* meshfile, const char* outfile) {
+  (void)allPipeFlow(NOCMOP, true, meshfile, outfile);
+}
+
+double computeDissipatedPower(const char* meshfile) {
+  return allPipeFlow(VOLUME, false, meshfile);
+}
+
+double computeDissipatedPoweBdr(const char* meshfile) {
+  return allPipeFlow(BOUNDARY, false, meshfile);
+}
+
 }  // namespace StokesPipeFlow
