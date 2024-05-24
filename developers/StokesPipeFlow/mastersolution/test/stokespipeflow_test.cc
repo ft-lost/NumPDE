@@ -386,10 +386,13 @@ TEST(StokesPipeFlow, GalerkinMatrix) {
   size_t n_p = p_idx.size();
   Eigen::MatrixXd Ar(A.rows(),A.cols());
   Ar.setZero();
+  Eigen::MatrixXd Ar_LO2(A.rows(),A.cols());
+  Ar_LO2.setZero();
   for (int i = 0; i < n_vx; ++i) {
     for (int j = 0; j < n_vx; ++j) {
       Ar(i,j) = A_dense(vx_idx[i],vx_idx[j]);
       Ar(i+n_vx,j+n_vx) = A_dense(vy_idx[i],vy_idx[j]);
+      Ar_LO2(i,j) = Ad_LO2(LO2_idx[i],LO2_idx[j]);
     }
   }
    for (int i = 0; i < n_p; ++i) {
@@ -399,7 +402,7 @@ TEST(StokesPipeFlow, GalerkinMatrix) {
      }
    }
    std::cout << "Full Galerkin matrix: REORDERED\n " << Ar << std::endl;
-   std::cout << "Full LO2 Galerkin matrix\n" << Ad_LO2 << std::endl;
+   std::cout << "Full LO2 Galerkin matrix\n" << Ar_LO2 << std::endl;
   
   // Test whether contant velocities are in the kernel of the matrix
   Eigen::VectorXd dofs(n);
