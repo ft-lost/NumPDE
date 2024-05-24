@@ -121,8 +121,8 @@ lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
   // not know about this extra unknown.
   // Do cell-oriented assembly "manually"
   for (const lf::mesh::Entity* cell : dofh.Mesh()->Entities(0)) {
-    LF_ASSERT_MSG_CONSTEXPR(cell->RefEl() == lf::base::RefEl::kTria(),
-                            "Only implemented for triangles");
+    LF_ASSERT_MSG(cell->RefEl() == lf::base::RefEl::kTria(),
+                  "Only implemented for triangles");
     // Obtain area of triangle
     const double area = lf::geometry::Volume(*cell->Geometry());
     // The pressure GSFs are associated with the nodes
@@ -134,7 +134,7 @@ lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
       // All indices of global shape functions sitting at node
       std::span<const lf::assemble::gdof_idx_t> dof_idx{
           dofh.InteriorGlobalDofIndices(*node)};
-      LF_ASSERT_MSG_CONSTEXPR(dof_idx.size() == 3, "Node must carry 3 dofs!");
+      LF_ASSERT_MSG(dof_idx.size() == 3, "Node must carry 3 dofs!");
       // The index of the tent function is the third one
       const lf::assemble::gdof_idx_t tent_idx = dof_idx[2];
       A.AddToEntry(n, tent_idx, area / 3.0);
@@ -145,5 +145,20 @@ lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
   return A;
 }
 /* SAM_LISTING_END_3 */
+
+double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
+                   const char* outfile) {}
+
+void visualizeTHPipeFlow(const char* meshfile, const char* outfile) {
+  (void)allPipeFlow(NOCMOP, true, meshfile, outfile);
+}
+
+double computeDissipatedPower(const char* meshfile) {
+  return allPipeFlow(VOLUME, false, meshfile);
+}
+
+double computeDissipatedPoweBdr(const char* meshfile) {
+  return allPipeFlow(BOUNDARY, false, meshfile);
+}
 
 }  // namespace StokesPipeFlow
