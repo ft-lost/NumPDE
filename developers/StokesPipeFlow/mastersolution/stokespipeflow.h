@@ -150,7 +150,7 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
 /**
  * @brief Convergence test for Tyalor-Hood FEM
  */
-void testCvgTaylorHood();
+void testCvgTaylorHood() ;
 
 enum PowerFlag { NOCMOP, VOLUME, BOUNDARY };
 
@@ -183,13 +183,13 @@ void visualizeTHPipeFlow(const char *meshfile = "pipe.msh",
  * @brief Compute dissipated power based on Taylor-Hood FEM simulation:
  * volume-integration based formuls
  */
-  double computeDissipatedPower(const char *meshfile = "pipe.msh");
+double computeDissipatedPower(const char *meshfile = "pipe.msh");
 /**
  * @brief Compute dissipated power based on Taylor-Hood FEM simulation:
  * volume-integration based formuls
  */
-  double computeDissipatedPowerBd(const char *meshfile = "pipe.msh");
-  
+double computeDissipatedPowerBd(const char *meshfile = "pipe.msh");
+
 }  // namespace StokesPipeFlow
 
 #endif

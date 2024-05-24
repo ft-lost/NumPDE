@@ -228,8 +228,6 @@ double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
   lf::fe::MeshFunctionFE<double, double> mf_o2_u2(fes_o2_ptr, coeff_vec_u2);
   lf::fe::MeshFunctionFE<double, double> mf_o1_p(fes_o1_ptr, coeff_vec_p);
 
-  // lf::fe::fe::MeshFUnctionFE<double,double> mf_o2()
-
   lf::io::VtkWriter vtk_writer(mesh_ptr, outfile_str);
 
   vtk_writer.WritePointData("u1", mf_o2_u1);
@@ -249,6 +247,129 @@ double computeDissipatedPower(const char* meshfile) {
 
 double computeDissipatedPoweBdr(const char* meshfile) {
   return allPipeFlow(BOUNDARY, false, meshfile);
+}
+
+void testCvgTaylorHood() {
+  // We consider a simple square mesh
+  auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
+  lf::io::GmshReader reader(std::move(mesh_factory),
+                            "simple/simple.msh");  // read the mesh
+  int refsteps = 5;                                // number of refinements
+
+  // Define the mesh refinements
+  const std::shared_ptr<lf::mesh::Mesh> mesh_ptr = reader.mesh();
+  const std::shared_ptr<lf::refinement::MeshHierarchy> multi_mesh_p =
+      lf::refinement::GenerateMeshHierarchyByUniformRefinemnt(mesh_ptr,
+                                                              refsteps);
+  lf::refinement::MeshHierarchy& multi_mesh{*multi_mesh_p};
+
+  // Ouput summary information about hierarchy of nested meshes
+  std::cout << "\t Sequence of nested meshes created\n";
+  multi_mesh.PrintInfo(std::cout);
+
+  // Number of levels
+  const int L = multi_mesh.NumLevels();
+
+  // Retrieve meshes on all levels
+  for (int level = 0; level < L; ++level) {
+    const std::shared_ptr<const lf::mesh::Mesh> lev_mesh_p =
+        multi_mesh.getMesh(level);
+
+    // Initialize dof handler for the Stokes solver
+    lf::assemble::UniformFEDofHandler dofh(lev_mesh_p,
+                                           {{lf::base::RefEl::kPoint(), 3},
+                                            {lf::base::RefEl::kSegment(), 2},
+                                            {lf::base::RefEl::kTria(), 0},
+                                            {lf::base::RefEl::kQuad(), 0}});
+
+    // Initialize dof handler for the components of the velocity
+    lf::assemble::UniformFEDofHandler dofh_u(lev_mesh_p,
+                                             {{lf::base::RefEl::kPoint(), 1},
+                                              {lf::base::RefEl::kSegment(), 1},
+                                              {lf::base::RefEl::kTria(), 0},
+                                              {lf::base::RefEl::kQuad(), 0}});
+
+    // Initialize dof handler for the pressure p
+    lf::assemble::UniformFEDofHandler dofh_p(lev_mesh_p,
+                                             {{lf::base::RefEl::kPoint(), 1},
+                                              {lf::base::RefEl::kSegment(), 0},
+                                              {lf::base::RefEl::kTria(), 0},
+                                              {lf::base::RefEl::kQuad(), 0}});
+
+    // We define the right-hand side
+    auto g = [](Eigen::VectorXd x) -> Eigen::VectorXd {
+      Eigen::VectorXd out(2);
+      out(0) = 1.;
+      out(1) = 0.;
+      return out;
+    };
+
+    // Solve the system
+    auto res = StokesPipeFlow::solvePipeFlow(dofh, g);
+
+    // Coefficient vectors for the first and second component of the velocity
+    Eigen::VectorXd coeff_vec_u1(dofh_u.NumDofs());
+    Eigen::VectorXd coeff_vec_u2(dofh_u.NumDofs());
+
+    // Coefficient vector for the pressure
+    Eigen::VectorXd coeff_vec_p(dofh_p.NumDofs());
+
+    // We first loop over vertices, then over edges
+    for (int codim = 2; codim >= 1; codim--) {
+      for (auto e : lev_mesh_p->Entities(2)) {
+        // Global indices for u1, u2 for the respective vertex or edge
+        auto glob_idxs = dofh.GlobalDofIndices(*e);
+        auto glob_idx_o2 = dofh_u.GlobalDofIndices(*e)[0];
+
+        // Global indices for p for the respective vertex
+        lf::assemble::gdof_idx_t glob_idx_o1 = -1;
+        if (codim == 2) glob_idx_o1 = dofh_p.GlobalDofIndices(*e)[0];
+
+        // Extract the correct elements for the coefficient matrix of the
+        // components of u
+        coeff_vec_u1(glob_idx_o2) = res(glob_idxs[0]);
+        coeff_vec_u2(glob_idx_o2) = res(glob_idxs[1]);
+
+        // The pressure is only defined on vertices
+        if (codim == 2) coeff_vec_p(glob_idx_o1) = res(glob_idxs[2]);
+      }
+    }
+
+    // Define first- and second-order FE spaces
+    auto fes_o1_ptr =
+        std::make_shared<lf::uscalfe::FeSpaceLagrangeO1<double>>(mesh_ptr);
+    auto fes_o2_ptr =
+        std::make_shared<lf::uscalfe::FeSpaceLagrangeO2<double>>(mesh_ptr);
+
+    // Define finite-element mesh functions
+    lf::fe::MeshFunctionFE<double, double> mf_o2_u1(fes_o2_ptr, coeff_vec_u1);
+    lf::fe::MeshFunctionFE<double, double> mf_o2_u2(fes_o2_ptr, coeff_vec_u2);
+    lf::fe::MeshFunctionFE<double, double> mf_o1_p(fes_o1_ptr, coeff_vec_p);
+
+    // Exact solution first component velocity
+    auto u1 = [](Eigen::Vector2d x) -> double { return 1.; };
+    const lf::mesh::utils::MeshFunctionGlobal mf_u1{u1};
+
+    // Exact solution second component velocity
+    auto u2 = [](Eigen::Vector2d x) -> double { return 0.; };
+    const lf::mesh::utils::MeshFunctionGlobal mf_u2{u2};
+
+    // Exact solution pressure
+    auto p = [](Eigen::Vector2d x) -> double { return 0.; };
+    const lf::mesh::utils::MeshFunctionGlobal mf_p{p};
+
+    // compute errors with 3rd order quadrature rules
+    double L2err_u1 = std::sqrt(lf::fe::IntegrateMeshFunction(
+        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o2_u1 - mf_u1), 2));
+    double L2err_u2 = std::sqrt(lf::fe::IntegrateMeshFunction(
+        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o2_u2 - mf_u2), 2));
+    double L2err_p = std::sqrt(lf::fe::IntegrateMeshFunction(
+        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o1_p - mf_p), 2));
+    std::cout << "L2 Error u1: " << L2err_u1 << std::endl;
+    std::cout << "L2 Error u2: " << L2err_u2 << std::endl;
+    std::cout << "L2 Error p: " << L2err_p << std::endl;
+    std::cout << std::endl;
+  }
 }
 
 }  // namespace StokesPipeFlow
