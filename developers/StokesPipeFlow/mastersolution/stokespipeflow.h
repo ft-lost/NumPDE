@@ -153,6 +153,27 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
 /* SAM_LISTING_END_2 */
 
 /**
+ * @brief Compute dissipated power for a Talor-Hood FE solution
+ *
+ * @param dofh DofHandler object for monolithic Taylor-Hood FEM
+ * @param mu_vec basis expansion coefficient vector
+ */
+double compDissPowVolume(const lf::assemble::DofHandler &dofh,
+                         const Eigen::VectorXd &mu_vec);
+
+/**
+ * @brief Computes dissipated power by boundary-based formula
+ *
+ * @param dofh DofHandler object for monolithic Taylor-Hood FEM
+ * @param mu_vec basis expansion coefficient vector
+ *
+ * This implementation is valid only in the special geometric setting of the
+ * pipe flow model for the homework project StokesPipeFLow.
+ */
+double compDissPowBd(const lf::assemble::DofHandler &dofh,
+                     const Eigen::VectorXd &muvec);
+
+/**
  * @brief Convergence test for Tyalor-Hood FEM
  */
 void testCvgTaylorHood(unsigned int refsteps = 5);

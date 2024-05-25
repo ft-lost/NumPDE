@@ -8,10 +8,13 @@
 
 #include "../stokespipeflow.h"
 
+#include <Eigen/src/Core/Matrix.h>
 #include <gtest/gtest.h>
+#include <lf/assemble/dofhandler.h>
 #include <lf/base/ref_el.h>
 #include <lf/fe/loc_comp_ellbvp.h>
 #include <lf/geometry/geometry_interface.h>
+#include <lf/mesh/mesh_interface.h>
 #include <lf/mesh/test_utils/test_meshes.h>
 
 #include <Eigen/Core>
@@ -287,11 +290,52 @@ void compareVelocityElMats(const std::shared_ptr<const lf::mesh::Mesh> mesh_p,
   }
 }
 
+template <typename VFunctor, typename PFunctor>
+[[nodiscard]] Eigen::VectorXd interpolateTHfields(
+    const lf::assemble::DofHandler& dofh, VFunctor&& v, PFunctor&& p) {
+  // Total number of global shape functions
+  size_t n = dofh.NumDofs();
+  // The unterlying mesh
+  auto mesh_p = dofh.Mesh();
+  // Result vector of basis expansion coefficients
+  Eigen::VectorXd muvec(n);
+  // Visit all nodes and edges and and set field dofs
+  for (const lf::mesh::Entity* node : mesh_p->Entities(2)) {
+    // Fetch position of node
+    const Eigen::Vector2d pos{Corners(*(node->Geometry())).col(0)};
+    // Fetch global indices of associated dof
+    std::span<const lf::assemble::gdof_idx_t> dof_idx{
+        dofh.InteriorGlobalDofIndices(*node)};
+    LF_ASSERT_MSG(dof_idx.size() == 3, "Node must carry 3 dofs!");
+    // Set coefficient for components of the velocity
+    const Eigen::Vector2d v_val{v(pos)};
+    muvec[dof_idx[0]] = v_val[0];
+    muvec[dof_idx[1]] = v_val[1];
+    // Set dof value for the pressure
+    const double p_val = p(pos);
+    muvec[dof_idx[2]] = p_val;
+  }
+  for (const lf::mesh::Entity* edge : mesh_p->Entities(1)) {
+    // Compute position of midpoint
+    const Eigen::MatrixXd endpoints{Corners(*(edge->Geometry()))};
+    const Eigen::Vector2d pos{0.5 * (endpoints.col(0) + endpoints.col(1))};
+    // Fetch global indices of associated velocity dofs
+    std::span<const lf::assemble::gdof_idx_t> dof_idx{
+        dofh.InteriorGlobalDofIndices(*edge)};
+    LF_ASSERT_MSG(dof_idx.size() == 2, "Edge must carry 2 dofs!");
+    // Set dof values for the components of the velocity
+    const Eigen::Vector2d v_val{v(pos)};
+    muvec[dof_idx[0]] = v_val[0];
+    muvec[dof_idx[1]] = v_val[1];
+  }
+  return muvec;
+}
+
 TEST(StokesPipeFlow, TaylorHoodElementMatrixProvider) {
   // Obtain mesh
   std::shared_ptr<const lf::mesh::Mesh> mesh_p = getFourTriagMesh();
   EXPECT_TRUE(testKernelTHElMat(*mesh_p, false));
-  compareVelocityElMats(mesh_p, true);
+  compareVelocityElMats(mesh_p, false);
 }
 
 // TEST(StokesPipeFlow, DISABLED_THEMP_complex) {
@@ -300,7 +344,7 @@ TEST(StokesPipeFlow, THEMP_complex) {
   std::shared_ptr<const lf::mesh::Mesh> mesh_p =
       lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0);
   EXPECT_TRUE(testKernelTHElMat(*mesh_p, false));
-  // compareVelocityElMats(mesh_p, false);
+  compareVelocityElMats(mesh_p, false);
 }
 
 TEST(StokesPipeFlow, DISABLED_PrintDof) {
@@ -461,6 +505,78 @@ void testTHGalerkinMatrix(std::shared_ptr<const lf::mesh::Mesh> mesh_p,
   EXPECT_NEAR(dofs.transpose() * A_dense * pdofs, 0.0, 1E-8);
 }
 
+template <typename VFunctor, typename PFunctor>
+void testTHBilinearForm(VFunctor&& v, PFunctor&& p, double vgrad_int_val,
+                        double pv_int_val, bool print = false) {
+  // Simple mesh of the unit square
+  std::shared_ptr<const lf::mesh::Mesh> mesh_p =
+      lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0);
+  // const std::shared_ptr<const lf::mesh::Mesh> mesh_p = getFourTriagMesh();
+  // Assemble full Taylor Hood Galerkin matrix
+  // Set up DofHandler
+  lf::assemble::UniformFEDofHandler dofh(mesh_p,
+                                         {{lf::base::RefEl::kPoint(), 3},
+                                          {lf::base::RefEl::kSegment(), 2},
+                                          {lf::base::RefEl::kTria(), 0},
+                                          {lf::base::RefEl::kQuad(), 0}});
+  // Total number of FE d.o.f.s without Lagrangian multiplier
+  lf::assemble::size_type n = dofh.NumDofs();
+  // Full Galerkin matrix in triplet format taking into account the zero mean
+  // constraint on the pressure.
+  lf::assemble::COOMatrix<double> A(n, n);
+  // Set up computation of element matrix
+  TaylorHoodElementMatrixProvider themp{};
+  // Assemble \cor{full} Galerkin matrix for Taylor-Hood FEM
+  lf::assemble::AssembleMatrixLocally(0, dofh, dofh, themp, A);
+  // Convert into a dense matrix
+  Eigen::MatrixXd A_dense = A.makeDense();
+  LF_ASSERT_MSG((A_dense.cols() == n) && (A_dense.rows() == n),
+                "Wrong size of Galerkin matrix");
+  // dof vectors for velocity and pressure
+  Eigen::VectorXd v_dof(n);
+  v_dof.setZero();
+  Eigen::VectorXd p_dof(n);
+  p_dof.setZero();
+  // Initialize vectors by sampling fields in nodes and midpoints of edges
+  // This amounts to "nodal interpolation"
+  for (const lf::mesh::Entity* node : mesh_p->Entities(2)) {
+    // Fetch position of node
+    const Eigen::Vector2d pos{Corners(*(node->Geometry())).col(0)};
+    // Fetch global indices of associated dof
+    std::span<const lf::assemble::gdof_idx_t> dof_idx{
+        dofh.InteriorGlobalDofIndices(*node)};
+    LF_ASSERT_MSG(dof_idx.size() == 3, "Node must carry 3 dofs!");
+    const Eigen::Vector2d v_val{v(pos)};
+    const double p_val = p(pos);
+    v_dof[dof_idx[0]] = v_val[0];
+    v_dof[dof_idx[1]] = v_val[1];
+    p_dof[dof_idx[2]] = p_val;
+  }
+  for (const lf::mesh::Entity* edge : mesh_p->Entities(1)) {
+    // Compute position of midpoint
+    const Eigen::MatrixXd endpoints{Corners(*(edge->Geometry()))};
+    const Eigen::Vector2d pos{0.5 * (endpoints.col(0) + endpoints.col(1))};
+    // Fetch global indices of associated velocity dofs
+    std::span<const lf::assemble::gdof_idx_t> dof_idx{
+        dofh.InteriorGlobalDofIndices(*edge)};
+    LF_ASSERT_MSG(dof_idx.size() == 2, "Edge must carry 2 dofs!");
+    const Eigen::Vector2d v_val{v(pos)};
+    v_dof[dof_idx[0]] = v_val[0];
+    v_dof[dof_idx[1]] = v_val[1];
+  }
+  // Compute values when plugging sampled field into bilinear forms.
+  // For quadratic v and linear p these values should be exact!
+  const double vgrad_int = v_dof.dot(A_dense * v_dof);
+  const double vdivp_int = v_dof.dot(A_dense * p_dof);
+  if (print) {
+    std::cout << "a(v,v) = " << vgrad_int << " <-> " << vgrad_int_val
+              << std::endl;
+    std::cout << "a(v,p) = " << vdivp_int << " <-> " << pv_int_val << std::endl;
+  }
+  EXPECT_NEAR(vgrad_int, vgrad_int_val, 1E-8);
+  EXPECT_NEAR(vdivp_int, pv_int_val, 1E-8);
+}
+
 TEST(StokesPipeFlow, SimpleMesh_GalerkinMatrix) {
   // Simple mesh with four triangles
   std::shared_ptr<const lf::mesh::Mesh> mesh_p = getFourTriagMesh();
@@ -476,7 +592,7 @@ TEST(StokesPipeFlow, GalerkinMatrix) {
 }
 
 TEST(StokesPipeFlow, buildTaylorHoodGalerkinMatrix) {
-    const std::shared_ptr<lf::mesh::Mesh> mesh_p{
+  const std::shared_ptr<lf::mesh::Mesh> mesh_p{
       lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0)};
   // Taylor Hood FEM; Set up DofHandler
   lf::assemble::UniformFEDofHandler dofh(mesh_p,
@@ -488,11 +604,14 @@ TEST(StokesPipeFlow, buildTaylorHoodGalerkinMatrix) {
   auto A_dense = A.makeDense();
   EXPECT_NEAR((A_dense - A_dense.transpose()).norm(), 0.0, 1E10);
   size_t N = A.cols();
-  // std::cout << "Bottom row of Galerkin matrix:\n" << A_dense.row(N-1) << std::endl;
-  EXPECT_NEAR(A_dense.row(N-1).sum(), 1.0, 1E-8);
+  // std::cout << "Bottom row of Galerkin matrix:\n" << A_dense.row(N-1) <<
+  // std::endl;
+  EXPECT_NEAR(A_dense.row(N - 1).sum(), 1.0, 1E-8);
 }
-  
-TEST(StokesPipeFlow, solvePipeFlow) {
+
+template <typename VFunctor, typename PFunctor>
+void pipeFlowSolTest(VFunctor&& v, PFunctor&& p, bool print = false) {
+  // const std::shared_ptr<const lf::mesh::Mesh> mesh_p = getFourTriagMesh();
   const std::shared_ptr<lf::mesh::Mesh> mesh_p{
       lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0)};
   // Taylor Hood FEM; Set up DofHandler
@@ -501,28 +620,182 @@ TEST(StokesPipeFlow, solvePipeFlow) {
                                           {lf::base::RefEl::kSegment(), 2},
                                           {lf::base::RefEl::kTria(), 0},
                                           {lf::base::RefEl::kQuad(), 0}});
-  // The solution for constant boundary data should be a constant velocity field
-  const Eigen::Vector2d vdir{1.0, 2.0};
-  auto g = [&vdir](Eigen::Vector2d /*x*/) -> Eigen::Vector2d { return vdir; };
-  Eigen::VectorXd muvec = StokesPipeFlow::solvePipeFlow(dofh, g);
+  Eigen::VectorXd muvec = StokesPipeFlow::solvePipeFlow(dofh, v);
+  // Visit all nodes and edges and compare the values
   for (const lf::mesh::Entity* node : mesh_p->Entities(2)) {
+    // Fetch position of node
+    const Eigen::Vector2d pos{Corners(*(node->Geometry())).col(0)};
+    // Fetch global indices of associated dof
     std::span<const lf::assemble::gdof_idx_t> dof_idx{
         dofh.InteriorGlobalDofIndices(*node)};
     LF_ASSERT_MSG(dof_idx.size() == 3, "Node must carry 3 dofs!");
-    // Check whether velocity is the right constant velocity
-    EXPECT_NEAR(muvec[dof_idx[0]], vdir[0], 1E-8);
-    EXPECT_NEAR(muvec[dof_idx[1]], vdir[1], 1E-8);
-    // Pressure should be zero
-    EXPECT_NEAR(muvec[dof_idx[2]], 0.0, 1E-8);
+    if (print) {
+      std::cout << "Node at [" << pos.transpose() << "]: idx = {" << dof_idx[0]
+                << ", " << dof_idx[1] << ", " << dof_idx[2] << "}: v = ["
+                << muvec[dof_idx[0]] << ", " << muvec[dof_idx[1]]
+                << "], p = " << muvec[dof_idx[2]] << std::endl;
+    }
+    // Check whether velocity agrees with v
+    const Eigen::Vector2d v_val{v(pos)};
+    EXPECT_NEAR(muvec[dof_idx[0]], v_val[0], 1E-8);
+    EXPECT_NEAR(muvec[dof_idx[1]], v_val[1], 1E-8);
+    // Check agreement of pressure
+    const double p_val = p(pos);
+    EXPECT_NEAR(muvec[dof_idx[2]], p_val, 1E-8);
   }
   for (const lf::mesh::Entity* edge : mesh_p->Entities(1)) {
+    // Compute position of midpoint
+    const Eigen::MatrixXd endpoints{Corners(*(edge->Geometry()))};
+    const Eigen::Vector2d pos{0.5 * (endpoints.col(0) + endpoints.col(1))};
+    // Fetch global indices of associated velocity dofs
     std::span<const lf::assemble::gdof_idx_t> dof_idx{
         dofh.InteriorGlobalDofIndices(*edge)};
     LF_ASSERT_MSG(dof_idx.size() == 2, "Edge must carry 2 dofs!");
+    if (print) {
+      std::cout << "Edge mp at [" << pos.transpose() << "]: idx = {"
+                << dof_idx[0] << ", " << dof_idx[1] << "}: v = ["
+                << muvec[dof_idx[0]] << ", " << muvec[dof_idx[1]] << "]"
+                << std::endl;
+    }
     // Check whether velocity is the right constant velocity
-    EXPECT_NEAR(muvec[dof_idx[0]], vdir[0], 1E-8);
-    EXPECT_NEAR(muvec[dof_idx[1]], vdir[1], 1E-8);
+    // Check whether velocity agrees with v
+    const Eigen::Vector2d v_val{v(pos)};
+    EXPECT_NEAR(muvec[dof_idx[0]], v_val[0], 1E-8);
+    EXPECT_NEAR(muvec[dof_idx[1]], v_val[1], 1E-8);
   }
+}
+
+TEST(StokesPipeFlow, SPF_constPV) {
+  // The solution for constant boundary data should be a constant velocity field
+  Eigen::Vector2d vdir{1.0, 2.0};
+  auto v = [&vdir](const Eigen::Vector2d /*x*/) -> Eigen::Vector2d {
+    return vdir;
+  };
+  auto p = [](const Eigen::Vector2d /*x*/) -> double { return 0.0; };
+  pipeFlowSolTest(v, p);
+}
+
+TEST(StokesPipeFlow, SPF_linVzeroP) {
+  // Linear velocity, zero pressure
+  Eigen::Vector2d vdir{1.0, 2.0};
+  auto v = [&vdir](const Eigen::Vector2d x) -> Eigen::Vector2d {
+    return {vdir.dot(x), (vdir.reverse()).dot(x)};
+  };
+  auto p = [](const Eigen::Vector2d /*x*/) -> double { return 0.0; };
+  pipeFlowSolTest(v, p);
+}
+
+TEST(StokesPipeFlow, BLF_linVconstP) {
+  // Linear velocity,  constant pressure
+  Eigen::Vector2d vdir{1.0, 2.0};
+  auto v = [&vdir](const Eigen::Vector2d x) -> Eigen::Vector2d {
+    return {vdir.dot(x), (vdir.reverse()).dot(x)};
+  };
+  auto p = [](const Eigen::Vector2d /*x*/) -> double { return 1.0; };
+  double vgrad_int_val = 10.0;
+  double vdivp_int_val = 2;
+  testTHBilinearForm(v, p, vgrad_int_val, vdivp_int_val, true);
+}
+
+TEST(StokesPipeFlow, BLF_quadVconstP) {
+  // Linear velocity,  constant pressure
+  auto v = [](const Eigen::Vector2d x) -> Eigen::Vector2d {
+    return {2 * x[0] * x[0] + x[1], x[1] * x[1]};
+  };
+  auto p = [](const Eigen::Vector2d /*x*/) -> double { return 1.0; };
+  double vgrad_int_val = 23.0 / 3.0;
+  double vdivp_int_val = 3.0;
+  testTHBilinearForm(v, p, vgrad_int_val, vdivp_int_val, true);
+}
+
+TEST(StokesPipeFlow, BLF_quadVlinP) {
+  // Linear velocity,  constant pressure
+  auto v = [](const Eigen::Vector2d x) -> Eigen::Vector2d {
+    return {2 * x[0] * x[0] + x[1], x[1] * x[1]};
+  };
+  auto p = [](const Eigen::Vector2d x) -> double { return x[0] - x[1]; };
+  double vgrad_int_val = 23.0 / 3.0;
+  double vdivp_int_val = 1.0 / 6.0;
+  testTHBilinearForm(v, p, vgrad_int_val, vdivp_int_val, true);
+}
+
+TEST(StokesPipeFlow, SPF_quadVlinP) {
+  // Quadratic divergence-free velocity, linear pressure
+  auto v = [](const Eigen::Vector2d x) -> Eigen::Vector2d {
+    return {3 * x[1] * x[1], 6 * x[0] * x[0]};
+  };
+  auto p = [](const Eigen::Vector2d x) -> double {
+    return -6.0 * (x[0] + 2 * x[1]) + 9.0;
+  };
+  pipeFlowSolTest(v, p, false);
+}
+
+TEST(StokesPipeFlow, SPF_mixquadVlinP) {
+  // Quadratic divergence-free velocity, linear pressure
+  auto v = [](const Eigen::Vector2d x) -> Eigen::Vector2d {
+    return {-2 * x[0] * x[1] + 2 * x[0] * x[0],
+            x[1] * x[1] - 4 * x[0] * x[1] + 3 * x[0] * x[0]};
+  };
+  auto p = [](const Eigen::Vector2d x) -> double {
+    return -4.0 * (x[0] + 2 * x[1]) + 6.0;
+  };
+  pipeFlowSolTest(v, p, false);
+}
+
+TEST(StokesPipeFLow, DissPow) {
+  // Simple mesh of the unit square
+  std::shared_ptr<const lf::mesh::Mesh> mesh_p =
+      lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0);
+  // const std::shared_ptr<const lf::mesh::Mesh> mesh_p = getFourTriagMesh();
+  // Set up TH monolithic DofHandler
+  lf::assemble::UniformFEDofHandler dofh(mesh_p,
+                                         {{lf::base::RefEl::kPoint(), 3},
+                                          {lf::base::RefEl::kSegment(), 2},
+                                          {lf::base::RefEl::kTria(), 0},
+                                          {lf::base::RefEl::kQuad(), 0}});
+
+  // Quadratic divergence-free velocity, linear pressure
+  auto v = [](const Eigen::Vector2d x) -> Eigen::Vector2d {
+    return {-2 * x[0] * x[1] + 2 * x[0] * x[0],
+            x[1] * x[1] - 4 * x[0] * x[1] + 3 * x[0] * x[0]};
+  };
+  auto p = [](const Eigen::Vector2d x) -> double {
+    return -4.0 * (x[0] + 2 * x[1]) + 6.0;
+  };
+  // Represent in TH FE space
+  Eigen::VectorXd muvec = interpolateTHfields(dofh, v, p);
+  // Compute dissipated power
+  double pdiss = compDissPowVolume(dofh, muvec);
+  EXPECT_NEAR(pdiss, 32.0 / 3.0, 1E-8);
+}
+
+TEST(StokesPipeFLow, DissPowBd) {
+  // Simple mesh of the unit square
+  std::shared_ptr<const lf::mesh::Mesh> mesh_p =
+      lf::mesh::test_utils::GenerateHybrid2DTestMesh(3, 1.0 / 3.0);
+  // const std::shared_ptr<const lf::mesh::Mesh> mesh_p = getFourTriagMesh();
+  // Set up TH monolithic DofHandler
+  lf::assemble::UniformFEDofHandler dofh(mesh_p,
+                                         {{lf::base::RefEl::kPoint(), 3},
+                                          {lf::base::RefEl::kSegment(), 2},
+                                          {lf::base::RefEl::kTria(), 0},
+                                          {lf::base::RefEl::kQuad(), 0}});
+
+  // Quadratic divergence-free velocity, linear pressure
+  auto v = [](const Eigen::Vector2d x) -> Eigen::Vector2d {
+    return {x[0] * (1 - 2 * x[1]), x[1] * (1 - x[1])};
+  };
+  auto p = [](const Eigen::Vector2d x) -> double { return 2 * x[1] - 1; };
+  // Represent in TH FE space
+  Eigen::VectorXd muvec = interpolateTHfields(dofh, v, p);
+  // Compute dissipated power
+  double pdiss_vol = compDissPowVolume(dofh, muvec);
+  double pdiss_bd = compDissPowBd(dofh, muvec);
+  std::cout << "Pdiss (Volume) = " << pdiss_vol
+            << ", Pdiss(boundary) = " << pdiss_bd << " (exact = " << 4.0 / 3.0
+            << ")\n ";
+  EXPECT_NEAR(pdiss_vol, 4.0 / 3.0, 1E-8);
+  EXPECT_NEAR(pdiss_bd, 4.0 / 3.0, 1E-8);
 }
 
 }  // namespace StokesPipeFlow::test
