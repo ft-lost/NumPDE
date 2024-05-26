@@ -98,6 +98,9 @@
     "GuyerKrumhansl/",
     "CoupledBVPs/",
     "PLaplacian/",
-    "IMEXRKSSM/"
+    "IMEXRKSSM/",
+    "StokesPipeFlow/",
+    "FVPsystem/",
+    "LinHypDampWaveSys/"
   ]
 }

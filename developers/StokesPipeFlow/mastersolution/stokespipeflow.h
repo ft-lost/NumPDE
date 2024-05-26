@@ -74,20 +74,24 @@ lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
 /* SAM_LISTING_BEGIN_2 */
 template <typename gFunctor>
 Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
-                              gFunctor &&g) {
+                              gFunctor &&g, bool print = true) {
   // Number of d.o.f. in FE spaces
   size_t n = dofh.NumDofs();
+  if (print)
+    std::cout << "Computing: solvePipeFlow() with N = " << n
+              << ", assembling .. " << std::flush;
   // Obtain full Galerkin matrix in triplet format
   lf::assemble::COOMatrix<double> A{buildTaylorHoodGalerkinMatrix(dofh)};
+  if (print) std::cout << "done. Imposing BDC ... " << std::flush;
   LF_VERIFY_MSG(A.cols() == A.rows(), "Matrix A must be square");
-
-  // Impose Dirichlet boundary conditions
-  const std::shared_ptr<const lf::mesh::Mesh> mesh_p = dofh.Mesh();
-  // Flag \cor{any} entity located on the boundary
-  auto bd_flags{lf::mesh::utils::flagEntitiesOnBoundary(mesh_p)};
   // Auxiliary right-hnad side vector
   Eigen::VectorXd phi(A.cols());
   phi.setZero();
+  // Impose Dirichlet boundary conditions
+#if SOLUTION
+  const std::shared_ptr<const lf::mesh::Mesh> mesh_p = dofh.Mesh();
+  // Flag \cor{any} entity located on the boundary
+  auto bd_flags{lf::mesh::utils::flagEntitiesOnBoundary(mesh_p)};
   // Flag vector for d.o.f. on the boundary
   std::vector<std::pair<bool, double>> ess_dof_select(n + 1, {false, 0.0});
   // Visit nodes on the boundary
@@ -130,8 +134,14 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
       [&ess_dof_select](lf::assemble::glb_idx_t dof_idx)
           -> std::pair<bool, double> { return ess_dof_select[dof_idx]; },
       A, phi);
+#else
+  /* **********************************************************************
+     Your code here
+     ********************************************************************** */
+#endif
   // Assembly completed: Convert COO matrix A into CRS format using Eigen's
   // internal conversion routines.
+  if (print) std::cout << "done. Solving ..... " << std::flush;
   const Eigen::SparseMatrix<double> A_crs = A.makeSparse();
 
   // Solve linear system using Eigen's sparse direct elimination
@@ -141,6 +151,7 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
   LF_VERIFY_MSG(solver.info() == Eigen::Success, "LU decomposition failed");
   const Eigen::VectorXd dofvec = solver.solve(phi);
   LF_VERIFY_MSG(solver.info() == Eigen::Success, "Solving LSE failed");
+  if (print) std::cout << "done. |dof vector| = " << dofvec.norm() << std::endl;
   // This is the coefficient vector for the FE solution; Dirichlet
   // boundary conditions are included
   return dofvec;
@@ -148,9 +159,30 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
 /* SAM_LISTING_END_2 */
 
 /**
+ * @brief Compute dissipated power for a Talor-Hood FE solution
+ *
+ * @param dofh DofHandler object for monolithic Taylor-Hood FEM
+ * @param mu_vec basis expansion coefficient vector
+ */
+double compDissPowVolume(const lf::assemble::DofHandler &dofh,
+                         const Eigen::VectorXd &mu_vec);
+
+/**
+ * @brief Computes dissipated power by boundary-based formula
+ *
+ * @param dofh DofHandler object for monolithic Taylor-Hood FEM
+ * @param mu_vec basis expansion coefficient vector
+ *
+ * This implementation is valid only in the special geometric setting of the
+ * pipe flow model for the homework project StokesPipeFLow.
+ */
+double compDissPowBd(const lf::assemble::DofHandler &dofh,
+                     const Eigen::VectorXd &muvec);
+
+/**
  * @brief Convergence test for Tyalor-Hood FEM
  */
-void testCvgTaylorHood();
+void testCvgTaylorHood(unsigned int refsteps = 5);
 
 enum PowerFlag { NOCMOP, VOLUME, BOUNDARY };
 
@@ -183,13 +215,13 @@ void visualizeTHPipeFlow(const char *meshfile = "pipe.msh",
  * @brief Compute dissipated power based on Taylor-Hood FEM simulation:
  * volume-integration based formuls
  */
-  double computeDissipatedPower(const char *meshfile = "pipe.msh");
+double computeDissipatedPower(const char *meshfile = "pipe.msh");
 /**
  * @brief Compute dissipated power based on Taylor-Hood FEM simulation:
  * volume-integration based formuls
  */
-  double computeDissipatedPowerBd(const char *meshfile = "pipe.msh");
-  
+double computeDissipatedPowerBd(const char *meshfile = "pipe.msh");
+
 }  // namespace StokesPipeFlow
 
 #endif
