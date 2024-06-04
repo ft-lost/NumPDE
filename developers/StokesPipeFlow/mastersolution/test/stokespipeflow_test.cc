@@ -14,6 +14,7 @@
 #include <lf/base/ref_el.h>
 #include <lf/fe/loc_comp_ellbvp.h>
 #include <lf/geometry/geometry_interface.h>
+#include <lf/io/write_matlab.h>
 #include <lf/mesh/mesh_interface.h>
 #include <lf/mesh/test_utils/test_meshes.h>
 
@@ -798,6 +799,12 @@ TEST(StokesPipeFLow, DissPowBd) {
   EXPECT_NEAR(pdiss_bd, -1.0 / 3.0, 1E-8);
 }
 
-  TEST(StokesPipeFlow, 
+  TEST(StokesPipeFlow, OutMesh) {
+    auto mesh_factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
+    lf::io::GmshReader reader(std::move(mesh_factory), "meshes/pipe.msh");
+    const std::shared_ptr<const lf::mesh::Mesh> mesh_ptr = reader.mesh();
+    const lf::mesh::Mesh& mesh{*mesh_ptr};
+    lf::io::writeMatlab(mesh, "pipemesh.m");
+  }
   
 }  // namespace StokesPipeFlow::test
