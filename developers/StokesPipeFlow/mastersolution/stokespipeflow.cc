@@ -385,7 +385,7 @@ double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
       // Left boundary: inlet, parabolic velocity profile
       return {(1.0 - x[1]) * (x[1] - 0.5), 0.0};
     }
-    if ((x[0] > 0.99999) and (x[1] >= 0.5) and (x[1] <= 1.0)) {
+    if ((x[0] > 0.99999) and (x[1] <= 0.5) and (x[1] >= 0.0)) {
       // Right boundary: outlet
       return {(0.5 - x[1]) * x[1], 0.0};
     }
@@ -463,10 +463,12 @@ double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
     lf::fe::MeshFunctionFE<double, double> mf_o1_p(fes_o1_ptr, coeff_vec_p);
 
     const std::string outfile_str = std::string(outfile);
+    std::cout << outfile_str << std::endl;
     lf::io::VtkWriter vtk_writer(mesh_ptr, outfile_str);
     vtk_writer.WritePointData("u1", mf_o2_u1);
     vtk_writer.WritePointData("u2", mf_o2_u2);
     vtk_writer.WritePointData("p", mf_o1_p);
+
   }
   /* SAM_LISTING_END_5 */
   return 0;
