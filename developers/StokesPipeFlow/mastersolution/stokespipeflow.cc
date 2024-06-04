@@ -308,7 +308,7 @@ double compDissPowVolume(const lf::assemble::DofHandler& dofh,
  */
 /* SAM_LISTING_BEGIN_9 */
 double compDissPowBd(const lf::assemble::DofHandler& dofh,
-                     const Eigen::VectorXd& muvec) {
+                     const Eigen::VectorXd& muvec, bool print) {
   // First fetch underlying mesh
   const lf::mesh::Mesh& mesh{*dofh.Mesh()};
   // Summation variable
@@ -348,7 +348,15 @@ double compDissPowBd(const lf::assemble::DofHandler& dofh,
                               muvec[dof_idx[3]]};
       // Evaluate the integral; can be done exactly, because the integrand is
       // polynomial
-      p_diss += locflag * length * p_ldof.dot(M * vx_ldof);
+      const double loc_diss = locflag * length * p_ldof.dot(M * vx_ldof);
+      if (print) {
+        std::cout << "DPB: Edge with midpoint [" << mp.transpose()
+                  << "] : lf = " << locflag
+                  << ", * pvals = " << p_ldof.transpose()
+                  << ", vx_ldof = " << vx_ldof.transpose()
+                  << ", loc_diss = " << loc_diss << std::endl;
+      }
+      p_diss += loc_diss;
     }
   }
 #else
@@ -385,7 +393,7 @@ double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
       // Left boundary: inlet, parabolic velocity profile
       return {(1.0 - x[1]) * (x[1] - 0.5), 0.0};
     }
-    if ((x[0] > 0.99999) and (x[1] >= 0.5) and (x[1] <= 1.0)) {
+    if ((x[0] > 0.99999) and (x[1] >= 0.0) and (x[1] <= 0.5)) {
       // Right boundary: outlet
       return {(0.5 - x[1]) * x[1], 0.0};
     }
@@ -469,7 +477,7 @@ double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
     vtk_writer.WritePointData("p", mf_o1_p);
   }
   /* SAM_LISTING_END_5 */
-  return 0;
+  return p_diss;
 }
 
 void visualizeTHPipeFlow(const char* meshfile, const char* outfile) {

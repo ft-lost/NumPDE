@@ -199,7 +199,7 @@ double compDissPowVolume(const lf::assemble::DofHandler& dofh,
  */
 /* SAM_LISTING_BEGIN_9 */
 double compDissPowBd(const lf::assemble::DofHandler& dofh,
-                     const Eigen::VectorXd& muvec) {
+                     const Eigen::VectorXd& muvec, bool print) {
   // First fetch underlying mesh
   const lf::mesh::Mesh& mesh{*dofh.Mesh()};
   // Summation variable
@@ -308,7 +308,7 @@ double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
     vtk_writer.WritePointData("p", mf_o1_p);
   }
   /* SAM_LISTING_END_5 */
-  return 0;
+  return p_diss;
 }
 
 void visualizeTHPipeFlow(const char* meshfile, const char* outfile) {

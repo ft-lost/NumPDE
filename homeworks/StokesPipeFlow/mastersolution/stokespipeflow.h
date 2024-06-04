@@ -171,7 +171,7 @@ double compDissPowVolume(const lf::assemble::DofHandler &dofh,
  * pipe flow model for the homework project StokesPipeFLow.
  */
 double compDissPowBd(const lf::assemble::DofHandler &dofh,
-                     const Eigen::VectorXd &muvec);
+                     const Eigen::VectorXd &muvec, bool print = false);
 
 /**
  * @brief Convergence test for Tyalor-Hood FEM

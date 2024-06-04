@@ -1,6 +1,6 @@
 // Gmsh description of pipe geometry
 // Target mesh size
-h = 0.009;
+h = 0.006025;
 // Corners
 Point(1) = { 0, 1, 0, h };
 Point(2) = { 0, 0.5, 0, h };
