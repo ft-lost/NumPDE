@@ -41,6 +41,7 @@ double Diameter(const lf::mesh::Entity& entity) {
                     "Diameter not available for " << entity.RefEl().ToString());
     }
   }
+  return 0.0;  // unreachable, avoid warning
 }  // namespace ConvectionDiffusion
 
 double MeshWidth(std::shared_ptr<const lf::mesh::Mesh> mesh_p) {

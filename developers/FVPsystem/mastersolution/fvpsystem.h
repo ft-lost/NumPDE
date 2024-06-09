@@ -46,7 +46,7 @@ Eigen::MatrixXd ev1ExpPSystem(
 
   // Define the HLLE flux
   auto numflux = [p, F](Eigen::MatrixXd v,
-                            Eigen::MatrixXd w) -> Eigen::VectorXd {
+                        Eigen::MatrixXd w) -> Eigen::VectorXd {
     Eigen::VectorXd out(2);
     double smin = std::min(-std::sqrt(-p(v(0))),
                            -std::sqrt(-(p(w(0)) - p(v(0))) / (w(0) - v(0))));
@@ -54,20 +54,15 @@ Eigen::MatrixXd ev1ExpPSystem(
                            std::sqrt(-(p(w(0)) - p(v(0))) / (w(0) - v(0))));
     Eigen::Vector2d ustar;
     ustar = 1. / (smin - smax) * (F(w) - F(v) - smax * w + smin * v);
-    if (smin > 0)
-      return F(v);
-    else if (smin < 0 && smax > 0)
-      return F(ustar);
-    else if (smax < 0)
-      return F(w);
-    else
-      return F(w);
+    if (smin > 0) return F(v);
+    if (smin < 0 && smax > 0) return F(ustar);
+    return F(w);
   };
 
   // Solve the ODE
   recorder(mu);
   for (double t = 0; t < T - dt / 2.; t += dt) {
-    Eigen::MatrixXd fd(2, mu.cols()); // Flux difference
+    Eigen::MatrixXd fd(2, mu.cols());  // Flux difference
 
     // constant continuation of data
     fd.col(0) = numflux(mu.col(0), mu.col(1)) - numflux(mu.col(0), mu.col(0));

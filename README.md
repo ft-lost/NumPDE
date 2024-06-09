@@ -1,4 +1,4 @@
-# NPDECODES [![Continuous Integration](https://github.com/erickschulz/NPDECODES/workflows/Continuous%20Integration/badge.svg?branch=master)](https://github.com/erickschulz/NPDECODES/actions)
+# NPDECODES [![pipeline status](https://gitlab.math.ethz.ch/ralfh/NPDERepo/badges/master/pipeline.svg)](https://gitlab.math.ethz.ch/ralfh/NPDERepo/-/pipelines)
 This repository contains the codes for the homework problems of the recurring course **Numerical Methods for Partial Differential Equations** at [ETH Zurich](https://ethz.ch/en.html). The course treats finite element methods (FEMs) using the C++ library [LehrFEM++](https://github.com/craffael/lehrfempp) and relies on the following material:
 * [lecture notes](https://www.sam.math.ethz.ch/~grsam/NUMPDEFL/NUMPDE.pdf)
 * [homework problems](https://www.sam.math.ethz.ch/~grsam/NUMPDEFL/HOMEWORK/NPDEFL_Problems.pdf)
@@ -89,3 +89,97 @@ export CXX=g++-8
 cmake ..
 ```
 If the installation is successful, you can than build your codes using `make` as before. Note that the gcc version under OSX usulally just links to clang. However, the procedure above installs the actual gcc compiler.
+
+# Notes for Developers
+## Creating a new Homework
+New homeworks should be created in the `developers` folder. When the homework is ready to be deployed,
+it can be done by running `scripts/deploy_npde.py`.
+Please adhere to the directory layout:
+```
+ProblemName/
+└── mastersolution/
+│   ├── scripts/            (scripts, bash or python, that are part of the mastersolution)
+│   │   └── ...
+│   ├── problemname_main.cc (contains main function, SHOULD NOT #include "problemname.cc", only problemname.h!)
+│   ├── problemname.cc      (further source code if needed)
+│   └── problemname.h       (header for classes and other declarations)
+├── meshes/
+│   └── ...                 (any mesh files if applicable)
+├── scripts/                (scripts, bash or python, that are for use by students solving the homework)
+│   └── ...
+├── CMakeLists.txt
+└── README.md
+```
+You can create a template using `scripts/python/new_problem.py <Problemname> <problemname>`. Feel free to delete any folders you don't need.
+### Solution Tags
+
+In the files of `./developers/mastersolution/` we put the following tags
+```
+#if SOLUTION
+  <only in mastersolution>
+#else
+  <only in template>
+#endif
+```
+to indicate what belongs to mastersolution and/or template. Based on these tags, the file `./scripts/deploy_npde.py` generates a directory `./homeworks/<ProblemName>/` containg the directories `mastersolution`, `mysolution`, `templates` with the corresponding content. The students work exclusively in `./homeworks/<ProblemName>/`.
+
+### Working with and scripts meshes in source code
+`CMake` creates dynamic links to `meshes` and `scripts` folders. Below are example usages.
+
+#### Accessing a mesh file:
+```cpp
+std::string mesh_file = "meshes/hexagonal.msh";
+```
+#### Calling a script that is part of the mastersolution (i.e. in `ProblemName/mastersolution/scripts`):
+```cpp
+#include "systemcall.h"
+...
+systemcall::execute(
+      "python3 ms_scripts/viswave.py solution.csv solution.eps");
+```
+
+#### Calling a script that is not part of the mastersolution (i.e. in `ProblemName/scripts`):
+```cpp
+#include "systemcall.h"
+...
+systemcall::execute(
+      "python3 scripts/plot.py solution.csv");
+```
+The function `systemcall::execute` is a wrapper of `std::system` that checks whether the system call was successful.
+The pipeline forbids `std::system` calls for this reason!
+
+**NOTE: for these relative symbolic paths to work, you must call the executable from the problem folder in `build`!**
+
+## Continuous Integration
+For every commit, a pipeline will:
+- check whether the code still adheres to the formatting standard set by clang-format (mostly follows google standard)
+- compile the `developers` and `lecturecodes` folder on both mac and linux
+- run a static analysis on `developers` and `lecturecodes` folder (clang-tidy)
+- run all mastersolution executables and tests on both mac an linux
+
+### clang-format
+Before pushing, you can automatically apply the formatting standard by running `scripts/apply-clang-format.sh` *from the root of the repository*.
+
+### clang-tidy
+The list of checks done by `clang-tidy` can be seen in the `.clang-tidy` config file. We treat warnings as errors so expect the pipeline to fail when pushing code for the first time.
+The list of checks is a work in progress, so feel free to suggest adding/removing one (e.g. if a check causes a lot of false positives or seems overly strict).
+
+#### In case of False Positives
+Sometimes, `clang-tidy` is wrong. A prominent example is marking variables as unused when they're only called within an `LF_ASSERT_MSG` macro function in test executables.
+When you are confident that `clang-tidy` is giving a false positive, you can tell it to ignore the line(s) as follows:
+
+```cpp
+  // NOLINTBEGIN(clang-analyzer-deadcode.DeadStores)
+  const lf::fe::ScalarReferenceFiniteElement<double> *rsf_edge_p =
+      fe_space->ShapeFunctionLayout(lf::base::RefEl::kSegment());
+  // NOLINTEND(clang-analyzer-deadcode.DeadStores)
+```
+Note that `clang-analyzer-deadcode.DeadStores` is the check warns about unused variables. Replace this with the appropriate check you want to ignore.
+For single line `NOLINT` you can also do
+```cpp
+int n = 1; // NOLINT(<check>)
+
+// NOLINTNEXTLINE(<check>)
+int n = 1;
+```
+**But note** that sometimes `clang-format` will force a single line statement onto two lines, making the single line `NOLINT` not work!

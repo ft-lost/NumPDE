@@ -26,7 +26,9 @@ bool testQuadOrderTria(const lf::quad::QuadRule &quad_rule,
 #if SOLUTION
   double my_epsilon = 1e-12;
   // Retrieve the passed quadrature rule's reference element
+  // NOLINTBEGIN(clang-analyzer-deadcode.DeadStores)
   const lf::base::RefEl ref_element = quad_rule.RefEl();
+  // NOLINTEND(clang-analyzer-deadcode.DeadStores)
   // Check that the passed reference element is triangular
   assert(ref_element == lf::base::RefElType::kTria);
   // A quadrature rule involves quadrature nodes and weights defined so that
@@ -78,7 +80,9 @@ bool testQuadOrderQuad(const lf::quad::QuadRule &quad_rule,
 #if SOLUTION
   double my_epsilon = 1e-12;
   // Retrieve the passed quadrature rule's reference element
+  // NOLINTBEGIN(clang-analyzer-deadcode.DeadStores)
   const lf::base::RefEl ref_element = quad_rule.RefEl();
+  // NOLINTEND(clang-analyzer-deadcode.DeadStores)
   // Check that the passed reference element is triangular
   assert(ref_element == lf::base::RefElType::kQuad);
   // A quadrature rule consists of quadrature nodes and weights defined so that

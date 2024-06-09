@@ -1,5 +1,5 @@
-#ifndef __LINFEREACTDIFF_H
-#define __LINFEREACTDIFF_H
+#ifndef LINFEREACTDIFF_H
+#define LINFEREACTDIFF_H
 /**
  This homework problem consists of reading a simple, gmesh generated, mesh on
  the unit square and solving a simple reaction diffusion system using LehrFEM++

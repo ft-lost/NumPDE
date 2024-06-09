@@ -29,13 +29,12 @@ int main(int /*argc*/, char** /*argv*/) {
 
 #if SOLUTION
   // Define the initial condition
-  auto u0 = [](double x)->Eigen::Vector2d{
+  auto u0 = [](double x) -> Eigen::Vector2d {
     Eigen::Vector2d out(2);
-    if(x<=0) {
+    if (x <= 0) {
       out(0) = 1;
       out(1) = 1;
-    }
-    else {
+    } else {
       out(0) = 3;
       out(1) = 4;
     }
@@ -46,14 +45,14 @@ int main(int /*argc*/, char** /*argv*/) {
   auto record = [&u1, &u2](Eigen::MatrixXd mu) -> void {
     u1.conservativeResize(u1.rows() + 1, mu.cols());
     u2.conservativeResize(u2.rows() + 1, mu.cols());
-    //std::cout<< mu.rows() << mu.cols() << u1.rows()<<u1.cols()<<std::endl;
-    u1.row(u1.rows()-1) = mu.row(0);
-    u2.row(u2.rows()-1) = mu.row(1);
+    // std::cout<< mu.rows() << mu.cols() << u1.rows()<<u1.cols()<<std::endl;
+    u1.row(u1.rows() - 1) = mu.row(0);
+    u2.row(u2.rows() - 1) = mu.row(1);
     return;
   };
 
   // Solve the system
-  auto mu  = FVPsystem::ev1ExpPSystem(a,b,T,N,M,u0,record);
+  auto mu = FVPsystem::ev1ExpPSystem(a, b, T, N, M, u0, record);
 
 #else
   /* Your code goes here */

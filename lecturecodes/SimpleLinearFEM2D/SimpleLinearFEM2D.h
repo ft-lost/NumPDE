@@ -54,7 +54,7 @@ class MatrixAssembler {
       : localMatrixHandle(std::move(getElementMatrix)) {}
 
   // Assemble the Galerkin matrix for the provided mesh
-  Eigen::SparseMatrix<double> Assemble(TriaMesh2D const &mesh);
+  Eigen::SparseMatrix<double> Assemble(const TriaMesh2D &mesh);
 
  private:
   LocalMatrixHandle_t localMatrixHandle;
@@ -72,7 +72,7 @@ class SlowMatrixAssembler {
       : localMatrixHandle(std::move(getElementMatrix)) {}
 
   // Assemble the Galerkin matrix for the provided mesh
-  Eigen::SparseMatrix<double> Assemble(TriaMesh2D const &mesh);
+  Eigen::SparseMatrix<double> Assemble(const TriaMesh2D &mesh);
 
  private:
   LocalMatrixHandle_t localMatrixHandle;
@@ -91,13 +91,13 @@ typedef std::function<Eigen::Vector3d(const TriGeo_t &, FHandle_t)>
 class VectorAssembler {
  public:
   // Constructor: stores element matrix assembler and load function
-  VectorAssembler(LocalVectorHandle_t const getElementVector,
+  VectorAssembler(const LocalVectorHandle_t getElementVector,
                   FHandle_t sourceFunction)
       : localVectorHandle(std::move(getElementVector)),
         sourceFunction(std::move(sourceFunction)) {}
 
   // Assemble the load vector for the provided mesh
-  Eigen::VectorXd Assemble(TriaMesh2D const &mesh);
+  Eigen::VectorXd Assemble(const TriaMesh2D &mesh);
 
  private:
   LocalVectorHandle_t localVectorHandle;
@@ -121,7 +121,7 @@ class FESolver {
   };
 
   // Solve the discretized system
-  Eigen::VectorXd Solve(TriaMesh2D const &mesh);
+  Eigen::VectorXd Solve(const TriaMesh2D &mesh);
 
  private:
   const FHandle_t &sourceFunction;

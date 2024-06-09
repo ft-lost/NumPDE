@@ -110,12 +110,6 @@ double bdFunctionalEval(
   // that the computations are carried only on the edges of the mesh.
   auto bd_flags{lf::mesh::utils::flagEntitiesOnBoundary(mesh_p, 1)};
 
-  // Creating predicate that will guarantee that the computations are carried
-  // only on the edges of the mesh using the boundary flags
-  auto edges_predicate = [&bd_flags](const lf::mesh::Entity *edge) -> bool {
-    return bd_flags(*edge);
-  };
-
   // Computing the integral of function_vec on the flagged edges
   double edge_length;
   for (const lf::mesh::Entity *edge : mesh_p->Entities(1)) {

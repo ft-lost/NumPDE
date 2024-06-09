@@ -32,9 +32,6 @@ Eigen::VectorXd solveImpedanceBVP(
   const lf::assemble::DofHandler &dofh{fe_space_p->LocGlobMap()};
   // Dimension of finite element space
   const lf::uscalfe::size_type N_dofs(dofh.NumDofs());
-  // Obtain specification for shape functions on edges
-  const lf::fe::ScalarReferenceFiniteElement<double> *rsf_edge_p =
-      fe_space_p->ShapeFunctionLayout(lf::base::RefEl::kSegment());
 
   Eigen::VectorXd discrete_solution(N_dofs);
 
@@ -73,11 +70,8 @@ Eigen::VectorXd solveImpedanceBVP(
       [&bd_flags](const lf::mesh::Entity &edge) -> bool {
     if (bd_flags(edge)) {
       auto endpoints = lf::geometry::Corners(*(edge.Geometry()));
-      if (endpoints(0, 0) <= 0.05 || 0.95 <= endpoints(0, 0) ||
-          endpoints(1, 0) <= 0.05 || 0.95 <= endpoints(1, 0)) {
-        return false;
-      }
-      return true;
+      return endpoints(0, 0) > 0.05 && 0.95 > endpoints(0, 0) &&
+             endpoints(1, 0) > 0.05 && 0.95 > endpoints(1, 0);
     }
     return false;
   };
@@ -195,11 +189,8 @@ double computeBoundaryOutputFunctional(
       [&bd_flags](const lf::mesh::Entity &edge) -> bool {
     if (bd_flags(edge)) {
       auto endpoints = lf::geometry::Corners(*(edge.Geometry()));
-      if (endpoints(0, 0) <= 0.05 || 0.95 <= endpoints(0, 0) ||
-          endpoints(1, 0) <= 0.05 || 0.95 <= endpoints(1, 0)) {
-        return false;
-      }
-      return true;
+      return endpoints(0, 0) > 0.05 && 0.95 > endpoints(0, 0) &&
+             endpoints(1, 0) > 0.05 && 0.95 > endpoints(1, 0);
     }
     return false;
   };

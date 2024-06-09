@@ -128,7 +128,9 @@ lf::mesh::utils::CodimMeshDataSet<Eigen::Vector2d> exteriorEdgeWeightedNormals(
 bool validateNormals(const lf::mesh::Mesh &mesh) {
   // Run through cells and compute the normals
   for (const lf::mesh::Entity *cell : mesh.Entities(0)) {
+    // NOLINTBEGIN(clang-analyzer-deadcode.DeadStores)
     const lf::base::RefEl ref_el_type{cell->RefEl()};
+    // NOLINTEND(clang-analyzer-deadcode.DeadStores)
     LF_ASSERT_MSG(ref_el_type == lf::base::RefEl::kTria(),
                   "implemented for triangles only");
     const lf::geometry::Geometry &geo{*(cell->Geometry())};

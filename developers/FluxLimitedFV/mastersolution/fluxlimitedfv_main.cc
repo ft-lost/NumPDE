@@ -6,7 +6,7 @@
  * @ copyright Developed at SAM, ETH Zurich
  */
 
-#define _USE_MATH_DEFINES
+#define USE_MATH_DEFINES
 
 #include <Eigen/Core>
 #include <cmath>
@@ -40,18 +40,17 @@ int main(int /*argc*/, char** /*argv*/) {
   auto mu0_A_fn = [](double x) -> double {
     if (x < 1) {
       return 0.0;
-    } else if (x < 2) {
-      return pow(sin(0.5 * M_PI * (x - 1)), 2);
-    } else {
-      return 1.0;
     }
+    if (x < 2) {
+      return pow(sin(0.5 * M_PI * (x - 1)), 2);
+    }
+    return 1.0;
   };
   auto mu0_B_fn = [](double x) -> double {
     if ((1 < x) && (x < 2)) {
       return 1.0;
-    } else {
-      return 0.0;
     }
+    return 0.0;
   };
 
   Eigen::VectorXd error_L1_mu0_A = Eigen::VectorXd::Zero(8);
@@ -159,11 +158,11 @@ int main(int /*argc*/, char** /*argv*/) {
   auto mu0_fn = [](double x) -> double {
     if (x < 2) {
       return -1.0;
-    } else if (x < 3) {
-      return 1.0;
-    } else {
-      return -1.0;
     }
+    if (x < 3) {
+      return 1.0;
+    }
+    return -1.0;
   };
 
   Eigen::VectorXd mu0(N);

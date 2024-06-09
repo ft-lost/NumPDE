@@ -66,10 +66,9 @@ std::pair<double, double> solveQuadraticEquation(double a, double b, double c) {
       if (b < 0) {
         const double root = 0.5 * (-b + rtD);
         return {root, c / root};
-      } else {  // b >= 0
-        const double root = 0.5 * (-b - rtD);
-        return {root, c / root};
-      }
+      }  // b >= 0
+      const double root = 0.5 * (-b - rtD);
+      return {root, c / root};
     }
   } else {
     if (b != 0.0) {
@@ -235,10 +234,8 @@ std::pair<double, double> normsSolutionPointLoadDirichletBVP(
   auto my_selector = [&dofh, &bd_flags, &boundary_val](unsigned int dof_idx) {
     if (bd_flags(dofh.Entity(dof_idx))) {
       return (std::pair<bool, double>(true, boundary_val));
-    } else {
-      // interior node: the value we return here does not matter
-      return (std::pair<bool, double>(false, 42.0));
-    }
+    }  // interior node: the value we return here does not matter
+    return (std::pair<bool, double>(false, 42.0));
   };
   lf::assemble::FixFlaggedSolutionComponents<double>(my_selector, A, rhs);
 

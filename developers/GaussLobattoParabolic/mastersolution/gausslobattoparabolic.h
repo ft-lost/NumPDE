@@ -120,7 +120,7 @@ Eigen::VectorXd evolveIBVPGaussLobatto(
   // Get Sparse A to compute \Blue{$A\mu$} below
   Eigen::SparseMatrix<double> A = COO_A.makeSparse();
   // Helper class for computuing source term
-  RHSProvider rhs_provider(dofh, std::move(g));
+  RHSProvider rhs_provider(dofh, std::forward<GFUNCTION>(g));
 
   // Main timesteping loop : initializations
   // Get time-dependent load vector for t=0

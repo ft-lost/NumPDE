@@ -5,7 +5,7 @@
 
 #include "SimpleLinearFEM2D.h"
 
-Eigen::VectorXd VectorAssembler::Assemble(TriaMesh2D const& mesh) {
+Eigen::VectorXd VectorAssembler::Assemble(const TriaMesh2D& mesh) {
   // obtain the number of vertices
   int num_vertices = mesh._nodecoords.rows();
   // obtain the number of cells

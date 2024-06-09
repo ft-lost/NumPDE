@@ -175,11 +175,11 @@ assembleGalerkinMatrices(const lf::assemble::DofHandler &dofh,
 
 /* Implementation of class SDIRK2Timestepper */
 // Implementation of SDIRK2Timestepper constructor
+#if SOLUTION
 SDIRK2Timestepper::SDIRK2Timestepper(const lf::assemble::DofHandler &dofh,
                                      double tau /*nb. steps*/,
                                      double cool_coeff /*cooling coeff*/)
-    : tau_(tau) {
-#if SOLUTION
+    : tau_(tau), lambda_(1.0 - 0.5 * sqrt(2.0)) {
   std::pair<Eigen::SparseMatrix<double>, Eigen::SparseMatrix<double>>
       sparse_pair = assembleGalerkinMatrices(dofh, cool_coeff);
   A_ = sparse_pair.first;
@@ -191,13 +191,17 @@ SDIRK2Timestepper::SDIRK2Timestepper(const lf::assemble::DofHandler &dofh,
   // in order to obtained the increments. For time evolution problem with fixed
   // step size, the matrix associated to these linear systems is independent of
   // time. We precompute the sparse LU solvers for efficiency.
-  lambda_ = 1.0 - 0.5 * sqrt(2.0);
+
   solver.compute(M + tau * lambda_ * A_);
   LF_VERIFY_MSG(solver.info() == Eigen::Success, "LU decomposition failed");
 #else
-  //====================
-  // Your code goes here
-  //====================
+SDIRK2Timestepper::SDIRK2Timestepper(const lf::assemble::DofHandler &dofh,
+                                     double tau /*nb. steps*/,
+                                     double cool_coeff /*cooling coeff*/)
+    : tau_(tau) {
+//====================
+// Your code goes here
+//====================
 #endif
 }  // SDIRK2Timestepper constructor
 

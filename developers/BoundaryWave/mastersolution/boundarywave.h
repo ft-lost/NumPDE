@@ -72,7 +72,7 @@ Eigen::VectorXd solveBoundaryWave(
   std::pair<Eigen::VectorXd, Eigen::VectorXd> initialData =
       interpolateInitialData<std::function<double(Eigen::Vector2d)>,
                              std::function<double(Eigen::Vector2d)>>(
-          fe_space_p, std::move(u0), std::move(v0));
+          fe_space_p, std::forward<FUNCTOR_U>(u0), std::forward<FUNCTOR_V>(v0));
   // Obtain Galerkin matrices
   lf::assemble::COOMatrix<double> M = buildM(fe_space_p);
   lf::assemble::COOMatrix<double> A = buildA(fe_space_p);

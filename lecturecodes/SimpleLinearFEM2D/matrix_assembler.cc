@@ -5,7 +5,7 @@
 
 #include "SimpleLinearFEM2D.h"
 
-Eigen::SparseMatrix<double> MatrixAssembler::Assemble(TriaMesh2D const &mesh) {
+Eigen::SparseMatrix<double> MatrixAssembler::Assemble(const TriaMesh2D &mesh) {
   // Get dimensions of the mesh
   int num_vertices = mesh._nodecoords.rows();
   int num_cells = mesh._elements.rows();
@@ -42,7 +42,7 @@ Eigen::SparseMatrix<double> MatrixAssembler::Assemble(TriaMesh2D const &mesh) {
 }
 
 Eigen::SparseMatrix<double> SlowMatrixAssembler::Assemble(
-    TriaMesh2D const &mesh) {
+    const TriaMesh2D &mesh) {
   // Get dimensions of the mesh
   int num_vertices = mesh._nodecoords.rows();
   int num_cells = mesh._elements.rows();
