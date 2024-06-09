@@ -32,9 +32,6 @@ Eigen::VectorXd solveImpedanceBVP(
   const lf::assemble::DofHandler &dofh{fe_space_p->LocGlobMap()};
   // Dimension of finite element space
   const lf::uscalfe::size_type N_dofs(dofh.NumDofs());
-  // Obtain specification for shape functions on edges
-  const lf::fe::ScalarReferenceFiniteElement<double> *rsf_edge_p =
-      fe_space_p->ShapeFunctionLayout(lf::base::RefEl::kSegment());
 
   Eigen::VectorXd discrete_solution(N_dofs);
 

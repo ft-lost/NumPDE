@@ -93,7 +93,6 @@ Eigen::Vector4d computeLoadVector(
 Eigen::Vector4d MyLinearLoadVector::Eval(const lf::mesh::Entity &cell) {
   // Topological type of the cell
   const lf::base::RefEl ref_el{cell.RefEl()};
-  const lf::base::size_type num_nodes{ref_el.NumNodes()};
 
   // Obtain the vertex coordinates of the cell, which completely
   // describe its shape.

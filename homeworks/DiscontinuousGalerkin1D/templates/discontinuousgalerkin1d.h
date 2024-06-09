@@ -83,9 +83,7 @@ Eigen::VectorXd dgcl(Eigen::VectorXd mu0, FUNCTOR &&f, NUMFLUX &&F, double T,
 double Feo(double v, double w);
 
 struct Solution {
-  Solution(const Solution &other) {
-    x_ = other.x_;
-    u_ = other.u_;
+  Solution(const Solution &other) : x_(other.x_), u_(other.u_) {
     std::cout << "Called copy contructor" << std::endl;
   }
   Solution(Eigen::VectorXd x, Eigen::VectorXd u)

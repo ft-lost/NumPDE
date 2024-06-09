@@ -8,7 +8,6 @@
 
 #include "../fluxlimitedfv.h"
 
-#include <Eigen/src/Core/util/Constants.h>
 #include <gtest/gtest.h>
 
 #include <Eigen/Core>

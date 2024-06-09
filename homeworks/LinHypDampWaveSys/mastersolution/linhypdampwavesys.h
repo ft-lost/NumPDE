@@ -48,7 +48,6 @@ Eigen::MatrixXd linsysoderhs(const Eigen::MatrixXd &mu, double h,
 }
 /* SAM_LISTING_END_1 */
 
-
 /* SAM_LISTING_BEGIN_3 */
 template <typename FFunctor, typename gFunctor, typename u0Functor,
           typename RECORDER = std::function<void(const Eigen::MatrixXd &)>>
@@ -80,7 +79,6 @@ Eigen::MatrixXd fvEulLinSys(
 
 /* SAM_LISTING_END_3 */
 
-
 /* SAM_LISTING_BEGIN_4 */
 template <typename u0Functor,
           typename RECORDER = std::function<void(const Eigen::MatrixXd &)>>
@@ -88,7 +86,6 @@ Eigen::Matrix<double, 2, Eigen::Dynamic> ev1DampWave(
     double c, double r, double T, unsigned int N, u0Functor &&u0,
     Fluxtype nf_selector,
     RECORDER &&recorder = [](const Eigen::MatrixXd &) -> void {}) {
-  
   // Some parameters for the numerical scheme
   double maxspeed = c;
   double a = -T * maxspeed;

@@ -84,7 +84,7 @@ class implicitRKIntegrator {
   }
 
  private:
-  /* Perform a single step of the RK method for the for of the autonomous ODE
+  /* Perform a single step of the RK method for the for of the autonomous ODE */
   /* SAM_LISTING_BEGIN_0 */
   template <class Function, class Jacobian>
   void step(Function &&f, Jacobian &&Jf, double h, const Eigen::VectorXd &y0,

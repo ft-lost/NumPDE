@@ -25,6 +25,7 @@
 #include <lf/mesh/utils/mesh_function_unary.h>
 
 #include <cstddef>
+#include <iomanip>
 
 namespace StokesPipeFlow {
 /* SAM_LISTING_BEGIN_1 */
@@ -392,6 +393,8 @@ double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
     }
   }
 
+  std::cout << "Dissipated power: " << p_diss << std::endl;
+
   if (producevtk) {
     LF_VERIFY_MSG(outfile != nullptr,
                   "Filename for .vtk files has to be provided");
@@ -440,6 +443,7 @@ double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
     lf::fe::MeshFunctionFE<double, double> mf_o1_p(fes_o1_ptr, coeff_vec_p);
 
     const std::string outfile_str = std::string(outfile);
+    std::cout << outfile_str << std::endl;
     lf::io::VtkWriter vtk_writer(mesh_ptr, outfile_str);
     vtk_writer.WritePointData("u1", mf_o2_u1);
     vtk_writer.WritePointData("u2", mf_o2_u2);

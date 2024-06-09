@@ -38,10 +38,8 @@ bool checkinvariant(const Eigen::MatrixXd &M, double T) {
   // Check if $Y'*Y$ is preserved at the time $T$ by matode.
   Eigen::MatrixXd N = matode(M, T);
 
-  if ((N.transpose() * N - M.transpose() * M).norm() <
-      10 * std::numeric_limits<double>::epsilon() * M.norm()) {
-    return true;
-  }
+  return (N.transpose() * N - M.transpose() * M).norm() <
+         10 * std::numeric_limits<double>::epsilon() * M.norm();
 
   return false;
 }

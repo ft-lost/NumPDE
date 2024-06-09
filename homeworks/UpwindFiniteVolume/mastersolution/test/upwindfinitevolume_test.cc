@@ -59,7 +59,7 @@ TEST(UpwindFiniteVolume, computeCircumcenters) {
   int throwed_error = 0;
   try {
     Eigen::Vector2d a4 = Eigen::Vector2d(1, 1);
-    Eigen::Vector2d temp = UpwindFiniteVolume::computeCircumcenters(a1, a2, a4);
+    UpwindFiniteVolume::computeCircumcenters(a1, a2, a4);
   } catch (const std::exception&) {
     throwed_error = 1;
   }

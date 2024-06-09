@@ -132,10 +132,8 @@ Eigen::VectorXd projectOntoGradients(const lf::assemble::DofHandler &dofh,
   auto my_selector = [&dofh, &bd_flags, &boundary_val](unsigned int dof_idx) {
     if (bd_flags(dofh.Entity(dof_idx))) {
       return std::make_pair(true, boundary_val);
-    } else {
-      // interior node: the value we return here does not matter
-      return std::make_pair(false, 42.0);
-    }
+    }  // interior node: the value we return here does not matter
+    return std::make_pair(false, 42.0);
   };
   // Since we know the values on the boundary we know the solution on these
   // DOFs and we can write the Galerkin LSE in block format and solve only

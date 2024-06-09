@@ -20,8 +20,6 @@ void enforce_zero_boundary_conditions(
     lf::assemble::COOMatrix<double>& A, Eigen::VectorXd& b) {
   lf::mesh::utils::MeshFunctionGlobal mf_zero{
       [](const Eigen::Vector2d& /*x*/) { return 0.0; }};
-  const lf::fe::ScalarReferenceFiniteElement<double>* rsf_edge_p =
-      fe_space->ShapeFunctionLayout(lf::base::RefEl::kSegment());
 
   auto bd_flags{lf::mesh::utils::flagEntitiesOnBoundary(fe_space->Mesh(), 1)};
   auto flag_values{

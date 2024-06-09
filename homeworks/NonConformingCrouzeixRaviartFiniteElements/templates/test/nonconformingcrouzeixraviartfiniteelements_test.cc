@@ -93,8 +93,8 @@ TEST(CRFeSpace, Constructor) {
   CRFeSpace fe_space(mesh_ptr);
 
   EXPECT_EQ(fe_space.ShapeFunctionLayout(lf::base::RefEl::kSegment()), nullptr);
-  EXPECT_EQ(typeid(*(fe_space.ShapeFunctionLayout(lf::base::RefEl::kTria()))),
-            typeid(CRReferenceFiniteElement));
+  auto cr_ref_el = fe_space.ShapeFunctionLayout(lf::base::RefEl::kTria());
+  EXPECT_EQ(typeid(*cr_ref_el), typeid(CRReferenceFiniteElement));
   EXPECT_EQ(fe_space.ShapeFunctionLayout(lf::base::RefEl::kQuad()), nullptr);
 }
 

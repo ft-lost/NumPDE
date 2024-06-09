@@ -93,9 +93,9 @@ SDIRK2Timestepper::SDIRK2Timestepper(const lf::assemble::DofHandler &dofh,
                                      double tau /*nb. steps*/,
                                      double cool_coeff /*cooling coeff*/)
     : tau_(tau) {
-  //====================
-  // Your code goes here
-  //====================
+//====================
+// Your code goes here
+//====================
 }  // SDIRK2Timestepper constructor
 
 /* Implementation of SDIRK2Timestepper member function */

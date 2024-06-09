@@ -7,7 +7,7 @@
 
 #include "zienkiewiczzhuestimator.h"
 
-#define _USE_MATH_DEFINES
+#define USE_MATH_DEFINES
 #include <cmath>
 #include <iomanip>
 // Eigen includes
@@ -271,9 +271,6 @@ Eigen::VectorXd solveBVP(
   const lf::assemble::DofHandler &dofh{fe_space_p->LocGlobMap()};
   // Dimension of finite element space
   const lf::uscalfe::size_type N_dofs(dofh.NumDofs());
-  // Obtain specification for shape functions on edges
-  const lf::fe::ScalarReferenceFiniteElement<double> *rsf_edge_p =
-      fe_space_p->ShapeFunctionLayout(lf::base::RefEl::kSegment());
 
   // Dirichlet data
   auto mf_g = lf::mesh::utils::MeshFunctionGlobal(

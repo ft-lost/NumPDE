@@ -21,10 +21,9 @@ double f_sol(double x, double t) {
   auto f_u0 = [](double x) -> double {
     if (std::abs(x) > 0.5) {
       return 0.0;
-    } else {
-      const double c = std::cos(x * M_PI);
-      return c * c;
     }
+    const double c = std::cos(x * M_PI);
+    return c * c;
   };
   return 0.5 * (f_u0(x + t) + f_u0(x - t));
 }
@@ -36,11 +35,11 @@ std::vector<Eigen::VectorXd> solve(unsigned N, unsigned M, double T) {
   auto c_sigma = [s0](double x) -> double {
     if (std::abs(x) <= 1.0) {
       return 0.0;
-    } else if (x < -1.0) {
-      return s0 * (x + 1.0) * (x + 1.0);
-    } else {
-      return s0 * (x - 1.0) * (x - 1.0);
     }
+    if (x < -1.0) {
+      return s0 * (x + 1.0) * (x + 1.0);
+    }
+    return s0 * (x - 1.0) * (x - 1.0);
   };
   // Wavespeed coefficient function
   auto c_gamma = [](double /*x*/) -> double { return 1.0; };

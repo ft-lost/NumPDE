@@ -58,9 +58,8 @@ int main() {
     if (dist < d) {
       double cos = std::cos(M_PI / (2.0 * d) * dist);
       return cos * cos;
-    } else {
-      return 0.0;
     }
+    return 0.0;
   };
 
   double T = 1.0;

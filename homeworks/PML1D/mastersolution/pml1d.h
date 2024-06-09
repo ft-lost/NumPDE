@@ -142,11 +142,11 @@ std::pair<double, double> computeErrorWave1D(FUNCTOR_DATA &&f_v0,
   auto c_sigma = [s0](double x) -> double {
     if (std::abs(x) <= 1.0) {
       return 0.0;
-    } else if (x < -1.0) {
-      return s0 * (x + 1.0) * (x + 1.0);
-    } else {
-      return s0 * (x - 1.0) * (x - 1.0);
     }
+    if (x < -1.0) {
+      return s0 * (x + 1.0) * (x + 1.0);
+    }
+    return s0 * (x - 1.0) * (x - 1.0);
   };
   // Wavespeed coefficient function
   auto c_gamma = [](double /*x*/) -> double { return 1.0; };

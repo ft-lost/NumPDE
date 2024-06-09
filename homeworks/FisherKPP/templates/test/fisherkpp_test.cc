@@ -5,8 +5,10 @@
  * @date 26.03.2024
  * @copyright Developed at ETH Zurich
  */
-
-#include "../fisherkpp.cc"
+// In the interest of not changing the problem text over at
+// https://gitlab.math.ethz.ch/ralfh/npdeflipped, I will tell clang-tidy to
+// ignore the bugprone-suspicious include warning. (Manuel Saladin, 2024-05-28)
+#include "../fisherkpp.cc"  // NOLINT(bugprone-suspicious-include)
 
 #include <Eigen/src/Core/util/Constants.h>
 #include <gtest/gtest.h>

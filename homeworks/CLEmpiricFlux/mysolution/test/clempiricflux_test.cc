@@ -6,15 +6,17 @@
  * @copyright Developed at ETH Zurich
  */
 
-#include "../clempiricflux.cc"
-
 #include <gtest/gtest.h>
 
 #include <Eigen/Core>
 #include <cmath>
 
-#include "../solvecauchyproblem.cc"
-#include "../uniformcubicspline.cc"
+// In the interest of not changing the problem text over at
+// https://gitlab.math.ethz.ch/ralfh/npdeflipped, I will tell clang-tidy to
+// ignore the bugprone-suspicious-include warning. (Manuel Saladin, 2024-05-28)
+#include "../clempiricflux.cc"       // NOLINT(bugprone-suspicious-include)
+#include "../solvecauchyproblem.cc"  // NOLINT(bugprone-suspicious-include)
+#include "../uniformcubicspline.cc"  // NOLINT(bugprone-suspicious-include)
 
 namespace CLEmpiricFlux::test {
 

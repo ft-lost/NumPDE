@@ -1,5 +1,5 @@
-#ifndef __ADVECTIONFV2D_H
-#define __ADVECTIONFV2D_H
+#ifndef ADVECTIONFV2D_H
+#define ADVECTIONFV2D_H
 /**
  * @file advectionfv2d.h
  * @brief NPDE homework AdvectionFV2D code
@@ -414,4 +414,4 @@ int findCFLthreshold(const lf::assemble::DofHandler &dofh, VECTORFIELD &&beta,
 
 }  // namespace AdvectionFV2D
 
-#endif  // define __ADVECTIONFV2D_H
+#endif  // define ADVECTIONFV2D_H

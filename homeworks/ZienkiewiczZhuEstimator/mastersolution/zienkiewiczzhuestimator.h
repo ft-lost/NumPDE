@@ -80,7 +80,8 @@ class progress_bar {
         bar_width{line_width - overhead},
         message{std::move(message_)},
         full_bar{std::string(bar_width, symbol) + std::string(bar_width, ' ')} {
-    if (message.size() + 1 >= bar_width || message.find('\n') != message.npos) {
+    if (message.size() + 1 >= bar_width ||
+        message.find('\n') != std::string::npos) {
       os << message << '\n';
       message.clear();
     } else {

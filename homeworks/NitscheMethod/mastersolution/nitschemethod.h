@@ -99,7 +99,7 @@ class NitscheElemVecProvider {
   [[nodiscard]] virtual bool isActive(const lf::mesh::Entity & /*cell*/) {
     return true;
   }
-  [[nodiscard]] Eigen::Vector3d Eval(const lf::mesh::Entity &tria) const;
+  [[nodiscard]] Eigen::Vector3d Eval(const lf::mesh::Entity &cell) const;
 
  private:
   FUNCTOR g_;  // $\cob{\Bx\mapsto g(\Bx)}$

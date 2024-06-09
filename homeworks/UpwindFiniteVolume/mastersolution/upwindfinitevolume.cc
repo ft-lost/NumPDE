@@ -79,9 +79,9 @@ Eigen::Vector2d computeCircumcenters(const Eigen::Vector2d &a1,
   if (v <= 0 || w <= 0 || u <= 0) {
     throw std::runtime_error("Obtused triangle!");
     return Eigen::Vector2d::Zero();
-  } else {
-    return center;
   }
+  return center;
+
 }
 /* SAM_LISTING_BEGIN_3 */
 

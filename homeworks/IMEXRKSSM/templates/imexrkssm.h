@@ -87,8 +87,7 @@ Eigen::VectorXd compNonlinearTerm(
 /* SAM_LISTING_BEGIN_1 */
 struct AssemblerLocalFunc {
   template <typename BUILDER_DATA, typename ELEMENT>
-  inline static Eigen::Vector3d Eval(const BUILDER_DATA& data,
-                                     const ELEMENT& el) {
+  static Eigen::Vector3d Eval(const BUILDER_DATA& data, const ELEMENT& el) {
     Eigen::Vector3d res = Eigen::Vector3d::Zero();
     // ========================================
     // Your code here
@@ -144,7 +143,7 @@ class IMEXTimestep_inefficient {
 };
 
 Eigen::VectorXd solveTestProblem(
-    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_test,
+    std::shared_ptr<const lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,
     int M);
 
 void visSolution(

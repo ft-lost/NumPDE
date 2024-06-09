@@ -20,9 +20,9 @@ int main(int /*argc*/, char** /*argv*/) {
   lf::base::LehrFemInfo::PrintInfo(std::cout);
 
   // Test of convergence on the unit square with manufactured solution
-  StokesPipeFlow::testCvgTaylorHood(5);
+  //  StokesPipeFlow::testCvgTaylorHood(4);
   // Compute on "realistic" geometry
-  std::cout << "Writing vtk-File" << std::endl;
+  //  std::cout << "Writing vtk-File" << std::endl;
   StokesPipeFlow::visualizeTHPipeFlow("meshes/pipe.msh", "out.vtk");
   std::vector<std::pair<double, double>> p_diss{};
   double p_diss_vol;

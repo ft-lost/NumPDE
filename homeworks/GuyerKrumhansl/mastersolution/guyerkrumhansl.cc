@@ -66,7 +66,7 @@ void demo_EigenSparseInit(unsigned int n, unsigned int m) {
 }
 /* SAM_LISTING_END_1 */
 
-#define MISSING_VALUE -42.0
+#define MISSING_VALUE (-42.0)
 
 // Initialization of matrices for MOL ODE
 /* SAM_LISTING_BEGIN_2 */

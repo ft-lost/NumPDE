@@ -1,5 +1,5 @@
-#ifndef __NORMS_H
-#define __NORMS_H
+#ifndef NORMS_H
+#define NORMS_H
 
 /**
  * @ file norms.h

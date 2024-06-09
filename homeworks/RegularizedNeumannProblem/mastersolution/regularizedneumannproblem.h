@@ -71,9 +71,8 @@ std::pair<Eigen::SparseMatrix<double>, Eigen::VectorXd> getGalerkinLSE_dropDof(
   auto selector = [](lf::base::glb_idx_t idx) -> std::pair<bool, double> {
     if (idx == 0) {
       return {true, 0.0};  // fix first d.o.f. to zero
-    } else {
-      return {false, 42.0};  // keep all others
     }
+    return {false, 42.0};  // keep all others
   };
   lf::assemble::FixFlaggedSolutionComponents(selector, A_aux, rhs_vec);
   /* SAM_LISTING_END_1 */

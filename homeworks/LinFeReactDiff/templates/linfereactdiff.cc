@@ -91,9 +91,10 @@ Eigen::VectorXd solveFE(std::shared_ptr<const lf::mesh::Mesh> mesh) {
       elvec_builder(fe_space, mf_c);
 
   AssembleVectorLocally(0, dofh, elvec_builder, phi);
-
+  // NOLINTBEGIN(clang-analyzer-deadcode.DeadStores)
   const lf::fe::ScalarReferenceFiniteElement<double> *rsf_edge_p =
       fe_space->ShapeFunctionLayout(lf::base::RefEl::kSegment());
+  // NOLINTEND(clang-analyzer-deadcode.DeadStores)
   LF_ASSERT_MSG(rsf_edge_p != nullptr, "FE specification for edges missing");
 
   // Fetch flags and values for degrees of freedom located on Dirichlet

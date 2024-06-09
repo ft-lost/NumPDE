@@ -57,12 +57,7 @@ Eigen::VectorXd rhsVectorheatSource(const lf::assemble::DofHandler &dofh,
   // indicates that the vertex lies on the boundary. This predicate will
   // guarantee that the computations are carried only on the boundary vertices
   auto bd_flags{lf::mesh::utils::flagEntitiesOnBoundary(mesh_p, 2)};
-  // Creating predicate that will guarantee that the computations are carried
-  // only on the vertices of the mesh using the boundary flags
-  auto vertices_predicate =
-      [&bd_flags](const lf::mesh::Entity &vertex) -> bool {
-    return bd_flags(vertex);
-  };
+
   // Assigning zero to the boundary values of phi
   for (const lf::mesh::Entity *vertex : mesh_p->Entities(2)) {
     if (bd_flags(*vertex)) {

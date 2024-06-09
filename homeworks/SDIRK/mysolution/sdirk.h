@@ -19,7 +19,7 @@ Eigen::Vector2d SdirkStep(const Eigen::Vector2d &z0, double h, double gamma);
 
 // Solve autonomous IVP y'' + y' + y = 0, [y(0), y'(0)] = z0 using SDIRK
 std::vector<Eigen::Vector2d> SdirkSolve(const Eigen::Vector2d &z0,
-                                        unsigned int N, double T, double gamma);
+                                        unsigned int M, double T, double gamma);
 
 double CvgSDIRK();
 

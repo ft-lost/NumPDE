@@ -63,10 +63,6 @@ int main() {
   const lf::assemble::DofHandler &dofh{fe_space->LocGlobMap()};
 
   // PREPARING DATA TO IMPOSE DIRICHLET CONDITIONS
-  // Obtain specification for shape functions on edges
-  const lf::fe::ScalarReferenceFiniteElement<double> *rsf_edge_p =
-      fe_space->ShapeFunctionLayout(lf::base::RefEl::kSegment());
-
   // Create a dataset of boolean flags indicating edges on the boundary of the
   // mesh
   auto bd_flags{lf::mesh::utils::flagEntitiesOnBoundary(mesh_p, 1)};

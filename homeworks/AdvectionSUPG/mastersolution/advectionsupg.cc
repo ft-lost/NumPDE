@@ -111,10 +111,8 @@ void cvgL2SUPG() {
   // Initialize a mesh function that will represent the analytical solution
   const lf::mesh::utils::MeshFunctionGlobal mf_u{
       [](const Eigen::Vector2d& x) -> double {
-        if (x.norm() > 1.)
-          return 0.;
-        else
-          return std::pow(sin(M_PI * x.norm()), 2);
+        if (x.norm() > 1.) return 0.;
+        return std::pow(sin(M_PI * x.norm()), 2);
       }};
 
   std::cout << "N" << std::setw(8) << "|"

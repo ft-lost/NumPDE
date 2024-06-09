@@ -60,7 +60,7 @@ std::vector<double> OdeIntEqui(const DiscEvlOp& Psi, double T, double y0,
   //====================
   // Your code goes here
   //====================
-  Y.resize(M);
+  Y.resize(M + 1);
 
   return Y;
 }

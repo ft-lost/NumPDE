@@ -52,9 +52,8 @@ TEST(CoupledSecondOrderBVP, dropMatrixRowsAndColumns) {
                       &dofh](unsigned int idx) -> bool {
     if (dofh.Entity(idx).RefEl() == lf::base::RefElType::kPoint) {
       return nodes_bd_flags(dofh.Entity(idx));
-    } else {
-      return edges_bd_flags(dofh.Entity(idx));
     }
+    return edges_bd_flags(dofh.Entity(idx));
   };
   // Coefficients
   auto const_one = lf::mesh::utils::MeshFunctionGlobal(
@@ -125,9 +124,8 @@ TEST(CoupledSecondOrderBVP, dropMatrixRows) {
                       &dofh](unsigned int idx) -> bool {
     if (dofh.Entity(idx).RefEl() == lf::base::RefElType::kPoint) {
       return nodes_bd_flags(dofh.Entity(idx));
-    } else {
-      return edges_bd_flags(dofh.Entity(idx));
     }
+    return edges_bd_flags(dofh.Entity(idx));
   };
 
   // Coefficients

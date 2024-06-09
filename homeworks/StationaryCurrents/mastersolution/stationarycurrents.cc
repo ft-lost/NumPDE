@@ -125,10 +125,8 @@ double computeMeshwidth(const lf::mesh::Mesh &mesh) {
 
 // The weight function for the volume-based flux formula
 static auto psi = [](Eigen::Vector2d x) -> double {
-  if (x[0] > 3)
-    return 1.0;
-  else if (x[0] < 2)
-    return 0.0;
+  if (x[0] > 3) return 1.0;
+  if (x[0] < 2) return 0.0;
   const double p = std::cos((3.0 - x[0]) * lf::base::kPi / 2);
   return (p * p);
 };

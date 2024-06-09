@@ -64,14 +64,18 @@ template <typename DIFF_COEFF>
 StrangSplit::StrangSplit(
     const std::shared_ptr<lf::uscalfe::UniformScalarFESpace<double>> fe_space,
     double T, unsigned m, double lambda, DIFF_COEFF &&c)
-    : fe_space_(fe_space), T_(T), m_(m), lambda_(lambda) {
+    : fe_space_(fe_space),
+      T_(T),
+      m_(m),
+      lambda_(lambda),
+      xi_(1.0 - 0.5 * sqrt(2.0)) {
   const lf::assemble::DofHandler &dofh{fe_space_->LocGlobMap()};
   std::pair<Eigen::SparseMatrix<double>, Eigen::SparseMatrix<double>>
       galerkinpair = assembleGalerkinMatrices(dofh, c);
   A_ = galerkinpair.first;
   M_ = galerkinpair.second;
   // Butcher Tableau Coefficient for SDIRK-2
-  xi_ = 1.0 - 0.5 * sqrt(2.0);
+
 }
 /* SAM_LISTING_END_2 */
 

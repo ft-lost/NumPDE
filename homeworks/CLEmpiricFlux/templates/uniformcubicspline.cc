@@ -37,10 +37,10 @@ namespace CLEmpiricFlux {
 
 UniformCubicSpline::UniformCubicSpline(double a, double b, Eigen::VectorXd f,
                                        Eigen::VectorXd M)
-    : _n(f.size() - 1), _a(a), _b(b), _f(std::move(f)), _M(std::move(M)) {
+    : _n(f.size() - 1), _a(a), _b(b), _f(std::move(f)), _valsM(std::move(M)) {
   assert(b >= a);
   assert(_f.size() >= 2);
-  assert(_f.size() == _M.size());
+  assert(_f.size() == _valsM.size());
 }
 
 double UniformCubicSpline::operator()(double u) const {
@@ -51,8 +51,8 @@ double UniformCubicSpline::operator()(double u) const {
 
   return _f(j) * tau + _f(j - 1) * (1.0 - tau) +
          Square(h) / 6.0 *
-             (_M(j) * (Cube(tau) - tau) +
-              _M(j - 1) * (-Cube(tau) + 3.0 * Square(tau) - 2.0 * tau));
+             (_valsM(j) * (Cube(tau) - tau) +
+              _valsM(j - 1) * (-Cube(tau) + 3.0 * Square(tau) - 2.0 * tau));
 }
 
 double UniformCubicSpline::derivative(double u) const {
@@ -63,8 +63,8 @@ double UniformCubicSpline::derivative(double u) const {
 
   return (_f(j) - _f(j - 1) +
           Square(h) / 6.0 *
-              (_M(j) * (3.0 * Square(tau) - 1.0) +
-               _M(j - 1) * (-3.0 * Square(tau) + 6.0 * tau - 2.0))) *
+              (_valsM(j) * (3.0 * Square(tau) - 1.0) +
+               _valsM(j - 1) * (-3.0 * Square(tau) + 6.0 * tau - 2.0))) *
          (1.0 / h);
 }
 

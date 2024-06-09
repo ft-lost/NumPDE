@@ -26,16 +26,15 @@ std::vector<Eigen::Triplet<double>> transformCOOmatrix(
     cols_max_idx =
         (triplet.col() > cols_max_idx) ? triplet.col() : cols_max_idx;
   }
-  int n_rows = rows_max_idx + 1;
   int n_cols = cols_max_idx + 1;
 
   // Make sure we deal with a square matrix
-  assert(n_rows == n_cols);
+  assert(rows_max_idx + 1 == n_cols);
   // The matrix size must have even parity
   assert(n_cols % 2 == 0);
 
-  int N = n_cols;      // Size of (square) matrix
-  int M = n_cols / 2;  // Half the size
+  int N = n_cols;  // Size of (square) matrix
+  int M = N / 2;   // Half the size
   // clang-format off
   // Distribute entries of "old" matrix to new matrix
   for (const Eigen::Triplet<double> &it : A) {

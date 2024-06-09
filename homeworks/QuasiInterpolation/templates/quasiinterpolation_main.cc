@@ -29,10 +29,8 @@ double u1(Eigen::Vector2d x) {
 // The gradient of the bump function
 Eigen::Vector2d grad_u1(Eigen::Vector2d x) {
   double abs_x = x.norm();
-  if (abs_x == 0.0 || abs_x >= 0.5)
-    return Eigen::Vector2d::Zero();
-  else
-    return -PI * std::sin(PI * abs_x) / abs_x * x;
+  if (abs_x == 0.0 || abs_x >= 0.5) return Eigen::Vector2d::Zero();
+  return -PI * std::sin(PI * abs_x) / abs_x * x;
 };
 
 // A simplex auxiliary function

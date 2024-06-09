@@ -83,9 +83,6 @@ Eigen::VectorXd solvePoissonBVP(
   /* SAM_LISTING_END_2 */
   /* SAM_LISTING_BEGIN_3 */
   // I : ASSEMBLY
-  // Obtain specification for shape functions on edges
-  const lf::fe::ScalarReferenceFiniteElement<double> *rsf_edge_p =
-      fe_space_p->ShapeFunctionLayout(lf::base::RefEl::kSegment());
   // Matrix in triplet format holding Galerkin matrix, zero initially.
   lf::assemble::COOMatrix<double> A(N_dofs, N_dofs);
   // Right hand side vector, must be initialized with 0!

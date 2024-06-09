@@ -97,10 +97,8 @@ Eigen::VectorXd solveCoupledBVP(
                       &dofh](unsigned int idx) -> bool {
     if (dofh.Entity(idx).RefEl() == lf::base::RefElType::kPoint) {
       return nodes_bd_flags(dofh.Entity(idx));
-
-    } else {
-      return edges_bd_flags(dofh.Entity(idx));
     }
+    return edges_bd_flags(dofh.Entity(idx));
   };
 
   /* I : Creating coefficients as Lehrfem++ mesh functions */

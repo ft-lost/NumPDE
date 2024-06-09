@@ -128,8 +128,10 @@ double solveTemperatureDistribution(
   // **********************************************************************
 
   // Obtain specification for shape functions on edges
+  // NOLINTBEGIN(clang-analyzer-deadcode.DeadStores)
   const lf::fe::ScalarReferenceFiniteElement<double> *rsf_edge_p =
       fe_space->ShapeFunctionLayout(lf::base::RefEl::kSegment());
+  // NOLINTEND(clang-analyzer-deadcode.DeadStores)
   LF_ASSERT_MSG(rsf_edge_p != nullptr, "FE specification for edges missing");
 
   // Obtain an array of boolean flags for the edges (codim 1) of the mesh,

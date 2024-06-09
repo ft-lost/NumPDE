@@ -62,6 +62,7 @@ TEST(LinFeReactDiff, TestEnergy) {
 
   AssembleVectorLocally(0, dofh, elvec_builder, phi);
 
+  // NOLINTNEXTLINE(clang-analyzer-deadcode.DeadStores)
   const lf::fe::ScalarReferenceFiniteElement<double> *rsf_edge_p =
       fe_space->ShapeFunctionLayout(lf::base::RefEl::kSegment());
   LF_ASSERT_MSG(rsf_edge_p != nullptr, "FE specification for edges missing");

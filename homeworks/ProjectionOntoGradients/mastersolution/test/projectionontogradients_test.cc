@@ -153,28 +153,23 @@ TEST(ProjectionOntoGradients, exact_sol_test) {
   // the coorindates of a given point are
   const auto triangleIndex = [](Eigen::Vector2d x) {
     if (x(0) >= 0.0 && x(0) <= 0.5 && x(1) >= 0.0 && x(1) <= 0.5) {
-      if (x(0) < x(1))
-        return 0;
-      else
-        return 1;
-    } else if (x(0) >= 0.0 && x(0) <= 0.5 && x(1) >= 0.5 && x(1) <= 1.0) {
-      if (x(0) + 0.5 < x(1))
-        return 2;
-      else
-        return 3;
-    } else if (x(0) >= 0.5 && x(0) <= 1.0 && x(1) >= 0.0 && x(1) <= 0.5) {
-      if (x(0) < 0.5 + x(1))
-        return 4;
-      else
-        return 5;
-    } else if (x(0) >= 0.5 && x(0) <= 1.0 && x(1) >= 0.5 && x(1) <= 1.0) {
-      if (x(0) < x(1))
-        return 6;
-      else
-        return 7;
-    } else {
-      LF_ASSERT_MSG(false, "Coordinates outside of unit square");
+      if (x(0) < x(1)) return 0;
+      return 1;
     }
+    if (x(0) >= 0.0 && x(0) <= 0.5 && x(1) >= 0.5 && x(1) <= 1.0) {
+      if (x(0) + 0.5 < x(1)) return 2;
+      return 3;
+    }
+    if (x(0) >= 0.5 && x(0) <= 1.0 && x(1) >= 0.0 && x(1) <= 0.5) {
+      if (x(0) < 0.5 + x(1)) return 4;
+      return 5;
+    }
+    if (x(0) >= 0.5 && x(0) <= 1.0 && x(1) >= 0.5 && x(1) <= 1.0) {
+      if (x(0) < x(1)) return 6;
+      return 7;
+    }
+    LF_ASSERT_MSG(false, "Coordinates outside of unit square");
+    return -1;  // should never be reached, avoids warnings
   };
 
   // IV. Define the function f

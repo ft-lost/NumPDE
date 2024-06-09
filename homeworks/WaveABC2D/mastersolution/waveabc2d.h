@@ -89,7 +89,8 @@ class progress_bar {
         bar_width{line_width - overhead},
         message{std::move(message_)},
         full_bar{std::string(bar_width, symbol) + std::string(bar_width, ' ')} {
-    if (message.size() + 1 >= bar_width || message.find('\n') != message.npos) {
+    if (message.size() + 1 >= bar_width ||
+        message.find('\n') != std::string::npos) {
       os << message << '\n';
       message.clear();
     } else {
@@ -128,8 +129,8 @@ class WaveABC2DTimestepper {
   unsigned int M_;    // nb of steps
   double step_size_;  // time inverval
   std::shared_ptr<lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space_p_;
+  bool timestepping_performed_;  // bool to assert that energies are computed
   lf::uscalfe::size_type N_dofs_;  // nb of degrees of freedom
-  bool timestepping_performed_;    // bool to assert that energies are computed
                                    // only after timestepping
   // Precomputed objects
   std::vector<Eigen::Triplet<double>> A_triplets_vec_;  // stiffness matrix
@@ -148,7 +149,11 @@ WaveABC2DTimestepper<FUNC_RHO, FUNC_MU0, FUNC_NU0>::WaveABC2DTimestepper(
     const std::shared_ptr<lf::uscalfe::FeSpaceLagrangeO1<double>> &fe_space_p,
     FUNC_RHO rho, unsigned int M, double T)
 
-    : fe_space_p_(fe_space_p), M_(M), T_(T), step_size_(T / M) {
+    : fe_space_p_(fe_space_p),
+      M_(M),
+      T_(T),
+      step_size_(T / M),
+      timestepping_performed_(false) {
   /* Creating coefficient-functions as Lehrfem++ mesh functions */
   // Coefficient-functions used in the class template
   // ReactionDiffusionElementMatrixProvider and MassEdgeMatrixProvider
@@ -159,7 +164,6 @@ WaveABC2DTimestepper<FUNC_RHO, FUNC_MU0, FUNC_NU0>::WaveABC2DTimestepper(
       [](Eigen::Vector2d) -> double { return 1.0; });
 
   // On construction no timestepping was yet performed
-  timestepping_performed_ = false;
 
   std::cout << "Assembling Galerkin matrices..." << std::endl;
   lf::assemble::COOMatrix<double> A_COO = computeGalerkinMat(

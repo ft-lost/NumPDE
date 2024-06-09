@@ -85,9 +85,8 @@ int main() {
         const Eigen::MatrixXd corners = lf::geometry::Corners(*geo_p);
         Eigen::Vector2d corner = corners.col(0);
         return std::make_pair(true, u(corner));
-      } else {
-        return std::make_pair(false, 42.0);
       }
+      return std::make_pair(false, 42.0);
     };
     lf::assemble::FixFlaggedSolutionComponents<double>(my_selector, A, phi);
 

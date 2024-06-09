@@ -10,9 +10,8 @@ namespace ParametricElementMatrices {
 /* SAM_LISTING_BEGIN_0 */
 ImpedanceBoundaryEdgeMatrixProvider::ImpedanceBoundaryEdgeMatrixProvider(
     std::shared_ptr<lf::uscalfe::UniformScalarFESpace<double>> fe_space,
-    Eigen::VectorXd coeff_expansion) {
-  fe_space_ = fe_space;
-  coeff_expansion_ = coeff_expansion;
+    Eigen::VectorXd coeff_expansion)
+    : fe_space_(fe_space), coeff_expansion_(coeff_expansion) {
   auto mesh = fe_space->Mesh();
   // Obtain an array of boolean flags for the edges of the mesh: 'true'
   // indicates that the edge lies on the boundary. This predicate will
