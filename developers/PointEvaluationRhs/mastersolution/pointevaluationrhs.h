@@ -1,5 +1,5 @@
-#ifndef __POINTEVALUTION_H
-#define __POINTEVALUTION_H
+#ifndef POINTEVALUTION_H
+#define POINTEVALUTION_H
 /**
  * @ file pointEvaluation.h
  * @ brief NPDE homework PointEvaluationRhs code
@@ -23,7 +23,7 @@ std::pair<double, double> normsSolutionPointLoadDirichletBVP(
 Eigen::Vector2d GlobalInverseTria(Eigen::Matrix<double, 2, 3> mycorners,
                                   Eigen::Vector2d x);
 
-Eigen::Vector2d GlobalInverseQuad(Eigen::Matrix<double, 2, 4> mycorners,
+Eigen::Vector2d GlobalInverseQuad(Eigen::Matrix<double, 2, 4> vert,
                                   Eigen::Vector2d x);
 
 inline double triaArea(const Eigen::Vector2d a, const Eigen::Vector2d b,
@@ -42,8 +42,8 @@ class DeltaLocalVectorAssembler {
   bool isActive(const lf::mesh::Entity &entity) const {
     return (!already_found);
   }
-  Eigen::VectorXd Eval(const lf::mesh::Entity &entity);
+  Eigen::VectorXd Eval(const lf::mesh::Entity &cell);
 };
 
 }  // namespace PointEvaluationRhs
-#endif  // define __POINTEVALUATION_H
+#endif  // define POINTEVALUATION_H

@@ -1,107 +1,228 @@
 # Run this workflow every time a new commit pushed to your repository
-stages:   
-  - format       # List of stages for jobs, and their order of execution
-  - build
+stages: # List of stages for jobs, and their order of execution
+  - format
+  - get-dependencies  # this serves to keep the runtimes of the build-and-tidy stage consistent
+  - build-and-tidy
   - test
-  - deploy
 
 variables:
-  DEPS_DIR: $CI_PROJECT_DIR/deps
-  HUNTER_ROOT: $CI_PROJECT_DIR/hunter
-  
-       
+  HUNTER_ROOT: "$CI_PROJECT_DIR/hunter"  # Set the hunter root directory within project (allows caching/artifacts of dependencies)
+  CMAKE_FLAGS: "-DHOMEWORKS=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev"
+
 clang-format-job:
     stage: format
     variables:
-      GIT_CHECKOUT: "true"
+      CLANG_FORMAT_FLAGS: "-r --clang-format-executable clang-format --color always"
     tags: 
       - linux
     script:
-      - echo "Checking if the code is well formated"
+      - echo "Checking if the code is well formatted"
       - clang-format --version
       - echo "Checking developers folder"
-      - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/developers/
+      - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py $CLANG_FORMAT_FLAGS $CI_PROJECT_DIR/developers/
       - echo "Checking include folder"
-      - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/include/
+      - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py $CLANG_FORMAT_FLAGS $CI_PROJECT_DIR/include/
       - echo "Checking lecturecodes folder"
-      - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py -r --clang-format-executable clang-format --color always $CI_PROJECT_DIR/lecturecodes/
+      - $CI_PROJECT_DIR/scripts/ci/run-clang-format.py $CLANG_FORMAT_FLAGS $CI_PROJECT_DIR/lecturecodes/
 
-# compilation on macos
-compile-developers-job-mac:
-    stage: build
-    variables:
-      COMPILER: "clang++"
-      BUILD_TYPE: "Release"
-      CXXFLAGS: "-Werror=#warnings"
-      GIT_CHECKOUT: "true"
-    tags:
-        - mac
-    script:
-       - mkdir -p $CI_PROJECT_DIR/build_mac #-p builds if not there and does nothing otherwise
-
-       - cd $CI_PROJECT_DIR/build_mac
-       - export CXX=$COMPILER
-       - echo $CXX
-       - cmake .. -DHOMEWORKS=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
-
-       - echo "Building developer and lecturecodes folder"
-       - make -j 4
-    artifacts:
-      paths:
-        - build_mac/*
-      expire_in: 1 days
-
-compile-developers-job-linux:
-    stage: build
+get-dependencies-job-linux:
+    stage: get-dependencies
     variables:
       COMPILER: "g++"
-      BUILD_TYPE: "Release"
       CXXFLAGS: "-Werror=cpp"
-      GIT_CHECKOUT: "true"
-
+      BUILD_TYPE: "Release"
+    cache: 
+      key: "HunterCache"
+      paths:
+        - $HUNTER_ROOT
     tags:
-        - linux
+      - linux
     script:
-       - mkdir -p $CI_PROJECT_DIR/build_linux #-p builds if not there and does nothing otherwise
+      - echo "Getting dependencies"
+      - mkdir -p $CI_PROJECT_DIR/build_linux
+      - cd $CI_PROJECT_DIR/build_linux
+      - cmake $CMAKE_FLAGS -DCMAKE_CXX_FLAGS_DEBUG=$CXX_FLAGS ..
+    # distributed caching would be preferable once shared cache is available. For now, use artifacts
+    artifacts:
+      paths:
+        - $HUNTER_ROOT
+      expire_in: 2 hours
 
-       - cd $CI_PROJECT_DIR/build_linux
-       - export CXX=$COMPILER
-       - echo $CXX
+get-dependencies-job-mac:
+    stage: get-dependencies
+    variables:
+      COMPILER: "clang++"
+      CXXFLAGS: "-Werror=#warnings"
+      BUILD_TYPE: "Release"
+    cache: 
+      key: "HunterCache"
+      paths:
+        - $HUNTER_ROOT
+    tags:
+      - mac
+    script:
+      - echo "Getting dependencies"
+      - mkdir -p $CI_PROJECT_DIR/build_mac
+      - cd $CI_PROJECT_DIR/build_mac
+      - export CXX=$COMPILER
+      - cmake $CMAKE_FLAGS -DCMAKE_CXX_FLAGS_DEBUG=$CXX_FLAGS ..
+    # distributed caching would be preferable once shared cache is available. For now, use artifacts
+    artifacts:
+      paths:
+        - $HUNTER_ROOT
+      expire_in: 2 hours
 
-       - cmake .. -DHOMEWORKS=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS_DEBUG="-g0" -DHUNTER_CONFIGURATION_TYPES=$BUILD_TYPE -Wdev
-       - echo "Building developer and lecturecodes folder"
-       - make -j 4
+compile-job-linux:
+    stage: build-and-tidy
+    variables:
+      COMPILER: "g++"
+      CXXFLAGS: "-Werror=cpp"
+      BUILD_TYPE: "Release"
+    cache:
+      key: "HunterCache"
+      paths:
+        - $HUNTER_ROOT
+    tags:
+      - linux
+    needs:
+      - get-dependencies-job-linux
+    dependencies:
+      - get-dependencies-job-linux
+    script:
+      - mkdir -p $CI_PROJECT_DIR/build_linux
+
+      - cd $CI_PROJECT_DIR/build_linux
+      - export CXX=$COMPILER
+      - echo $CXX
+      - cmake $CMAKE_FLAGS -DCMAKE_CXX_FLAGS_DEBUG=$CXX_FLAGS ..
+      
+      - echo "Building developer and lecturecodes folder"
+      - make -j $(nproc)
     artifacts:
       paths:
         - build_linux/*
       expire_in: 1 days
 
-test-developer-job-mac:
-  stage: test
-  tags:
-    - mac
-  dependencies:
-    - compile-developers-job-mac
-  script:
-       - echo "Testing developer folder master solutions"
-       - cd $CI_PROJECT_DIR/build_mac
-       - echo "Testing developer folder master solutions"
-       - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
-       - echo "Testing lecture codes"
-       - cd $CI_PROJECT_DIR/build_mac
-       - $CI_PROJECT_DIR/scripts/ci/run_lecturecodes.sh
+# compilation on macos
+compile-job-mac:
+    stage: build-and-tidy
+    variables:
+      COMPILER: "clang++"
+      CXXFLAGS: "-Werror=#warnings"
+      BUILD_TYPE: "Release"
+    tags:
+      - mac
+    needs:
+      - get-dependencies-job-mac
+    dependencies:
+      - get-dependencies-job-mac
+    script:
+      - mkdir -p $CI_PROJECT_DIR/build_mac
 
-test-developer-job-linux:
-  stage: test
-  tags:
-    - linux
-  dependencies:
-    - compile-developers-job-linux
-  script:
-       - echo "Testing developer folder master solutions"
-       - cd $CI_PROJECT_DIR/build_linux
-       - echo "Testing developer folder master solutions"
-       - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
-       - echo "Testing lecture codes"
-       - cd $CI_PROJECT_DIR/build_linux
-       - $CI_PROJECT_DIR/scripts/ci/run_lecturecodes.sh
+      - cd $CI_PROJECT_DIR/build_mac
+      - export CXX=$COMPILER
+      - echo $CXX
+      - cmake $CMAKE_FLAGS -DCMAKE_CXX_FLAGS_DEBUG=$CXX_FLAGS ..
+
+      - echo "Building developer and lecturecodes folder"
+      - make -j $(nproc)
+    artifacts:
+      paths:
+        - build_mac/*
+      expire_in: 1 days
+
+compile-job-debug-linux:
+    stage: build-and-tidy
+    variables:
+      COMPILER: "g++"
+      CXXFLAGS: "-Werror=cpp"
+      BUILD_TYPE: "Debug"
+    tags:
+      - linux
+    needs:
+      - clang-format-job # run this job parallel to the get-dependencies-jobs
+    script:
+      - mkdir -p $CI_PROJECT_DIR/build_linux
+
+      - cd $CI_PROJECT_DIR/build_linux
+      - export CXX=$COMPILER
+      - echo $CXX
+      - cmake $CMAKE_FLAGS -DCMAKE_CXX_FLAGS_DEBUG=$CXX_FLAGS ..
+      
+      - echo "Building developer and lecturecodes folder"
+      - make -j $(nproc)
+
+clang-tidy-job:
+    stage: build-and-tidy
+    variables:
+      COMPILER: "g++"
+      CXXFLAGS: "-Werror=cpp"
+      BUILD_TYPE: "Release"
+    cache:
+      key: "HunterCache"
+      paths:
+        - $HUNTER_ROOT
+    tags: 
+      - linux
+    needs:
+      - get-dependencies-job-linux
+    dependencies:
+      - get-dependencies-job-linux
+    script:
+      - mkdir -p $CI_PROJECT_DIR/build_linux
+
+      - cd $CI_PROJECT_DIR/build_linux
+      - rm -rf * # remove old files in build directory: clang-tidy can get confused for some reason
+
+      - echo "Running cmake to generate compile_commands.json"
+      # Generate compile_commands.json for clang-tidy, should download dependencies (lehrfempp etc.) from cache or artifact      
+      - >
+        cmake $CMAKE_FLAGS -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMYSOLUTION=OFF ..
+      - echo "Running clang-tidy on developers folder"
+      - clang-tidy --version
+      # python script automatically uses maximum threads available
+      - >
+        $CI_PROJECT_DIR/scripts/ci/run-clang-tidy.py -p $CI_PROJECT_DIR/build_linux
+        -config-file $CI_PROJECT_DIR/.clang-tidy "$CI_PROJECT_DIR/developers/.*\.cc"
+      # std::system calls are forbidden, this custom check should ensure that
+      - echo "Checking if std::system is used in developers folder"
+      - $CI_PROJECT_DIR/scripts/ci/forbid_stdsystem.sh $CI_PROJECT_DIR/developers/
+      - echo "Running clang-tidy on lecturecodes folder"
+      - >
+        $CI_PROJECT_DIR/scripts/ci/run-clang-tidy.py -p $CI_PROJECT_DIR/build_linux
+        -config-file $CI_PROJECT_DIR/.clang-tidy "$CI_PROJECT_DIR/lecturecodes/.*\.cc"
+
+# the 'needs' key allows the test jobs to run simultaneously with the clang-tidy job (which takes a long time)
+test-job-mac:
+    stage: test
+    tags:
+      - mac
+    needs:
+      - compile-job-mac
+    dependencies:
+      - compile-job-mac
+    script:
+      - echo "Testing developer folder master solutions"
+      - cd $CI_PROJECT_DIR/build_mac
+      - echo "Testing developer folder master solutions"
+      - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
+      - echo "Testing lecture codes"
+      - cd $CI_PROJECT_DIR/build_mac
+      - $CI_PROJECT_DIR/scripts/ci/run_lecturecodes.sh
+
+test-job-linux:
+    stage: test
+    tags:
+      - linux
+    needs:
+      - compile-job-linux
+    dependencies:
+      - compile-job-linux
+    script:
+      - echo "Testing developer folder master solutions"
+      - cd $CI_PROJECT_DIR/build_linux
+      - echo "Testing developer folder master solutions"
+      - $CI_PROJECT_DIR/scripts/ci/test_developers.sh
+      - echo "Testing lecture codes"
+      - cd $CI_PROJECT_DIR/build_linux
+      - $CI_PROJECT_DIR/scripts/ci/run_lecturecodes.sh

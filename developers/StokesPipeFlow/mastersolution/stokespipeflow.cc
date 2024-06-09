@@ -25,6 +25,7 @@
 #include <lf/mesh/utils/mesh_function_unary.h>
 
 #include <cstddef>
+#include <iomanip>
 
 namespace StokesPipeFlow {
 /* SAM_LISTING_BEGIN_1 */
@@ -422,6 +423,8 @@ double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
       std::cout << "Dissipated power not computed\n";
     }
   }
+
+  std::cout << "Dissipated power: " << p_diss << std::endl;
 
   if (producevtk) {
     LF_VERIFY_MSG(outfile != nullptr,

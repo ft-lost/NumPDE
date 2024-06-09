@@ -77,6 +77,7 @@ class SemiLagrStep {
     enforce_zero_boundary_conditions(fe_space_, A_COO, b_dummy);
 
     A_ = A_COO.makeSparse();
+    // NOLINTNEXTLINE(cppcoreguidelines-prefer-member-initializer)
     Atmp_ = A_;
 
     // Precalculate the quadrature weight contributions Up\_.

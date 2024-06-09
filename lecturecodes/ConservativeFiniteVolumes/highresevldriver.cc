@@ -14,10 +14,10 @@ int main() {
   // [0,1]. Therefore the maximal speed of propagation "to the right" will be 1.
   // This means that the exact solution  will always be supported in [0,5] for
   // times in [0,4].
-  const double _a = -1.0;
-  const double _b = 5.0;
+  const double a = -1.0;
+  const double b = 5.0;
   // Final time for simulation
-  const double _T = 4.0;
+  const double T = 4.0;
 
   // No linear reconstruction: for testing purposes
   auto zeroslope = [](double a, double b, double c) { return 0.0; };
@@ -32,6 +32,6 @@ int main() {
     auto evl = [&](double a, double b, double N, double T) -> Eigen::VectorXd {
       return ConsFV::highresevl(a, b, N, box, T, nfn_lf_burger, minmod);
     };
-    consform_compute(evl, "burgers_hr_rusanov.csv", _T, _a, _b);
+    consform_compute(evl, "burgers_hr_rusanov.csv", T, a, b);
   }
 }

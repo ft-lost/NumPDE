@@ -39,7 +39,8 @@ int main() {
   solution_file << tR.format(CSVFormat) << std::endl;
   solution_file.close();
   std::cout << "Generated solution.csv" << std::endl;
-  systemcall::execute("python3 scripts/viswave.py solution.csv solution.eps");
+  systemcall::execute(
+      "python3 ms_scripts/viswave.py solution.csv solution.eps");
 #else
   //====================
   // Your code goes here
@@ -63,7 +64,7 @@ int main() {
   energies_file.close();
   std::cout << "Generated energies.csv" << std::endl;
   systemcall::execute(
-      "python3 scripts/visenergies.py energies.csv "
+      "python3 ms_scripts/visenergies.py energies.csv "
       "energies.eps");
 /* SAM_LISTING_END_2 */
 #else

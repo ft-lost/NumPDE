@@ -6,7 +6,7 @@
 #include "SimpleLinearFEM2D.h"
 #include "local_assembler.h"
 
-Eigen::VectorXd FESolver::Solve(TriaMesh2D const& mesh) {
+Eigen::VectorXd FESolver::Solve(const TriaMesh2D& mesh) {
   Eigen::SparseMatrix<double> A;
   // Initialize Galerkin matrix assembler
   // ElementMatrix_LaplMass_LFE as defined in local_assembler.cc is used to

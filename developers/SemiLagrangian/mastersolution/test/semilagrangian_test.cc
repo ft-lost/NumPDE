@@ -25,9 +25,8 @@ TEST(SemiLagrangian, solveTransport_constant_velocity) {
     x0(1) -= 0.5;
     if (x0.norm() < 0.25) {
       return std::pow(std::cos(2. * M_PI * x0.norm()), 2);
-    } else {
-      return 0.;
     }
+    return 0.;
   };
 
   auto v = [](const Eigen::Vector2d& x) { return Eigen::Vector2d(0.5, 0.5); };
@@ -35,9 +34,8 @@ TEST(SemiLagrangian, solveTransport_constant_velocity) {
     Eigen::Vector2d y = x - v(x) * t;
     if (y(0) >= 0 && y(0) <= 1 && y(1) >= 0 && y(1) <= 1) {
       return u0(y);
-    } else {
-      return 0.0;
     }
+    return 0.0;
   };
 
   int M = 100;
@@ -59,9 +57,8 @@ TEST(SemiLagrangian, solveTransport_rotation) {
     x0(1) -= 0.5;
     if (x0.norm() < 0.25) {
       return std::pow(std::cos(2. * M_PI * x0.norm()), 2);
-    } else {
-      return 0.;
     }
+    return 0.;
   };
 
   auto v = [](const Eigen::Vector2d& x) {
@@ -73,9 +70,8 @@ TEST(SemiLagrangian, solveTransport_rotation) {
     Eigen::Vector2d y = R_inv * x;
     if (y(0) >= 0 && y(0) <= 1 && y(1) >= 0 && y(1) <= 1) {
       return u0(y);
-    } else {
-      return 0.0;
     }
+    return 0.0;
   };
 
   int M = 100;
@@ -91,7 +87,7 @@ TEST(SemiLagrangian, solveTransport_rotation) {
 TEST(SemiLagrangian, evalFEfunction) {
   int M = 4;
   int N = (M - 1) * (M - 1);  // 9
-  Eigen::VectorXd u(9);
+  Eigen::VectorXd u(N);
   u << 1, 1, 1, 1, 2, 1, 1, 1, 1;
 
   // check boundary elements:
@@ -119,7 +115,7 @@ TEST(SemiLagrangian, semiLagrangeSource) {
   int M = 4;
   int N = (M - 1) * (M - 1);  // 9
   double h = 0.25;
-  Eigen::VectorXd u(9);
+  Eigen::VectorXd u(N);
   u << 1, 1, 1, 1, 2, 1, 1, 1, 1;
 
   auto v = [](Eigen::Vector2d x) { return Eigen::Vector2d(-1, -2); };

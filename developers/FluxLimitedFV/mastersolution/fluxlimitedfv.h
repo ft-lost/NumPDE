@@ -39,11 +39,11 @@ Eigen::VectorXd fluxlimAdvection(
   auto idx_map = [N](int idx) {
     if (idx < 0) {
       return 0;
-    } else if (idx > N - 1) {
-      return N - 1;
-    } else {
-      return idx;
     }
+    if (idx > N - 1) {
+      return N - 1;
+    }
+    return idx;
   };
 
   Eigen::VectorXd mu_next(N);
@@ -107,18 +107,17 @@ Eigen::VectorXd fluxlimBurgers(
     if (v > w) {
       if (v + w > 0) {
         return f(v);
-      } else {
-        return f(w);
       }
-    } else {
-      if (v > 0) {
-        return f(v);
-      } else if (0 < w) {
-        return 0.0;
-      } else {
-        return f(w);
-      }
+      return f(w);
     }
+    if (v > 0) {
+      return f(v);
+    }
+    if (0 < w) {
+      return 0.0;
+    }
+    return f(w);
+
 #else
     // ========================================
     // Solution code goes here
@@ -133,19 +132,18 @@ Eigen::VectorXd fluxlimBurgers(
   auto idx_map = [N](int idx) {
     if (idx < 0) {
       return 0;
-    } else if (idx > N - 1) {
-      return N - 1;
-    } else {
-      return idx;
     }
+    if (idx > N - 1) {
+      return N - 1;
+    }
+    return idx;
   };
   // Rankine-Hugoniot speed
   auto s_dot = [f](double v, double w) {
     if (v == w) {
       return 0.0;
-    } else {
-      return (f(w) - f(v)) / (w - v);
     }
+    return (f(w) - f(v)) / (w - v);
   };
   // The quantity $\theta$ from \prbeqref{eq:theta}
   // Implementation avoid division by zero, see thetaquotient()
@@ -153,16 +151,14 @@ Eigen::VectorXd fluxlimBurgers(
     if (s_dot(v, w) < 0) {
       if (y == w) {
         return 1.0e17 * (w - v);
-      } else {
-        return (w - v) / (y - w);
       }
-    } else {
-      if (v == w) {
-        return 1.0e17 * (v - x);
-      } else {
-        return (v - x) / (w - v);
-      };
+      return (w - v) / (y - w);
     }
+    if (v == w) {
+      return 1.0e17 * (v - x);
+    }
+    return (v - x) / (w - v);
+    ;
   };
   // See \prbeqref{eq:fho}
   auto f_D = [&](int i) -> double {

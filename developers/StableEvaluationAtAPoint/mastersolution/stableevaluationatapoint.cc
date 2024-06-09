@@ -95,11 +95,11 @@ double Psi::operator()(Eigen::Vector2d y) {
 
   if (dist <= 0.25 * std::sqrt(2)) {
     return 0.0;
-  } else if (dist >= 0.5) {
-    return 1.0;
-  } else {
-    return std::pow(std::cos(c * (dist - 0.5)), 2);
   }
+  if (dist >= 0.5) {
+    return 1.0;
+  }
+  return std::pow(std::cos(c * (dist - 0.5)), 2);
 }
 
 Eigen::Vector2d Psi::grad(Eigen::Vector2d y) {
@@ -108,13 +108,12 @@ Eigen::Vector2d Psi::grad(Eigen::Vector2d y) {
 
   if (dist <= 0.25 * std::sqrt(2)) {
     return Eigen::Vector2d(0.0, 0.0);
-
-  } else if (dist >= 0.5) {
-    return Eigen::Vector2d(0.0, 0.0);
-  } else {
-    return -2.0 * std::cos(c * (dist - 0.5)) * std::sin(c * (dist - 0.5)) *
-           (c / dist) * (y - center_);
   }
+  if (dist >= 0.5) {
+    return Eigen::Vector2d(0.0, 0.0);
+  }
+  return -2.0 * std::cos(c * (dist - 0.5)) * std::sin(c * (dist - 0.5)) *
+         (c / dist) * (y - center_);
 }
 
 double Psi::lapl(Eigen::Vector2d y) {
@@ -124,14 +123,14 @@ double Psi::lapl(Eigen::Vector2d y) {
 
   if (dist <= 0.25 * std::sqrt(2)) {
     return 0.0;
-  } else if (dist >= 0.5) {
-    return 0.0;
-  } else {
-    double sineval = std::sin(c * (dist - 0.5));
-    double coseval = std::cos(c * (dist - 0.5));
-    return 2 * c2 * sineval * sineval - 2 * c2 * coseval * coseval -
-           2 * c * sineval * coseval / dist;
   }
+  if (dist >= 0.5) {
+    return 0.0;
+  }
+  double sineval = std::sin(c * (dist - 0.5));
+  double coseval = std::cos(c * (dist - 0.5));
+  return 2 * c2 * sineval * sineval - 2 * c2 * coseval * coseval -
+         2 * c * sineval * coseval / dist;
 }
 
 double Jstar(std::shared_ptr<lf::uscalfe::FeSpaceLagrangeO1<double>> fe_space,

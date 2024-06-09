@@ -1,5 +1,5 @@
-#ifndef __UPWINDFINITEVOLUME_H
-#define __UPWINDFINITEVOLUME_H
+#ifndef UPWINDFINITEVOLUME_H
+#define UPWINDFINITEVOLUME_H
 /**
  * @file upwindfinitevolume.h
  * @brief NPDE homework UpwindFiniteVolume code
@@ -187,4 +187,4 @@ Eigen::Vector3d ElementVectorProvider<FUNCTOR>::Eval(
 /* SAM_LISTING_END_2 */
 }  // namespace UpwindFiniteVolume
 
-#endif  // define __UPWINDFINITEVOLUME_H
+#endif  // define UPWINDFINITEVOLUME_H

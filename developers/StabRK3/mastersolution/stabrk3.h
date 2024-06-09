@@ -15,13 +15,13 @@
 namespace StabRK3 {
 
 // Solve the predator-prey IVP using the RK-SSM and uniform timesteps.
-Eigen::Vector2d PredPrey(Eigen::Vector2d y0, double T, unsigned N);
+Eigen::Vector2d PredPrey(Eigen::Vector2d y0, double T, unsigned M);
 
 // Study the asymptotic convergence behavior of the method.
 void SimulatePredPrey();
 
 // Helper function, prints an error table.
-void PrintErrorTable(const Eigen::ArrayXd& N, const Eigen::ArrayXd& error);
+void PrintErrorTable(const Eigen::ArrayXd& M, const Eigen::ArrayXd& error);
 
 }  // namespace StabRK3
 

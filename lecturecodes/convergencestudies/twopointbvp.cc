@@ -6,7 +6,7 @@
  * @copyright MIT License
  */
 
-#define _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES  // NOLINT(bugprone-reserved-identifier)
 
 #include <lf/quad/gauss_quadrature.h>
 

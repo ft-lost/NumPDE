@@ -20,10 +20,9 @@ void tabulateExp1(void) {
   auto f_u0 = [](double x) -> double {
     if (std::abs(x) > 0.5) {
       return 0.0;
-    } else {
-      const double c = std::cos(x * M_PI);
-      return c * c;
     }
+    const double c = std::cos(x * M_PI);
+    return c * c;
   };
   auto f_v0 = [](double /*x*/) -> double { return 0.0; };
   auto f_sol = [f_u0](double x, double t) -> double {
@@ -63,10 +62,9 @@ void plotExp(unsigned int N, unsigned int M, double T, std::string filename) {
   auto f_u0 = [](double x) -> double {
     if (std::abs(x) > 0.5) {
       return 0.0;
-    } else {
-      const double c = std::cos(x * M_PI);
-      return c * c;
     }
+    const double c = std::cos(x * M_PI);
+    return c * c;
   };
   auto f_v0 = [](double /*x*/) -> double { return 0.0; };
   auto f_sol = [f_u0](double x, double t) -> double {
@@ -79,11 +77,11 @@ void plotExp(unsigned int N, unsigned int M, double T, std::string filename) {
   auto c_sigma = [s0](double x) -> double {
     if (std::abs(x) <= 1.0) {
       return 0.0;
-    } else if (x < -1.0) {
-      return s0 * (x + 1.0) * (x + 1.0);
-    } else {
-      return s0 * (x - 1.0) * (x - 1.0);
     }
+    if (x < -1.0) {
+      return s0 * (x + 1.0) * (x + 1.0);
+    }
+    return s0 * (x - 1.0) * (x - 1.0);
   };
   // Sampling coefficients on equidistant mesh
   const double h = (2.0 + 2 * L) / N;

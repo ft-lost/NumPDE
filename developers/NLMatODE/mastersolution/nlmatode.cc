@@ -45,10 +45,8 @@ bool checkinvariant(const Eigen::MatrixXd &M, double T) {
 #if SOLUTION
   Eigen::MatrixXd N = matode(M, T);
 
-  if ((N.transpose() * N - M.transpose() * M).norm() <
-      10 * std::numeric_limits<double>::epsilon() * M.norm()) {
-    return true;
-  }
+  return (N.transpose() * N - M.transpose() * M).norm() <
+         10 * std::numeric_limits<double>::epsilon() * M.norm();
 #else
   //====================
   // Your code goes here

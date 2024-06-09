@@ -178,9 +178,8 @@ TEST(AdvectionFV2D, simulateAdvection) {
     double dist = (x - x0).norm();
     if (dist < d) {
       return std::pow(std::cos(M_PI / (2.0 * d) * dist), 2);
-    } else {
-      return 0.0;
     }
+    return 0.0;
   };
 
   auto cur_mesh = mesh_seq_p->getMesh(2);

@@ -41,7 +41,7 @@
 template <class T,
           typename std::enable_if<!std::numeric_limits<T>::is_specialized,
                                   bool>::type = true>
-inline typename T::Scalar _norm(const T &t) {
+inline typename T::Scalar norm_t(const T &t) {
   return t.template lpNorm<Eigen::Infinity>();
 }
 
@@ -53,7 +53,7 @@ inline typename T::Scalar _norm(const T &t) {
 template <class T,
           typename std::enable_if<std::numeric_limits<T>::is_specialized,
                                   bool>::type = false>
-inline T _norm(const T &t) {
+inline T norm_t(const T &t) {
   return std::abs(t);
 }
 
@@ -98,7 +98,7 @@ class termination_error : public std::exception {
 //! solution \f$y(t)\f$. We require to be able to
 //! do basic operations on StateSpace, like copy/copy-construct. Furthermore, it
 //! is assumed that we have a vector space structure implemented
-//! using operators +, *, +=, *=. Moreover we require a norm StateType._norm().
+//! using operators +, *, +=, *=. Moreover we require a norm StateType.norm_t().
 //! \tparam RhsType type of the r.h.s. function \f$f\f$, providing
 //!      StateType operator()(const StateType & y)
 //!
@@ -116,7 +116,7 @@ class Ode45 {
   //! Copy of r.h.s (of \f$ y'(t) = rhs((y(t)) \f$) is stored internally.
   //! \param[in] f function for the computation of r.h.s.
   //! (e.g. a lambda function).
-  Ode45(const RhsType &rhs) : f(rhs) { /* EMPTY */
+  Ode45(const RhsType &rhs) : f(rhs), t(0.0) { /* EMPTY */
   }
 
   //! \brief Performs solutions of IVP up to specified final time.
@@ -126,11 +126,11 @@ class Ode45 {
   //! \param[in] y0 initial data \f$y_0 = y(0)\f$.
   //! \param[in] T final time for the integration (initial time = 0)
   //! \param[in] norm optional norm function (if a custom norm is needed or
-  //! _norm is not defined, i.e. we use a custom vector type).
+  //! norm_t is not defined, i.e. we use a custom vector type).
   //! \return vector of pairs \f$ (y(t), t) \f$ at snapshot times.
-  template <class NormFunc = decltype(_norm<StateType>)>
+  template <class NormFunc = decltype(norm_t<StateType>)>
   std::vector<std::pair<StateType, double>> solve(
-      const StateType &y0, double T, const NormFunc &norm = _norm<StateType>);
+      const StateType &y0, double T, const NormFunc &norm = norm_t<StateType>);
 
   //! \brief Print statistics and options of this class instance.
   void print();

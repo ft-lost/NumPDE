@@ -24,7 +24,7 @@ class EntityMatrixProvider {
 class LocalLaplaceQFE1 : public EntityMatrixProvider {
  public:
   bool isActive(const lf::mesh::Entity &cell) override { return true; }
-  Eigen::Matrix<double, 6, 6> Eval(const lf::mesh::Entity &cell);
+  Eigen::Matrix<double, 6, 6> Eval(const lf::mesh::Entity &cell) override;
 };
 
 class LocalLaplaceQFE2 : public EntityMatrixProvider {

@@ -1,6 +1,5 @@
-#ifndef __BOUNDARYLENGTH_H
-#define __BOUNDARYLENGTH_H
-
+#ifndef BOUNDARYLENGTH_H
+#define BOUNDARYLENGTH_H
 /**
  * @ file boundarylength.h
  * @ brief NPDE homework LengthOfBoundary code

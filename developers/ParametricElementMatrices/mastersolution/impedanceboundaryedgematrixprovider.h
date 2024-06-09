@@ -23,7 +23,7 @@ class ImpedanceBoundaryEdgeMatrixProvider {
       std::shared_ptr<lf::uscalfe::UniformScalarFESpace<double>> fe_space,
       Eigen::VectorXd coeff_expansion);
   bool isActive(const lf::mesh::Entity &edge);
-  Eigen::MatrixXd Eval(const lf::mesh::Entity &cell);
+  Eigen::MatrixXd Eval(const lf::mesh::Entity &edge);
 
  private:
   // Linear first-order lagrangian finite element space

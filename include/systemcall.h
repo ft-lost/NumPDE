@@ -10,6 +10,7 @@
 
 #include <cstdlib>
 #include <exception>
+#include <iostream>
 #include <string>
 
 // Global function call to enable std::system calls with exception
@@ -17,10 +18,10 @@ namespace systemcall {
 void execute(const std::string &command) {
   int sys_out = std::system(command.c_str());
   if (sys_out != 0) {
-    throw std::runtime_error(
-        "Error during system call: " + command +
-        ", return value: " + std::to_string(WEXITSTATUS(sys_out)) +
-        "\nCheck error output of system call for more details");
+    std::cerr << "Error during system call: " + command +
+                     ", return value: " + std::to_string(WEXITSTATUS(sys_out)) +
+                     "\nCheck error output of system call for more details";
+    std::terminate();
   }
 }
 }  // namespace systemcall

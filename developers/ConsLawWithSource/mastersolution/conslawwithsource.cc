@@ -20,9 +20,9 @@ double godnfn(double v, double w) {
     if (0.0 < v) return f(v);
     if (w < 0.0) return f(w);
     return 1.0;  // = f(0.0)
-  } else {
-    return f(w) < f(v) ? f(v) : f(w);
   }
+  return f(w) < f(v) ? f(v) : f(w);
+
 #else
 
   //====================
