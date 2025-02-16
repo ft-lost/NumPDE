@@ -15,7 +15,6 @@ namespace ExtendedMUSCL {
 
 /* SAM_LISTING_BEGIN_0 */
 // Function parameters:
-//   double texttt{h}: meshwidth of equidistant spatial grid
 //   Vector texttt{mu}: (finite) vector \Blue{$\vec{\mubf}$} of cell averages
 //   Functor texttt{F}: 2-point numerical flux function \Blue{$F=F(v,w)$}
 //   Functor texttt{slope}: slope reconstruction function

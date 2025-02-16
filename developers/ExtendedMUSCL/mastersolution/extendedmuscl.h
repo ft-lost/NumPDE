@@ -156,14 +156,14 @@ void interpolate(const VECSOURCE &s, VECDEST &d) {
   for (int j = 0; j < N; ++j) {
     // position of destinatioon node
     const double xd = h * (j + 0.5);
-    // Index of source node to the right
-    std::size_t k = (std::size_t)std::round(xd / H);
+    // Index of the source node, potentially < 0
+    int k = static_cast<int>(std::floor(xd / H - 0.5));
     // Position of nodes of source cell, in which xd is contained
-    const double xsl = H * (k - 0.5);  // left node
+    const double xsl = H * (k + 0.5);  // left node
     const double xsr = xsl + H;        // right node
     // Values at source nodes taking into account periodic continuation
-    auto svl = s[(k < 1) ? (n - 1) : k - 1];
-    auto svr = s[(k >= n) ? 0 : k];
+    auto svl = s[(k < 0) ? k + n : k];
+    auto svr = s[(k + 1 >= n) ? k + 1 - n : k + 1];
     // Linear interpolation inside source cell
     d[j] = ((xsr - xd) * svl + (xd - xsl) * svr) / H;
   }
