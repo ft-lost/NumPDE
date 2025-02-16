@@ -15,6 +15,20 @@
 
 namespace FVPsystem {
 
+/** @brief Fully discrete finite volume method for the p-system based on HLLE
+ * numerical flux
+ *
+ * @tparam u0Functor std::function<Eigen::Vector2d(double)>
+ * @tparam recorder std::function<void(const Eigen::MatrixXd &)
+ * @param a left bound of interval of interest
+ * @param b right bound of interval of interest
+ * @param T final time
+ * @param N number of mesh cell in interval of interest
+ * @param M number of uniform timesteps
+ * @param u0 initial data
+ *
+ * Special case p(v) = -exp(v)
+ */
 /* SAM_LISTING_BEGIN_1 */
 template <typename u0Functor,
           typename RECORDER = std::function<void(const Eigen::MatrixXd &)>>
@@ -23,42 +37,40 @@ Eigen::MatrixXd ev1ExpPSystem(
     u0Functor &&u0,
     RECORDER recorder = [](const Eigen::MatrixXd &) -> void {}) {
   //  Determine constants of scheme
-  double dt = T / M;
-  double h = (b - a) / N;
-  Eigen::MatrixXd mu(2, N);  // return vector
+  const double dt = T / M;       // timestep size
+  const double h = (b - a) / N;  // meshwidth
+  Eigen::MatrixXd mu(2, N);      // return vector
 
   // Set initial conditions
   for (unsigned j = 0; j < N; ++j) {
     mu.col(j) = u0(a + h / 2. + j * h);
   }
 
-  // Define the function p, note that p' = p for this special case
+  // Define the function p, note that $p' = p$ for this special case
   auto p = [](double u) -> double { return -std::exp(u); };
 
-  // Define the continuous flux function
+  // Define the continuous flux function $\VF$, see \prbeqref{eq:psysu}
   auto F = [p](Eigen::Vector2d v) -> Eigen::Vector2d {
-    Eigen::Vector2d out;
-    out(0) = -v(1);
-    out(1) = p(v(0));
-    return out;
+    return {-v[1], p(v[0])};
   };
 
-  // Define the HLLE flux
+  // Define the HLLE flux \lref{eq:HLLEnfs}
   auto numflux = [p, F](Eigen::MatrixXd v,
                         Eigen::MatrixXd w) -> Eigen::VectorXd {
-    Eigen::VectorXd out(2);
     double smin = std::min(-std::sqrt(-p(v(0))),
                            -std::sqrt(-(p(w(0)) - p(v(0))) / (w(0) - v(0))));
     double smax = std::max(std::sqrt(-p(w(0))),
                            std::sqrt(-(p(w(0)) - p(v(0))) / (w(0) - v(0))));
-    Eigen::Vector2d ustar;
-    ustar = 1. / (smin - smax) * (F(w) - F(v) - smax * w + smin * v);
     if (smin > 0) return F(v);
-    if (smin < 0 && smax > 0) return F(ustar);
+    if (smax > 0) {
+      const Eigen::Vector2d ustar =
+          1.0 / (smin - smax) * (F(w) - F(v) - smax * w + smin * v);
+      return F(ustar);
+    }
     return F(w);
   };
 
-  // Solve the ODE
+  // Solve the MOL ODE using explicit Euler timestepping
   recorder(mu);
   for (double t = 0; t < T - dt / 2.; t += dt) {
     Eigen::MatrixXd fd(2, mu.cols());  // Flux difference

@@ -103,3 +103,13 @@ add_subdirectory(PLaplacian)
 add_subdirectory(LinHypDampWaveSys)
 add_subdirectory(FVPsystem)
 add_subdirectory(StokesPipeFlow)
+add_subdirectory(NeumannDataRecovery)
+add_subdirectory(LeapfrogDissipativeWave)
+add_subdirectory(IRKDegenerateEvl)
+add_subdirectory(FVMShallowWater)
+add_subdirectory(StokesMINIElement)
+add_subdirectory(LeastSquaresAdvection)
+add_subdirectory(FVMIsentropicEuler)
+add_subdirectory(TaylorHoodNonMonolithic)
+  
+

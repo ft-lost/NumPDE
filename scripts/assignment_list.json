@@ -101,6 +101,14 @@
     "IMEXRKSSM/",
     "StokesPipeFlow/",
     "FVPsystem/",
-    "LinHypDampWaveSys/"
+    "LinHypDampWaveSys/",
+    "NeumannDataRecovery/",
+    "LeapfrogDissipativeWave/",
+    "IRKDegenerateEvl/",
+    "FVMShallowWater/",
+    "StokesMINIElement/",
+    "LeastSquaresAdvection/",
+    "FVMIsentropicEuler/",
+    "TaylorHoodNonMonolithic/"
   ]
 }
