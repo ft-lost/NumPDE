@@ -38,6 +38,42 @@ std::vector<Eigen::Triplet<double>> transformCOOmatrix(
   //====================
   // Your code goes here
   //====================
+  // std::cout<<"FORTNITE"<< std::endl;
+  for(const Eigen::Triplet<double> it : A){
+    int I = it.row() + 1;
+    int J = it.col() + 1;
+
+    if (I % 2 == 0 & J % 2 == 0) {
+      // even, even, \prbeqref{D1}
+      A_t.emplace_back(I / 2 - 1, J / 2 - 1, it.value());
+      A_t.emplace_back(I / 2 + M - 1, J / 2 + M - 1, it.value());
+      A_t.emplace_back(I / 2 + M - 1, J / 2 - 1, -it.value());
+      A_t.emplace_back(I / 2 - 1, J / 2 + M - 1, -it.value());
+    } else if (I % 2 != 0 & J % 2 != 0) {
+      // odd, odd, see \prbeqref{D2}
+      A_t.emplace_back((I + 1) / 2 - 1, (J + 1) / 2 - 1, it.value());
+      A_t.emplace_back((I + 1) / 2 + M - 1, (J + 1) / 2 + M - 1, it.value());
+      A_t.emplace_back((I + 1) / 2 - 1, (J + 1) / 2 + M - 1, it.value());
+      A_t.emplace_back((I + 1) / 2 + M - 1, (J + 1) / 2 - 1, it.value());
+    } else if (I % 2 == 0 & J % 2 != 0) {
+      // even, odd, see \prbeqref{D3}
+      A_t.emplace_back(I / 2 - 1, (J + 1) / 2 - 1, it.value());
+      A_t.emplace_back(I / 2 - 1, (J + 1) / 2 + M - 1, it.value());
+      A_t.emplace_back(I / 2 + M - 1, (J + 1) / 2 + M - 1, -it.value());
+      A_t.emplace_back(I / 2 + M - 1, (J + 1) / 2 - 1, -it.value());
+    } else if (I % 2 != 0 & J % 2 == 0) {
+      // odd, even, see \prbeqref{D4}
+      A_t.emplace_back((I + 1) / 2 - 1, J / 2 - 1, it.value());
+      A_t.emplace_back((I + 1) / 2 + M - 1, J / 2 + M - 1, -it.value());
+      A_t.emplace_back((I + 1) / 2 + M - 1, J / 2 - 1, it.value());
+      A_t.emplace_back((I + 1) / 2 - 1, J / 2 + M - 1, -it.value());
+    } else {
+      assert(false);
+    }
+
+
+  }
+
   return A_t;
 }
 /* SAM_LISTING_END_1 */
