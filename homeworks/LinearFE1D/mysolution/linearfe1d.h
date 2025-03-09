@@ -29,13 +29,40 @@ std::vector<Eigen::Triplet<double>> computeA(const Eigen::VectorXd &mesh,
   std::vector<Eigen::Triplet<double>> triplets;
   triplets.reserve(3 * N + 1);
 
-  //====================
-  // Your code goes here
-  //====================
+  // Some tool variables
+  double diag, off_diag;
+  double dx_left, dx_right;  // cell widths
+
+  /* Computing diagonal entries */
+  // First diagonal entry (left boundary node)
+  dx_right = mesh(1) - mesh(0);
+  diag = alpha((mesh(1) + mesh(0)) / 2.) / dx_right;
+  triplets.push_back(Eigen::Triplet<double>(0, 0, diag));
+  // Last diagonal entry (right boundary node)
+  dx_left = mesh(N) - mesh(N - 1);
+  diag = alpha((mesh(N) + mesh(N - 1)) / 2.) / dx_left;
+  triplets.push_back(Eigen::Triplet<double>(N, N, diag));
+  // All diagonal entries associated to interior nodes
+  for (unsigned i = 1; i < N; ++i) {
+    dx_left = mesh(i) - mesh(i - 1);
+    dx_right = mesh(i + 1) - mesh(i);
+    diag = alpha((mesh(i - 1) + mesh(i)) / 2.) / dx_left +
+           alpha((mesh(i) + mesh(i + 1)) / 2.) / dx_right;
+    triplets.push_back(Eigen::Triplet<double>(i, i, diag));
+  }
+
+  /* Computing off-diagonal entries */
+  for (unsigned i = 0; i < N; ++i) {
+    dx_right = mesh(i + 1) - mesh(i);
+    off_diag = -alpha((mesh(i) + mesh(i + 1)) / 2.) / dx_right;
+    triplets.push_back(Eigen::Triplet<double>(i + 1, i, off_diag));
+    triplets.push_back(Eigen::Triplet<double>(i, i + 1, off_diag));
+  }
 
   return triplets;
 }  // computeA
 /* SAM_LISTING_END_1 */
+
 
 // Calculate the matrix entries corresponding to the mass matrix
 // associated to the L2 pairing weighted by the variable coefficient
@@ -54,9 +81,24 @@ std::vector<Eigen::Triplet<double>> computeM(const Eigen::VectorXd &mesh,
   std::vector<Eigen::Triplet<double>> triplets;
   triplets.reserve(N + 1);
 
-  //====================
-  // Your code goes here
-  //====================
+  double diag, off_diag;
+  double dx;  // cell widths
+
+  /* Computing diagonal entries */
+  // First diagonal entry (left boundary node)
+  dx = mesh(1) - mesh(0);
+  diag = gamma(mesh(0)) * 0.5 * dx;
+  triplets.push_back(Eigen::Triplet<double>(0, 0, diag));
+  // Last diagonal entry (right boundary node)
+  dx = mesh(N) - mesh(N - 1);
+  diag = gamma(mesh(N)) * 0.5 * dx;
+  triplets.push_back(Eigen::Triplet<double>(N, N, diag));
+  // All diagonal entries associated to interior nodes
+  for (unsigned i = 1; i < N; ++i) {
+    dx = mesh(i + 1) - mesh(i - 1);
+    diag = gamma(mesh(i)) * 0.5 * dx;
+    triplets.push_back(Eigen::Triplet<double>(i, i, diag));
+  }  // computeM
 
   return triplets;
 }  // computeM
@@ -70,13 +112,16 @@ Eigen::VectorXd computeRHS(const Eigen::VectorXd &mesh, FUNCTOR1 &&f) {
   // Nodes are indexed as 0=x_0 < x_1 < ... < x_N = 1
   unsigned N = mesh.size() - 1;
   // Initializing right hand side vector
-  Eigen::VectorXd rhs_vec = Eigen::VectorXd::Zero(N + 1);
+  Eigen::VectorXd rhs = Eigen::VectorXd::Zero(N + 1);
 
-  //====================
-  // Your code goes here
-  //====================
 
-  return rhs_vec;
+  rhs[0] = 0.5*f(mesh[0])*(mesh[1] - mesh[0]);
+  rhs[N] = 0.5*f(mesh[N])*(mesh[N] - mesh[N-1]);
+  for(int i = 1; i < N; ++i){
+    rhs[i] = 0.5*f(mesh[i])*(mesh[i+1] - mesh[i - 1]);
+  }
+
+  return rhs;
 }  // computeRHS
 /* SAM_LISTING_END_3 */
 
@@ -94,25 +139,29 @@ Eigen::VectorXd solveA(const Eigen::VectorXd &mesh, FUNCTOR1 &&gamma,
   Eigen::SparseMatrix<double> L(N + 1, N + 1);       // full galerkin mat
 
   // I. Build the (full) Galerkin matrix L for the lin. sys.
-  //====================
-  // Your code goes here
-  //====================
 
+  std::vector<Eigen::Triplet<double>> triplets_A = computeA(mesh, [](double)->double{return 1.0;});
+
+  std::vector<Eigen::Triplet<double>> triplets_M = computeM(mesh, gamma);
+
+  A.setFromTriplets(triplets_A.begin(), triplets_A.end());
+  M.setFromTriplets(triplets_M.begin(), triplets_M.end());
+
+  L = A + M;
   // II. Build the right hand side source vector
-  //====================
-  // Your code goes here
-  //====================
+  Eigen::VectorXd rhs_vec = computeRHS(mesh, f);
 
   // III. Enforce (zero) dirichlet boundary conditions
-  //====================
-  // Your code goes here
-  //====================
+  Eigen::SparseMatrix<double> L_r = L.block(1, 1, N-1, N-1);
+  Eigen::VectorXd rhs_r = rhs_vec.segment(1, N-1);
 
   // IV. Solve the LSE L*u = rhs_vec using an Eigen solver
-  //====================
-  // Your code goes here
-  //====================
+  Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>, Eigen::Lower> solver(L_r);
+  if (solver.info() != Eigen::Success) {
+    throw std::runtime_error("Could not decompose the matrix");
+  }
 
+  u.segment(1,N-1) = solver.solve(rhs_r);
   // The solution vector u was initialized with zeros, and therefore already
   // contains the zero Dirichlet boundary data in the first and last entry
   return u;
@@ -133,19 +182,29 @@ Eigen::VectorXd solveB(const Eigen::VectorXd &mesh, FUNCTOR1 &&alpha,
   double dx_left, dx_right;  // cell widths
 
   // I. Build the Galerkin matrix A
-  //====================
-  // Your code goes here
-  //====================
+
+  std::vector<Eigen::Triplet<double>> triplets_A = computeA(mesh,alpha);
+  A.setFromTriplets(triplets_A.begin(), triplets_A.end());
+
+
 
   // II. Build the right hand side source vector
-  //====================
-  // Your code goes here
-  //====================
-
+  Eigen::VectorXd rhs_vec = computeRHS(mesh, f);
   // III. Enforce dirichlet boundary conditions
-  //====================
-  // Your code goes here
-  //====================
+
+  Eigen::SparseMatrix<double> A_reduced = A.block(1, 1, N - 1, N - 1);
+  Eigen::VectorXd rhs_vec_reduced = rhs_vec.segment(1, N - 1) -
+                                    A.block(1, 0, N - 1, 1) * u0 -
+                                    A.block(1, N, N - 1, 1) * u1;
+
+  // IV. Solve the LSE A*u = rhs_vec using an Eigen solver
+  Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> solver;
+  solver.compute(A_reduced);
+  if (solver.info() != Eigen::Success) {
+    throw std::runtime_error("Could not decompose the matrix");
+  }
+  u.segment(1, N - 1) = solver.solve(rhs_vec_reduced);
+
 
   // IV. Solve the LSE A*u = rhs_vec using an Eigen solver
   //====================
@@ -174,20 +233,20 @@ Eigen::VectorXd solveC(const Eigen::VectorXd &mesh, FUNCTOR1 &&alpha,
   Eigen::SparseMatrix<double> L(N + 1, N + 1);  // full galerkin mat
 
   // I. Build the (full) Galerkin matrix L for the lin. sys.
-  //====================
-  // Your code goes here
-  //====================
-
+  std::vector<Eigen::Triplet<double>> triplets_A = computeA(mesh, alpha);
+  std::vector<Eigen::Triplet<double>> triplets_M = computeM(mesh, gamma);
+  A.setFromTriplets(triplets_A.begin(), triplets_A.end());
+  M.setFromTriplets(triplets_M.begin(), triplets_M.end());
+  L = A + M;
   // II. Build the right hand side source vector
-  //====================
-  // Your code goes here
-  //====================
-
+  Eigen::VectorXd rhs = computeRHS(mesh, [](double) -> double { return 1.0; });
   // IV. Solve the LSE A*u = rhs_vec using an Eigen solver
-  //====================
-  // Your code goes here
-  //====================
-
+  Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> solver;
+  solver.compute(L);
+  if (solver.info() != Eigen::Success) {
+    throw std::runtime_error("Could not decompose the matrix");
+  }
+  u = solver.solve(rhs);
   return u;
 }  // solveC
 /* SAM_LISTING_END_C */
