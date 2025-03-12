@@ -250,5 +250,5 @@ Eigen::VectorXd solveC(const Eigen::VectorXd &mesh, FUNCTOR1 &&alpha,
   return u;
 }  // solveC
 /* SAM_LISTING_END_C */
-
+//
 }  // namespace LinearFE1D
