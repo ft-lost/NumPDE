@@ -45,9 +45,15 @@ Eigen::Matrix<double, 2, 3> gradbarycoordinates(const TriGeo_t &vertices) {
 /* SAM_LISTING_BEGIN_1 */
 Eigen::Matrix3d ElementMatrix_Mass_LFE(const TriGeo_t &V) {
   Eigen::Matrix3d element_matrix;
-  //====================
-  // Your code goes here
-  //====================
+  double K = getArea(V);
+
+
+  element_matrix
+    << 2, 1, 1,
+       1, 2, 1,
+       1, 1, 2;
+  element_matrix = element_matrix * K/12.0;
+  
   return element_matrix;
 }
 /* SAM_LISTING_END_1 */
@@ -170,9 +176,26 @@ double H1Serror(
     const TriaMesh2D &mesh, const Eigen::VectorXd &uFEM,
     const std::function<Eigen::Vector2d(const Eigen::Vector2d &)> exact) {
   double H1Serror_squared = 0.0;
-  //====================
-  // Your code goes here
-  //====================
+
+  double error = 0;
+  for(int k = 0; k < mesh._elements.rows(); ++k){
+    TriGeo_t triangle = mesh.getVtCoords(k);
+    Eigen::Vector3d values_at_v;
+    Eigen::Matrix<double, 2, 3> grad = gradbarycoordinates(triangle);
+
+    for(int i = 0; i < 3; ++i){
+
+     double fem = uFEM[mesh._elements(k,i)];
+      values_at_v(i) = fem;
+    }
+    Eigen::Vector2d gradient_Fem = grad * values_at_v;
+    Eigen::Vector3d error_at_v;
+    for(int i = 0; i < 3; ++i){
+      Eigen::Vector2d coor = mesh._nodecoords.row(mesh._elements(k,i));
+      error_at_v(i) = (exact(coor) - gradient_Fem).squaredNorm();
+    }
+    H1Serror_squared += getArea(triangle)/3.0 * error_at_v.sum();
+  }
 
   return std::sqrt(H1Serror_squared);
 }

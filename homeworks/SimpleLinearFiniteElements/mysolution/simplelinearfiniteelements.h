@@ -60,9 +60,18 @@ template <typename FUNCTOR>
 double L2Error(const TriaMesh2D &mesh, const Eigen::VectorXd &uFEM,
                FUNCTOR &&exact) {
   double l2error_squared = 0.0;
-  //====================
-  // Your code goes here
-  //====================
+  double error = 0;
+  for(int k = 0; k < mesh._elements.rows(); ++k){
+    TriGeo_t triangle = mesh.getVtCoords(k);
+    Eigen::Vector3d error_at_v;
+    for(int i = 0; i < 3; ++i){
+      Eigen::Vector2d coor = mesh._nodecoords.row(mesh._elements(k,i));
+      double ex = exact(coor);
+      double fem = uFEM[mesh._elements(k,i)];
+      error_at_v(i) = ex - fem;
+    }
+    l2error_squared += getArea(triangle)/3.0 * error_at_v.squaredNorm();
+  }
   return std::sqrt(l2error_squared);
 }
 /* SAM_LISTING_END_2 */
