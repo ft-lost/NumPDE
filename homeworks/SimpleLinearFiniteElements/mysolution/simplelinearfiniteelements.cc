@@ -222,19 +222,34 @@ std::tuple<Eigen::VectorXd, double, double> Solve(
     return std::cos(2 * pi * x(0)) * std::cos(2 * pi * x(1));
   };
 
+
   Eigen::VectorXd U;
   double l2error;
   double h1error;
 
+  auto exact_grad = [=](const Eigen::Vector2d &x)->Eigen::Matrix<double,2,1>{
+    Eigen::Vector2d res;
+    res <<  -2.0*pi*std::sin(2.0*pi*x(0))*std::cos(2.0*pi*x(1)),
+    -2.0*pi*std::sin(2.0*pi*x(1))*std::cos(2.0*pi*x(0));
+    return res;
+  };
+  //LocalVectorHandle_t LV;
+  Eigen::VectorXd rhs = assemLoad_LFE(mesh, localLoadLFE, f);
+
+  //LocalMatrixHandle_t getElM;
+  Eigen::SparseMatrix<double> A = assembleGalMatLFE(mesh,
+                                  getElementMatrix );
+
+  Eigen::SparseLU<Eigen::SparseMatrix<double>> solver(A);
+ // if(solver.info() != Eigen::Success) std::cout<< "LU failed"<<std::endl;
+  Eigen::VectorXd u_fem = solver.solve(rhs);
+
+ // U = Eigen::VectorXd::Zero(mesh._nodecoords.rows());
+  l2error = L2Error(mesh, u_fem,uExact);
+  h1error = H1Serror(mesh, u_fem, exact_grad);
   //====================
-  // Your code goes here
-  // Assigning some dummy values
-  U = Eigen::VectorXd::Zero(mesh._nodecoords.rows());
-  l2error = 1.0;
-  h1error = 1.0;
-  //====================
-  return std::make_tuple(U, l2error, h1error);
+  return std::make_tuple(u_fem, l2error, h1error);
 }
 /* SAM_LISTING_END_4 */
 
-}  // namespace SimpleLinearFiniteElements
+}  // namespaec SimpleLinearFiniteElements
