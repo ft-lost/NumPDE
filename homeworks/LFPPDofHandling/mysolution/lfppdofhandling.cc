@@ -32,6 +32,18 @@ std::array<std::size_t, 3> countEntityDofs(
   //====================
   // Your code goes here
   //====================
+  auto mesh = dofhandler.Mesh();
+  for(int i = 0; i <= 2; i++){
+    entityDofs[i] = 0;
+    for(const lf::mesh::Entity *e :mesh->Entities(i)){
+      if (e->RefEl() == lf::base::RefEl::kQuad()) {
+        throw " Only t r i a n g u l a r meshes are allowed ! " ;
+      }
+      entityDofs[i] += dofhandler.NumInteriorDofs(*e);
+    }
+
+  }
+
   return entityDofs;
 }
 /* SAM_LISTING_END_1 */
@@ -47,6 +59,16 @@ std::size_t countBoundaryDofs(const lf::assemble::DofHandler &dofhandler) {
   //====================
   // Your code goes here
   //====================
+
+  for(int i = 1; i <= 2; i++){
+    for(const lf::mesh::Entity *e :mesh->Entities(i)){
+      if (e->RefEl() == lf::base::RefEl::kQuad()) {
+        throw " Only t r i a n g u l a r meshes are allowed ! " ;
+      }
+      if(bd_flags(*e)) no_dofs_on_bd += dofhandler.NumInteriorDofs(*e);
+    }
+  }
+
   return no_dofs_on_bd;
 }
 /* SAM_LISTING_END_2 */
@@ -60,6 +82,26 @@ double integrateLinearFEFunction(
   //====================
   // Your code goes here
   //====================
+
+  std::shared_ptr<const lf::mesh::Mesh> mesh = dofhandler.Mesh();
+
+  for(const lf::mesh::Entity *e :mesh->Entities(0)){
+    if (e->RefEl() == lf::base::RefEl::kQuad()) {
+      throw " Only t r i a n g u l a r meshes are allowed !";
+    }
+
+    if(dofhandler.NumLocalDofs(*e) != 3) throw "Not a S1_0 space";
+
+    const lf::geometry::Geometry *geo = e->Geometry();
+    double Area = lf::geometry::Volume(*geo);
+    auto index_arr = dofhandler.GlobalDofIndices(*e);
+    double c = 1.0/3.0 * Area;
+    for(auto it = index_arr.begin(); it < index_arr.end(); ++it){
+       I += c * mu(*it);
+    }
+  }
+
+
   return I;
 }
 /* SAM_LISTING_END_3 */
@@ -72,6 +114,23 @@ double integrateQuadraticFEFunction(const lf::assemble::DofHandler &dofhandler,
   //====================
   // Your code goes here
   //====================
+  std::shared_ptr<const lf::mesh::Mesh> mesh = dofhandler.Mesh();
+
+  for(const lf::mesh::Entity *cell :mesh->Entities(0)){
+    if (cell->RefEl() == lf::base::RefEl::kQuad()) {
+      throw " Only t r i a n g u l a r meshes are allowed ! " ;
+    }
+
+    if(dofhandler.NumLocalDofs(*cell) != 6) throw "Not a S2_0 space";
+    const double weight = 1.0 / 3.0 * lf::geometry::Volume(*(cell->Geometry()));
+    // iterate over dofs
+    auto int_dofs = dofhandler.GlobalDofIndices(*cell);
+
+    for (int l = 3; l < 6; ++l) {
+      I += (weight * mu(int_dofs[l]));
+    }
+  }
+
   return I;
 }
 /* SAM_LISTING_END_4 */
@@ -96,6 +155,16 @@ Eigen::VectorXd convertDOFsLinearQuadratic(
     //====================
     // Your code goes here
     //====================
+    if (dofh_Linear_FE.NumLocalDofs(*cell) != 3 ||
+        dofh_Quadratic_FE.NumLocalDofs(*cell) != 6) {
+      throw std::runtime_error(
+          "dofh_Linear_FE must have 3 dofs per cell and dofh_Quadratic_FE 6!");
+    }
+    std::span<const lf::assemble::gdof_idx_t> lin_dofs =
+        dofh_Linear_FE.GlobalDofIndices(*cell);
+    std::span<const lf::assemble::gdof_idx_t> quad_dofs =
+        dofh_Quadratic_FE.GlobalDofIndices(*cell);
+    for (std::size_t l = 0; l <= 2; ++l) {
     // get the global dof indices of the linear and quadratic FE spaces, note
     // that the vectors obey the LehrFEM++ numbering, which we will make use of
     // lin\_dofs will have size 3 for the 3 dofs on the nodes and
@@ -104,9 +173,15 @@ Eigen::VectorXd convertDOFsLinearQuadratic(
     //====================
     // Your code goes here
     // assign the coefficients of mu to the correct entries of zeta, use
-    // the previous subproblem 2-9.a
-    //====================
+    // the previous subproblem 2-9.
+    zeta(quad_dofs[l]) = mu(lin_dofs[l]);
+      // And $\lambda_l(p_l+3) = 0.5$, $\lambda_{(l+1) mod 3}(p_l+3) = 0.5$;
+      // $l =1,2,3$. Hence we copy 0.5 of the respective coefficients!
+    zeta(quad_dofs[l + 3]) =
+      0.5 * (mu(lin_dofs[l]) + mu(lin_dofs[(l + 1) % 3]));
+    }
   }
+
   return zeta;
 }
 /* SAM_LISTING_END_5 */
