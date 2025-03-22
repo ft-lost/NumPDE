@@ -32,7 +32,32 @@ Eigen::Matrix<double, 4, 4> MyLinearFEElementMatrix::Eval(
   Eigen::Matrix<double, 4, 4> elem_mat;
 
   //====================
-  // Your code goes here
+  Eigen::Matrix<double, 4, 4> elem_lap;
+
+  lf::uscalfe::LinearFELaplaceElementMatrix builder;
+  elem_lap = builder.Eval(cell);
+  switch(ref_el){
+    case lf::base::RefEl::kQuad():{
+      elem_mat << 4, 2, 1, 2,
+                  2, 4, 2, 1,
+                  1, 2, 4, 2,
+                  2, 1, 2, 4;
+      double Area = lf::geometry::Volume(*geo_ptr);
+      elem_mat *= Area/36.0;
+      break;
+    }
+    case lf::base::RefEl::kTria():{
+      elem_mat << 2, 1, 1, 0,
+                  1, 2, 1, 0,
+                  1, 1, 2, 0,
+                  0, 0, 0, 0;
+      double Area = lf::geometry::Volume(*geo_ptr);
+      elem_mat *= Area/12.0;
+      break;
+    }
+
+  }
+  elem_mat += elem_lap;
   //====================
 
   return elem_mat;

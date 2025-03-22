@@ -25,7 +25,12 @@ Eigen::VectorXd solvePoissonBVP() {
   Eigen::VectorXd solution = Eigen::VectorXd::Zero(1);
 
   //====================
-  // Your code goes here
+
+  lf::uscalfe::LinearFELaplaceElementMatrix EM;
+  lf::uscalfe::LinearFELocalLoadVector<double, decltype(mf_f)> el_v(mf_f);
+
+  solution = solve(EM, el_v);
+
   //====================
 
   return solution;
@@ -37,7 +42,15 @@ Eigen::VectorXd solveNeumannEq() {
   Eigen::VectorXd solution;
 
   //====================
-  // Your code goes here
+
+  MyLinearFEElementMatrix elmat_builder;
+  MyLinearLoadVector elvec_builder(f);
+
+  std::cout << "===================" << std::endl;
+  std::cout << "solveNeumannEq" << std::endl;
+  // The actual computation
+  solution = solve(elmat_builder, elvec_builder);
+
   //====================
 
   return solution;
