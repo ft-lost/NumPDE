@@ -35,7 +35,31 @@ Eigen::VectorXd FESourceElemVecProvider::Eval(const lf::mesh::Entity &cell) {
       /* SAM_LISTING_BEGIN_1 */
 
       // ===================
-      // Your code goes here
+      double area = 0.5;
+      Eigen::MatrixXd midpoints = Eigen::MatrixXd(2,3);
+      midpoints << 0.5, 0.5, 0, 0, 0.5, 0.5;
+      element_vector = Eigen::VectorXd::Zero(3);
+      Eigen::VectorXd w = Eigen::VectorXd::Zero(3);
+
+      Eigen::MatrixXd Phi_n = cell_geometry->Global(midpoints);
+      Eigen::VectorXd detDPhi = cell_geometry->IntegrationElement(midpoints);
+
+      for(int i = 0; i < 3; ++i){
+        w(i) = coeff_expansion_(cell_global_idx[i]);
+      }
+
+
+      for(int i = 0;  i < 3; ++i){
+        element_vector(i) +=
+            detDPhi(i) *
+            (0.5 / (1. + std::pow(0.5 * w(i) + 0.5 * w((i + 1) % 3), 2)));
+        element_vector((i + 1) % 3) +=
+            detDPhi(i) *
+            (0.5 / (1. + std::pow(0.5 * w(i) + 0.5 * w((i + 1) % 3), 2)));
+
+      }
+      element_vector *= area/3.0;
+
       // ===================
 
       break;
@@ -45,7 +69,31 @@ Eigen::VectorXd FESourceElemVecProvider::Eval(const lf::mesh::Entity &cell) {
       /* SAM_LISTING_BEGIN_2 */
 
       // ===================
-      // Your code goes here
+      double area = 1.0;
+      Eigen::MatrixXd midpoints = Eigen::MatrixXd(2,4);
+      midpoints << 0.5, 1, 0.5, 0, 0, 0.5, 1.0, 0.5;
+      element_vector = Eigen::VectorXd::Zero(4);
+      Eigen::VectorXd w = Eigen::VectorXd::Zero(4);
+
+      Eigen::MatrixXd Phi_n = cell_geometry->Global(midpoints);
+      Eigen::VectorXd detDPhi = cell_geometry->IntegrationElement(midpoints);
+
+      for(int i = 0; i < 4; ++i){
+        w(i) = coeff_expansion_(cell_global_idx[i]);
+      }
+
+
+      for(int i = 0; i < 4; ++i){
+        element_vector(i) +=
+            detDPhi(i) *
+            (0.5 / (1. + std::pow(0.5 * w(i) + 0.5 * w((i + 1) % 4), 2)));
+        element_vector((i + 1) % 4) +=
+            detDPhi(i) *
+            (0.5 / (1. + std::pow(0.5 * w(i) + 0.5 * w((i + 1) % 4), 2)));
+
+      }
+      element_vector *= area/4.0;
+      break;
       // ===================
 
       /* SAM_LISTING_END_2 */

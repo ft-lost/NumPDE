@@ -26,7 +26,7 @@ bool ImpedanceBoundaryEdgeMatrixProvider::isActive(
     const lf::mesh::Entity &edge) {
   bool is_bd_edge;
   //====================
-  // Your code goes here
+  is_bd_edge = (*bd_flags_)(edge);
   //====================
   return is_bd_edge;
 }
@@ -43,7 +43,24 @@ Eigen::MatrixXd ImpedanceBoundaryEdgeMatrixProvider::Eval(
   Eigen::MatrixXd element_matrix(2, 2);
 
   //====================
-  // Your code goes here
+  element_matrix = Eigen::MatrixXd::Zero(2,2);
+  //if(!isActive(edge)) return element_matrix;
+  auto geo_p = edge.Geometry();
+  double length = lf::geometry::Volume(*geo_p);
+  Eigen::VectorXd w(2);
+  const lf::assemble::DofHandler &dofh{fe_space_->LocGlobMap()};
+  auto cell_gi = dofh.GlobalDofIndices(edge);
+  w << coeff_expansion_(cell_gi[0]), coeff_expansion_(cell_gi[1]);
+  Eigen::MatrixXd A1(2,2);
+  A1 << 24, 6, 6, 4;
+  Eigen::MatrixXd A2(2,2);
+  A2 << 6, 4, 4, 6;
+  Eigen::MatrixXd A3(2,2);
+  A3 << 4, 6, 6, 24;
+
+  element_matrix = w(0)*w(0)*A1 + 2*w(1)*w(0)* A2 + w(1)*w(1)*A3;
+  element_matrix *= length/120.0;
+
   //====================
 
   return element_matrix;
