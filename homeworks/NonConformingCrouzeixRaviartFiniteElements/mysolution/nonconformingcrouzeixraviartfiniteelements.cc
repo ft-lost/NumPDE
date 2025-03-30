@@ -13,7 +13,8 @@ lf::base::RefEl CRReferenceFiniteElement::RefEl() const {
   lf::base::RefElType ref_el_type;
 // TODO: task 2-14.q)
 //====================
-// Your code goes here
+  ref_el_type = lf::base::RefElType::kTria;
+
 //====================
   return lf::base::RefEl(ref_el_type);
 }
@@ -25,7 +26,7 @@ unsigned int CRReferenceFiniteElement::Degree() const {
   unsigned int degree;
 // TODO: task 2-14.q)
 //====================
-// Your code goes here
+degree = 1;
 //====================
   return degree;
 }
@@ -36,7 +37,7 @@ lf::assemble::size_type CRReferenceFiniteElement::NumRefShapeFunctions() const {
   lf::assemble::size_type num_ref_shape_functions;
 // TODO: task 2-14.q)
   //====================
-  // Your code goes here
+  num_ref_shape_functions = 3;
   //====================
   return num_ref_shape_functions;
 }
@@ -46,7 +47,15 @@ lf::assemble::size_type CRReferenceFiniteElement::NumRefShapeFunctions(
   switch (codim) {
     // TODO: task 2-14.q)
 //====================
-// Your code goes here
+    case 0:{
+      return 0;
+    }
+    case 1:{
+      return 1;
+    }
+    case 2:{
+      return 0;
+    }
 //====================
     default:
       LF_VERIFY_MSG(false, "Codimension out of range for triangle")
@@ -59,7 +68,21 @@ lf::assemble::size_type CRReferenceFiniteElement::NumRefShapeFunctions(
   switch (codim) {
     // TODO: task 2-14.q)
 //====================
-// Your code goes here
+  case 0:{
+      LF_VERIFY_MSG((0 == subidx),
+                    "Index of cell is out of range for triangle");
+      return 0;
+  }
+  case 1:{
+     LF_VERIFY_MSG((0 <= subidx && subidx < 3),
+                    "Index of edge is out of range for triangle");
+      return 1;
+  }
+  case 2:{
+     LF_VERIFY_MSG((0 <= subidx && subidx < 3),
+                    "Index of edge is out of range for triangle");
+      return 0;
+  }
 //====================
     default:
       LF_VERIFY_MSG(false, "Codimension out of range for triangle")
@@ -80,7 +103,12 @@ CRReferenceFiniteElement::EvalReferenceShapeFunctions(
   Eigen::MatrixXd eval_ref_shape_functions(3, num_points);
 // TODO: task 2-14.q)
   //====================
-  // Your code goes here
+  for(int i = 0; i < num_points; ++i){
+    eval_ref_shape_functions(0,i) = 1.0 - 2.0 * refcoords(1,i);
+    eval_ref_shape_functions(1,i) = 2.0*(refcoords(0,i) + refcoords(1,i)) - 1;
+    eval_ref_shape_functions(2,i) = 1 - 2.0*refcoords(0,i);
+
+  }
   //====================
   return eval_ref_shape_functions;
 }
@@ -98,7 +126,10 @@ CRReferenceFiniteElement::GradientsReferenceShapeFunctions(
   Eigen::MatrixXd grad_ref_shape_functions(3, 2 * num_points);
 // TODO: task 2-14.r)
 //====================
-// Your code goes here
+  grad_ref_shape_functions.row(0) = (Eigen::Vector2d() << 0, -2).finished().transpose().replicate(1, num_points);
+  grad_ref_shape_functions.row(1) = 2. * Eigen::VectorXd::Ones(2 * num_points).transpose();
+  grad_ref_shape_functions.row(2) = (Eigen::Vector2d() << -2, 0).finished().transpose().replicate(1, num_points);
+
 //====================
   return grad_ref_shape_functions;
 }
@@ -109,7 +140,8 @@ Eigen::MatrixXd CRReferenceFiniteElement::EvaluationNodes() const {
   Eigen::MatrixXd eval_nodes(2, 3);
 // TODO: task 2-14.s)
 //====================
-// Your code goes here
+ eval_nodes << 0.5, 0.5, 0, 0, 0.5, 0.5;
+
 //====================
   return eval_nodes;
 }
@@ -129,7 +161,7 @@ CRReferenceFiniteElement::NodalValuesToDofs(
   Eigen::MatrixXd coeffs;
 // TODO: task 2-14.s)
 //====================
-// Your code goes here
+  coeffs = nodvals;
 //====================
   return coeffs;
 }

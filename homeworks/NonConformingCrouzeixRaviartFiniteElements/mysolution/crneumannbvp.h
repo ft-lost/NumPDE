@@ -23,7 +23,35 @@ Eigen::VectorXd solveCRNeumannBVP(std::shared_ptr<CRFeSpace> fe_space,
   Eigen::VectorXd sol;
 // TODO: task 2-14.u)
   //====================
-  // Your code goes here
+  const lf::asemble::DofHandler &dof_handler{fe_space->LocGlobMap()};
+  const size_type num_dofs = dof_handler.NumDofs();
+
+  lf::mesh::utils::MeshFunctionGlobal mf_one{
+    [](Eigen::Vector2d x) -> double{return 1.;}
+  };
+  lf::mesh::utils::MeshFunctionGlobal mf_gamma{gamma};
+  lf::mesh::utils::MeshFunctionGlobal mf_f{f};
+
+  lf::assemble::COOMatrix<double> A(num_dofs, num_dofs);
+
+  lf::uscale::ReactionDiffusionElementMatrixProvider<double, decltype(mf_one), decltype(mf_gamma)>
+    element_matrix_builder(fe_space, mf_gammma);
+
+  lf::assemble::AssembleMatrixLocally(0, dof_handler, dof_handler, element_matrix_builder, A);
+
+  Eigen::Matrix<double, Eigen::Dynamic, 1> phi(num_dofs);
+  phi.setZero();
+
+  lf::uscale::ScalarLoadElementVectorProvider<double, decltype(mf_f)>
+    load_vector_builder(fe_space, mf_f);
+
+  lf::assemble::AssembleVectorLocally(0, dof_handler, load_vector_builder, phi);
+
+  Eigen::SparseMatrix<double> A_crs = A.makeSparse();
+
+  Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+  solver.compute(A_crs);
+  sol = solver.solve(phi);
   //====================
   return sol;
 }
