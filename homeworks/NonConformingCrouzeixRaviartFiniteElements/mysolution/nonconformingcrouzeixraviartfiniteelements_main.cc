@@ -42,7 +42,9 @@ int main() {
 
 // TODO: task 2-14.y)
     //====================
-    // Your code goes here
+    std::cout << std::left << sep << dof_handler.NumDofs() << " | "
+              << L2errorCRDiscretizationDirichletBVP(mesh_file) << std::endl;
+
     //====================
   }
 

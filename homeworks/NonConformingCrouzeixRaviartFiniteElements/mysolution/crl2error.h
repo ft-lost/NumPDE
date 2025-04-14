@@ -25,7 +25,34 @@ double computeCRL2Error(std::shared_ptr<CRFeSpace> fe_space,
 
 // TODO: task 2-14.w)
   //====================
-  // Your code goes here
+  //
+  
+  const lf::assemble::DofHandler &dof_handler{fe_space->LocGlobMap()};
+  auto mesh_ptr = fe_space->Mesh();
+
+  for(const lf::mesh::Entity *cell : mesh_ptr->Entities(0)){
+    lf::assemble::size_type num_nodes = cell->RefEl().NumNodes();
+    LF_ASSERT_MSG(num_nodes == 3, "Only for triangles!");
+
+    const lf::geometry::Geometry *geo_ptr = cell->Geometry();
+
+    const Eigen::MatrixXd vertices = lf::geometry::Corners(*geo_ptr);
+
+    Eigen::MatrixXd midpoints = vertices *(Eigen::Matrix<double, 3, 3>(3,3) <<
+                                           0.5, 0.0, 0.5,
+                                           0.5, 0.5, 0.0,
+                                           0.0, 0.5, 0.5).finished();
+
+    auto cell_idx = dof_handler.GlobalDofIndices(*cell);
+
+    double local_sum = 0;
+
+    for(int i = 0; i < num_nodes; ++i){
+      local_sum += std::pow(mu[cell_idx[i]] - u(midpoints.col(i)), 2);
+    }
+    l2_error += lf::geometry::Volume(*geo_ptr) * (local_sum/num_nodes);
+     
+  }
   //====================
   return std::sqrt(l2_error);
 }

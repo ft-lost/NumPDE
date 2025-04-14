@@ -27,7 +27,29 @@ double L2errorCRDiscretizationDirichletBVP(const std::string &filename) {
 
 // TODO: task 2-14.x)
   //====================
-  // Your code goes here
+  auto factory = std::make_unique<lf::mesh::hybrid2d::MeshFactory>(2);
+  lf::io::GmshReader reader(std::move(factory), filename);
+
+  auto mesh_ptr = reader.mesh();
+
+  auto f = [&] (Eigen::Vector2d x){
+    double result = (2*M_PI*M_PI + x(0)*x(1))*std::sin(M_PI*x(0))*std::sin(M_PI*x(1));
+    return result;
+  };
+  auto c = [&] (Eigen::Vector2d x){
+    double result = x(0)*x(1);
+    return result;
+  };
+  auto u = [&] (Eigen::Vector2d x){
+    double result = std::sin(M_PI*x(0))*std::sin(M_PI*x(1));
+    return result;
+  };
+
+  auto fe_space = std::make_shared<CRFeSpace>(reader.mesh());
+
+  Eigen::VectorXd mu = solveCRDirichletBVP(fe_space, c, f);
+
+  l2_error = computeCRL2Error(fe_space, mu, u);
   //====================
   return l2_error;
 }
