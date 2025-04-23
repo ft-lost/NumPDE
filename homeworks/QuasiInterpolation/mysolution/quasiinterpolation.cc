@@ -48,7 +48,24 @@ findKp(std::shared_ptr<const lf::mesh::Mesh> mesh_p) {
     LF_ASSERT_MSG(triangle->RefEl() == lf::base::RefEl::kTria(),
                   "Only implemented for triangles");
     //====================
-    // Your code goes here
+    Eigen::MatrixXd corners = lf::geometry::Corners(*triangle->Geometry());
+
+    double newSize = std::max({(corners.col(1) - corners.col(0)).norm(),
+                                     (corners.col(2) - corners.col(1)).norm(),
+                                     (corners.col(0) - corners.col(2)).norm()});
+
+
+    auto vertices = triangle->SubEntities(2);
+
+    for(int i = 0; i < 3; ++i){
+
+      double size = sizeMeshDataSet(*vertices[i]);
+
+      if(newSize > size){
+        KpMeshDataSet(*vertices[i]) = std::make_pair(triangle, i);
+        sizeMeshDataSet(*vertices[i]) = newSize;
+      }
+    }
     //====================
   }  // end of loop over triangles
   return KpMeshDataSet;

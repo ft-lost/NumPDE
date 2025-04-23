@@ -66,7 +66,23 @@ Eigen::VectorXd quasiInterpolate(
   Eigen::MatrixXd zeta_hat = quadrule.Points();
   Eigen::VectorXd w_hat = quadrule.Weights();
   // ========================================
-  // First part of your solution here
+ // Eigen::MatrixXd Phi_zeta_hat = lf::geometry::Geometry::Global(zeta_hat);
+
+  Eigen::MatrixXd Psi = Eigen::MatrixXd::Zero (3,3);
+  for(int j = 0; j < 3; ++j){
+    for(int l = 0; l < 3; ++l){
+      Eigen::VectorXd x = zeta_hat.col(l);
+      if(j == 0){
+        Psi(j,l) = 6.0 * (3.0 - 4.*x(0) - 4.*x(1));
+      }
+      else if(j == 1){
+        Psi(j,l) = 6.0*(-1.0 + 4*x(0));
+      }
+      else if(j == 2){
+        Psi(j,l) = 6.0*(-1.0 + 4*x(1));
+      }
+    }
+  }
   // ========================================
   // Retrieve the map $p \mapsto (K_p, j)$
   std::shared_ptr<const lf::mesh::Mesh> mesh_p = fe_space.Mesh();
@@ -80,7 +96,23 @@ Eigen::VectorXd quasiInterpolate(
   // quasi-interpolant
   Eigen::VectorXd coefficients(N);
   // ========================================
-  // Second part of your solution here
+  for (lf::assemble::gdof_idx_t i = 0; i < N; ++i) {
+    // Get $p$, $K_p$ and the local index $j$ of $p$ in $K_p$
+    const lf::mesh::Entity &point = dofh.Entity(i);
+    std::pair<const lf::mesh::Entity *, unsigned int> Kp_localindex =
+        Kp_mesh_data_set(point);
+    const lf::mesh::Entity *Kp = Kp_localindex.first;
+    unsigned int j = Kp_localindex.second;
+    // Evaluate v on quadrature points in $K_p$
+    const std::vector<double> v_zeta = v_mf(*Kp, zeta_hat);
+    // Compute integral on current triangle Kp
+    double sum = 0.0;
+    for (int l = 0; l < P; ++l) {
+      sum += w_hat(l) * v_zeta[l] * Psi(j, l);
+    }
+    coefficients(i) = sum;
+  }
+
   // ========================================
   return coefficients;
 }
