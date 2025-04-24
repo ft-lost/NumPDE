@@ -21,7 +21,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
-
+#include "stationarycurrents_supplement.h"
 
 namespace dmxbc {
 
@@ -102,7 +102,24 @@ Eigen::VectorXd solveMixedBVP(
   // Assembly of Galerkin matrix and right-hand side vector plus
   // special treatment of dofs at contacts
   //====================
-  // Your code goes here
+  //
+  lf::uscalfe::ReactionDiffusionElementMatrixProvider< double,
+              decltype(mf_sigma), decltype(mf_gamma)>
+    elmat_builder(fe_space, mf_sigma, mf_gamma);
+
+  lf::assemble::AssembleMatrixLocally(0, dofh, dofh, elmat_builder, A);
+
+  phi.setZero();
+  auto select = [&] (lf::assemble::gdof_idx_t dof_idx)->std::pair<bool, double>{
+    std::pair<bool,double> pair;
+    if(nodeflags(dofh.Entity(dof_idx)) != -1){
+      pair = std::make_pair(true,voltvals[nodeflags(dofh.Entity(dof_idx))]);
+    }
+    else pair = std::make_pair(false,0);
+    return pair;
+  };
+  lf::assemble::FixFlaggedSolutionComponents<double>(select, A, phi);
+
   //====================
   // Assembly completed: Convert COO matrix A into CRS format using Eigen's
   // internal conversion routines.
@@ -136,7 +153,7 @@ double contactFluxMF(
   // Counter for edges on selected contact
   unsigned int ed_cnt = 0;
 //====================
-// Your code goes here
+
 //====================
   std::cout << "Summed flux for " << ed_cnt << " edges." << std::endl;
   return s;
@@ -165,7 +182,15 @@ double stabFlux(
     // Obtain geometry information for entity
     const lf::geometry::Geometry &geo{*cell->Geometry()};
     //====================
-    // Your code goes here
+    double K = lf::geometry::Volume(geo);
+    Eigen::Vector2d c = geo.Global(zeta_ref);
+    Eigen::MatrixXd grad_u  = GradsBaryCoords(lf::geometry::Corners(geo));
+
+    auto index = dofh.GlobalDofIndices(*cell);
+    Eigen::Vector2d grad = sol_vec(index[0])*grad_u.col(0) + sol_vec(index[1])*grad_u.col(1) + sol_vec(index[2])*grad_u.col(2);
+    s += K*sigma(c) * gradpsi(c).dot(grad);
+
+
     //====================
   }
   return s;
