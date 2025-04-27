@@ -49,7 +49,14 @@ template <typename FUNCTOR>
 Eigen::VectorXd computeLoadVector(int M, FUNCTOR &&f) {
   Eigen::VectorXd phi(M * M);
   //====================
-  // Your code goes here
+  double h = 1.0/(M + 1);
+  double K = h*h/2.0;
+   for(int i = 0; i < M; ++i){
+     for(int j = 0; j < M; ++j){
+       phi(i*M + j) = h*h*f(h*(j+1),h*(i + 1));
+     }
+   }
+
   //====================
   return phi;
 }

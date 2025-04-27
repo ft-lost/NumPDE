@@ -29,7 +29,37 @@ Eigen::SparseMatrix<double> assemble(int M, const Eigen::Matrix3d &B_K) {
   int M2 = M * M;
   Eigen::SparseMatrix<double> A(M2, M2);
   //====================
-  // Your code goes here
+  double near_neighbour_contribution = 2.0 * B_K(0, 1);
+  double far_neighbour_contribution = 2.0 * B_K(1, 2);
+  double self_contribution = 2.0 * (B_K(0, 0) + B_K(1, 1) + B_K(2, 2));
+
+  std::vector<double> contribution = {
+      far_neighbour_contribution,  near_neighbour_contribution,
+      near_neighbour_contribution, self_contribution,
+      near_neighbour_contribution, near_neighbour_contribution,
+      far_neighbour_contribution};
+
+  std::vector<Eigen::Vector2i> shift = {{-1, -1}, {0, -1}, {-1, 0}, {0, 0},
+                                        {1, 0},   {0, 1},  {1, 1}};
+
+  std::vector<Eigen::Triplet<double>> tripletList;
+  for (int i = 0; i < M; ++i) {
+    for (int j = 0; j < M; ++j) {
+      Eigen::Vector2i self = Eigen::Vector2i(i, j);
+      for (int k = 0; k < 7; ++k) {
+        Eigen::Vector2i other = self + shift[k];
+        if (0 <= other(0) && other(0) < M && 0 <= other(1) && other(1) < M) {
+          tripletList.push_back(Eigen::Triplet<double>(
+              self(0) + M * self(1), other(0) + M * other(1), contribution[k]));
+        }
+      }
+    }
+  }
+  A.setFromTriplets(tripletList.begin(), tripletList.end());
+
+
+
+
   //====================
   return A;
 }
@@ -39,7 +69,28 @@ Eigen::SparseMatrix<double> assemble(int M, const Eigen::Matrix3d &B_K) {
 Eigen::SparseMatrix<double> computeGalerkinMatrix(int M, double c) {
   Eigen::Matrix3d B_K;
   //====================
-  // Your code goes here
+  double h = 1.0/(M + 1.0);
+  double K = h*h/2.0;
+
+  Eigen::Matrix3d A_K;
+  Eigen::Matrix3d M_K;
+
+  A_K << 2., -1., -1.,
+         -1., 1., 0.,
+         -1., 0., 1.;
+  A_K *= 0.5;
+  M_K << 2., 1., 1.,
+         1., 2., 1.,
+         1., 1., 2.;
+  M_K *= 1.0/12.0;
+  M_K *= K;
+  A_K = (1.0-c)*A_K;
+  M_K *= c;
+  B_K = A_K + M_K;
+
+
+
+
   //====================
   return assemble(M, B_K);
 }
@@ -49,7 +100,19 @@ Eigen::SparseMatrix<double> computeGalerkinMatrix(int M, double c) {
 Eigen::SparseMatrix<double> computeGalerkinMatrixTR(int M, double c) {
   Eigen::Matrix3d B_K;
   //====================
-  // Your code goes here
+  double h = 1.0/(M + 1.0);
+  double K = h*h/2.0;
+
+  Eigen::Matrix3d A_K;
+  Eigen::Matrix3d M_K;
+
+  A_K << 2., -1., -1.,
+         -1., 1., 0.,
+         -1., 0., 1.;
+  A_K *= 0.5;
+  M_K = Eigen::MatrixXd::Identity(3,3);
+  M_K *= K/3.0;
+  B_K = (1-c)*A_K + c*M_K;
   //====================
   return assemble(M, B_K);
 }
