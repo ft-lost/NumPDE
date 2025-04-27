@@ -105,7 +105,7 @@ void fixedPointNextIt(
                                           [p](Eigen::Vector2d xi) -> double {
 // ************************
 // Adjust the following code
-  return 0.;
+    retrun std::pow(xi.norm.(), p - 2);
 // ************************
                                           });
 
@@ -114,12 +114,17 @@ void fixedPointNextIt(
   phi.setZero();
   // ************************
   // Adjust the following code
-  lf::uscalfe::ReactionDiffusionElementMatrixProvider<double, decltype(mf_one),
+  //
+  lf::fe::ScalarLoadElementVectorProvider<double, decltype(mf_f)>
+    element_vector_provider(fes_p, mf_f);
+  lf::assemble::AssemblerVectorLocally(0, dofh, element_vector_provider, phi)
+
+
+  lf::uscalfe::ReactionDiffusionElementMatrixProvider<double, decltype(mf_abs_uh_pmin2),
                                                       decltype(mf_zero)>
-      elmat_provider(fes_p, mf_one, mf_zero);
+      elmat_provider(fes_p, mf_abs_uh_pmin2, mf_zero);
   lf::assemble::AssembleMatrixLocally(0, dofh, dofh, elmat_provider, A);
 // ************************
-
   // Enforce homogeneous Dirichlet boundary conditions
   auto bd_flags{lf::mesh::utils::flagEntitiesOnBoundary(fes_p->Mesh(), 2)};
   // Elimination of degrees of freedom on the boundary. Also sets the
