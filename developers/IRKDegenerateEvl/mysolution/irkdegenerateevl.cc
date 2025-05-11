@@ -33,8 +33,8 @@ lf ::assemble::COOMatrix<double> buildM(
   const size_t N = dofh.NumDofs();
   // Sparse matrix in triplet format
   lf::assemble::COOMatrix<double> M_coo(N, N);
-  //**************************************************
-  auto coeff = [](const Eigen::Vector2d)->double{
+// **************************************************
+   auto coeff = [](const Eigen::Vector2d)->double{
     return 1;
   };
   lf::mesh::utils::MeshFunctionGlobal mf_coeff{coeff};
@@ -47,8 +47,7 @@ lf ::assemble::COOMatrix<double> buildM(
 
 
 
-
-  // **************************************************
+ ////  ************************************************** */
   return M_coo;
 }
 /* SAM_LISTING_END_1 */
