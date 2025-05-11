@@ -56,7 +56,8 @@ class RHSProvider {
  private:
   std::function<double(double)> g_;
   //====================
-  // Other data members to be introduced by you
+  //
+  Eigen::VectorXd zero_one;
   //====================
 };
 /* SAM_LISTING_END_3 */
@@ -89,20 +90,43 @@ Eigen::VectorXd evolveIBVPGaussLobatto(
   Eigen::VectorXd mu = Eigen::VectorXd::Zero(N);
 
   // Build left-hand side sparse block matrix
-  lf::assemble::COOMatrix<double> lhs(2 * N, 2 * N);
+
   //====================
-  // Your code goes here
-
-  // Build the left-hand side matrix using initMbig(...) and initAbig(...)
-  // replacing these dummy values:
-  for (int i = 0; i < 2 * N; ++i) lhs.AddToEntry(i, i, 1.0);
-
+  lf::assemble::COOMatrix<double> lhs(2 * N, 2 * N);
+  // Arrange blocks by triplet manipulations
+  // First: Two copies of \tilde{M} on the diagonal
+  lf::assemble::COOMatrix<double> COO_M = initMbig(fe_space);
+  for (const Eigen::Triplet<double> &triplet : COO_M.triplets()) {
+    lhs.AddToEntry(triplet.row(), triplet.col(), triplet.value());
+    lhs.AddToEntry(triplet.row() + N, triplet.col() + N, triplet.value());
+  }
+  // Scaled copies of \tilde{A} added to diagonal and set as off-diagonal blocks
+  lf::assemble::COOMatrix<double> COO_A = initAbig(fe_space);
+  for (const Eigen::Triplet<double> &triplet : COO_A.triplets()) {
+    const int row = triplet.row();
+    const int col = triplet.col();
+    const double value = 0.5 * tau * triplet.value();
+    lhs.AddToEntry(row, col, value);
+    lhs.AddToEntry(row, col + N, -value);
+    lhs.AddToEntry(row + N, col, value);
+    lhs.AddToEntry(row + N, col + N, value);
+  }
+  Eigen::SparseMatrix<double> A = COO_A.makeSparse();
   // Then ompute the LU decomposition outside of the timestepping loop:
   Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
   solver.compute(lhs.makeSparse());
   // Helper class for computuing source term
   RHSProvider rhs_provider(dofh, std::move(g));
 
+
+  for(int i = 0; i < M; ++i){
+    Eigen::VectorXd phi1 = rhs_provider(i*tau);
+    Eigen::VectorXd phi2 = rhs_provider((i+1)*tau);
+    Eigen::VectorXd rhs(2*N);
+    rhs << phi1 - A*mu, phi2 - A*mu;
+    Eigen::VectorXd k = solver.solve(rhs);
+    mu = mu + 0.5*tau*(k.head(N) + k.tail(N));
+  }
   // ...
   // Perform Timestepping here relying on the evaluation operators of
   // RHSProvider to obtain the time-dependent right-hand-side vector in
