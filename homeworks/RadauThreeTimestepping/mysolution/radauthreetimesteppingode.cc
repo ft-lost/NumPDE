@@ -18,7 +18,19 @@ namespace RadauThreeTimestepping {
 std::vector<double> twoStageRadauTimesteppingLinScalODE(unsigned int m) {
   std::vector<double> sol_vec;
   //====================
-  // Your code goes here
+  double y0 = 1.0;
+
+  double tau = 5.0/m;
+//  sol_vec.push_back(y0);
+  double evolution_op =  (1.0 - tau*(1.0 + tau/6.0)/((1.0 + tau*5.0/12.0)*(1.0 + tau/4.0) + tau*tau/16.0));
+
+  for(int i = 0; i <= m; ++i){
+    sol_vec.push_back(y0);
+    y0 = evolution_op * y0;
+
+  }
+
+
   //====================
   return sol_vec;
 }
@@ -32,7 +44,29 @@ void testConvergenceTwoStageRadauLinScalODE() {
   double avg_rate = 0.0;  // The average rate of convergence over all iterations
 
   //====================
-  // Your code goes here
+
+  for(int k = 0; k < nIter; ++k){
+    std::vector<double> exact_sol;
+    int m = 10 * std::pow(2,k);
+    double tau = 5.0/m;
+    for(int i = 0; i <= m; ++i){
+      exact_sol.push_back(std::exp(-i*tau));
+    }
+    std::vector<double>sol =  twoStageRadauTimesteppingLinScalODE(m);
+    double max = 0;
+    for(int i = 0; i <= m; ++i){
+      if(std::abs(exact_sol[i] - sol[i]) > max) max = std::abs(exact_sol[i] - sol[i]);
+    }
+    max_norm_errors[k] = max;
+
+  }
+  for(int k = 0; k < nIter - 1; ++k){
+    rates[k] = log2(max_norm_errors[k]/max_norm_errors[k+1]);
+    avg_rate += rates[k];
+  }
+  avg_rate /= nIter - 1;
+
+
   //====================
   /* SAM_LISTING_END_2 */
 
