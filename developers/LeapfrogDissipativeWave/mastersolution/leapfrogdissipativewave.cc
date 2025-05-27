@@ -183,7 +183,10 @@ Eigen::VectorXd timestepDissipativeWaveEquation(
   }
 #else
   // ========================================
-  // Your code here
+
+    const auto [M_COO, B_COO, A_COO] = computeGalerkinMatrices(fe_space_p);
+
+
   // ========================================
 #endif
   return mu;
