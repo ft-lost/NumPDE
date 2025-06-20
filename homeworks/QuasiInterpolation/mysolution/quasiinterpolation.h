@@ -111,7 +111,7 @@ Eigen::VectorXd quasiInterpolate(
       sum += w_hat(l) * v_zeta[l] * Psi(j, l);
     }
     coefficients(i) = sum;
-  }
+   }
 
   // ========================================
   return coefficients;

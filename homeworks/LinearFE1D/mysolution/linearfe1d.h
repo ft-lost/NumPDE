@@ -17,7 +17,7 @@ namespace LinearFE1D {
 // Calculate the matrix entries corresponding to the Galerkin matrix
 // of the Laplace operator with non-constant coefficient function alpha
 // using composite midpoint integration rule. The entries are stored in
-// the Eigen triplet data structure.
+// the Eigen triplet data structure (COO sparse matrix format).
 /* SAM_LISTING_BEGIN_1 */
 template <typename FUNCTOR1>
 std::vector<Eigen::Triplet<double>> computeA(const Eigen::VectorXd &mesh,
@@ -27,7 +27,9 @@ std::vector<Eigen::Triplet<double>> computeA(const Eigen::VectorXd &mesh,
   // Initializing the vector of triplets whose size corresponds to the
   // number of entries in a (N+1) x (N+1) tridiagonal (band) matrix
   std::vector<Eigen::Triplet<double>> triplets;
+  // Maximal size of vector; avoids intermediate allocations
   triplets.reserve(3 * N + 1);
+<<<<<<< HEAD
 
   // Some tool variables
   double diag, off_diag;
@@ -59,6 +61,11 @@ std::vector<Eigen::Triplet<double>> computeA(const Eigen::VectorXd &mesh,
     triplets.push_back(Eigen::Triplet<double>(i, i + 1, off_diag));
   }
 
+=======
+  //====================
+  // Your code goes here
+  //====================
+>>>>>>> a1cae8bfe9a089ba7bfdfd345d93ec60922225a1
   return triplets;
 }  // computeA
 /* SAM_LISTING_END_1 */
@@ -131,6 +138,7 @@ template <typename FUNCTOR1, typename FUNCTOR2>
 Eigen::VectorXd solveA(const Eigen::VectorXd &mesh, FUNCTOR1 &&gamma,
                        FUNCTOR2 &&f) {
   // Nodes are indexed as 0=x_0 < x_1 < ... < x_N = 1
+  // Note: What is called N here, is M in the project description!
   unsigned N = mesh.size() - 1;
   // Initializations (notice initialization with zeros here)
   Eigen::VectorXd u = Eigen::VectorXd::Zero(N + 1);  // solution vec
