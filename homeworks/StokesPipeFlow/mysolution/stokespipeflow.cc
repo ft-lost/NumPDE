@@ -43,9 +43,75 @@ TaylorHoodElementMatrixProvider::ElemMat TaylorHoodElementMatrixProvider::Eval(
   X.block<3, 2>(0, 1) = endpoints.transpose();
   // This matrix contains $\cob{\grad \lambda_i}$ in its columns
   const auto G{X.inverse().block<2, 3>(1, 0)};
-/* **********************************************************************
-   Your code here
-   ********************************************************************** */
+ //**********************************************************************
+  std::array<std::function<double(Eigen::Vector3d)>, 3> lambda{
+      [](Eigen::Vector3d c) -> double { return c[0]; },
+      [](Eigen::Vector3d c) -> double { return c[1]; },
+      [](Eigen::Vector3d c) -> double { return c[2]; }};
+  // Gradients of local shape functions of quadratic Lagrangian finite element
+  // space as lambda functions, see \prbeqref{eq:quadlsf}
+  std::array<std::function<Eigen::Vector2d(Eigen::Vector3d)>, 6> gradq{
+      [&G](Eigen::Vector3d c) -> Eigen::Vector2d {
+        return (4 * c[0] - 1) * G.col(0);
+      },
+      [&G](Eigen::Vector3d c) -> Eigen::Vector2d {
+        return (4 * c[1] - 1) * G.col(1);
+      },
+      [&G](Eigen::Vector3d c) -> Eigen::Vector2d {
+        return (4 * c[2] - 1) * G.col(2);
+      },
+      [&G](Eigen::Vector3d c) -> Eigen::Vector2d {
+        return 4 * (c[0] * G.col(1) + c[1] * G.col(0));
+      },
+      [&G](Eigen::Vector3d c) -> Eigen::Vector2d {
+        return 4 * (c[1] * G.col(2) + c[2] * G.col(1));
+      },
+      [&G](Eigen::Vector3d c) -> Eigen::Vector2d {
+        return 4 * (c[2] * G.col(0) + c[0] * G.col(2));
+      }};
+ // Barycentric coordinates of the midpoints of the edges for
+ // use with the 3-point edge midpoint quadrature rule \prbeqref{eq:MPR}
+  const std::array<Eigen::Vector3d, 3> mp = {Eigen::Vector3d({0.5, 0.5, 0}),
+                                             Eigen::Vector3d({0, 0.5, 0.5}),
+                                             Eigen::Vector3d({0.5, 0, 0.5})};
+  // Compute the (scaled) element matrix  for $-\Delta$ and $\cob{\Cs^0_2}$.
+  Eigen::Matrix<double, 6, 6> L;
+  for (int i = 0; i < 6; ++i) {
+    for (int j = 0; j <= i; ++j) {
+      // 3-point edge midpoint quadrature rule!
+      L(i, j) = L(j, i) = gradq[i](mp[0]).dot(gradq[j](mp[0])) +
+                          gradq[i](mp[1]).dot(gradq[j](mp[1])) +
+                          gradq[i](mp[2]).dot(gradq[j](mp[2]));
+    }
+  }
+  // Do not forget to set all non-initialized entries to zero
+  AK_.setZero();
+  // Distribute the entries of L to the final element matrix
+  const std::array<Eigen::Index, 6> vx_idx{0, 3, 6, 9, 11, 13};
+  const std::array<Eigen::Index, 6> vy_idx{1, 4, 7, 10, 12, 14};
+  for (int i = 0; i < 6; ++i) {
+    for (int j = 0; j < 6; ++j) {
+      AK_(vx_idx[i], vx_idx[j]) = AK_(vy_idx[i], vy_idx[j]) = L(i, j);
+    }
+  }
+
+  // Fill entries related to bilinear form b(.,.): \prbeqref{eq:BKent}
+  const std::array<Eigen::Index, 3> p_idx{2, 5, 8};
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 6; ++j) {
+      // \prbeqref{eq:BKvec} with 3-point edge midpoint quadrature rule!
+      const Eigen::Vector2d gql_ij{gradq[j](mp[0]) * lambda[i](mp[0]) +
+                                   gradq[j](mp[1]) * lambda[i](mp[1]) +
+                                   gradq[j](mp[2]) * lambda[i](mp[2])};
+      AK_(p_idx[i], vx_idx[j]) = AK_(vx_idx[j], p_idx[i]) = gql_ij[0];
+      AK_(p_idx[i], vy_idx[j]) = AK_(vy_idx[j], p_idx[i]) = gql_ij[1];
+    }
+  }
+  AK_ *= area / 3.0;
+
+
+
+  // **********************************************************************
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // Workaround for a side-effect in LehrFEM++
   // Local shape functions associated with edges have to be swapped, if the edge
@@ -92,9 +158,26 @@ lf::assemble::COOMatrix<double> buildTaylorHoodGalerkinMatrix(
 // You cannot use AssembleMatrixLocally() because the DofHandler does
 // not know about this extra unknown.
 // Do cell-oriented assembly "manually"
-/* **********************************************************************
-   Your code here
-   ********************************************************************** */
+// **********************************************************************
+  for(const lf::mesh::Entity* cell : dofh.Mesh()->Entities(0)){
+
+    const double area = lf::geometry::Volume(*cell->Geometry());
+    const std::span<const lf::mesh::Entity * const> nodes{cell->SubEntities(2)};
+
+    for(const lf::mesh::Entity* node : nodes){
+      std::span<const lf::assemble::gdof_idx_t> dof_idx{
+        dofh.InteriorGlobalDofIndices(*node)};
+      LF_ASSERT_MSG(dof_idx.size() == 3, "Node must carry 3 dofs");
+
+      const lf::assemble::gdof_idx_t tent_idx = dof_idx[2];
+      A.AddToEntry(n, tent_idx, area/3.0);
+      A.AddToEntry(tent_idx, n, area/3.0);
+
+    }
+  }
+
+
+//   **********************************************************************
   // Rely on return value optimization
   return A;
 }
@@ -181,9 +264,22 @@ double compDissPowVolume(const lf::assemble::DofHandler& dofh,
     const std::array<Eigen::Vector3d, 3> mp = {Eigen::Vector3d({0.5, 0.5, 0}),
                                                Eigen::Vector3d({0, 0.5, 0.5}),
                                                Eigen::Vector3d({0.5, 0, 0.5})};
-/* **********************************************************************
-   Your code here
-   ********************************************************************** */
+// **********************************************************************
+    double s = 0.0;
+    for (int qp_idx = 0; qp_idx < 3; ++qp_idx) {
+      // Compute $\grad v_1$ and $\grad v_2$ quadrature point
+      Eigen::Vector2d grad_vx{0.0, 0.0};
+      Eigen::Vector2d grad_vy{0.0, 0.0};
+      for (int i = 0; i < 6; ++i) {
+        grad_vx += mu_vec[dof_idx[vx_idx[i]]] * gradq[i](mp[qp_idx]);
+        grad_vy += mu_vec[dof_idx[vy_idx[i]]] * gradq[i](mp[qp_idx]);
+      }
+      double curl_qp = grad_vy[0] - grad_vx[1];
+      s += curl_qp * curl_qp;
+    }
+    p_diss += (area / 3.0 * s);
+
+ //  ********************************************************************** */
   }
   return p_diss;
 }
@@ -207,9 +303,54 @@ double compDissPowBd(const lf::assemble::DofHandler& dofh,
   double p_diss{0.0};
 // Loop over the edges and check whether they are located on the inlet $x_1=0$
 // or outlet $x_1=1$.
-/* **********************************************************************
-   Your code here
-   ********************************************************************** */
+// **********************************************************************
+  // Loop over the edges and check whether they are located on the inlet $x_1=0$
+// or outlet $x_1=1$.
+  const Eigen::Matrix<double, 2, 3> M{
+      (Eigen::Matrix<double, 2, 3>(2, 3) << 1.0 / 6.0, 1.0 / 3.0, 0.0, 0.0,
+       1.0 / 3.0, 1.0 / 6.0)
+          .finished()};
+  for (const lf::mesh::Entity* edge : mesh.Entities(1)) {
+    // Length of edge
+    const double length = lf::geometry::Volume(*(edge->Geometry()));
+    const Eigen::MatrixXd endpoints{Corners(*(edge->Geometry()))};
+    const Eigen::Vector2d mp{0.5 * (endpoints.col(0) + endpoints.col(1))};
+    // Check by location whether the edge is on the inlet or outlet
+    int locflag = 0;
+    if (mp[0] < 1E-8) {
+      // On inlet boundary
+      locflag = -1;
+    } else if (mp[0] > 1 - 1E-8) {
+      locflag = 1;
+    }
+    if (locflag != 0) {
+      // Obtain indices of global shape functions associated with the edge
+      std::span<const lf::assemble::gdof_idx_t> dof_idx{
+          dofh.GlobalDofIndices(*edge)};
+      LF_ASSERT_MSG(dof_idx.size() == 8,
+                    "For TH FEM an edge should be covered by 8 GSFs");
+      // The pressure dofs sit in the nodes as third node dof.
+      // These are edge-local shape functions \#2 and \#5 (C++ indexing)
+      Eigen::Vector2d p_ldof{muvec[dof_idx[2]], muvec[dof_idx[5]]};
+      // The velocity x-component dofs sit in nodes and edges and are numbered
+      // first there. Their edge-local numbers are \#0, \#3, and \#6
+      Eigen::Vector3d vx_ldof{muvec[dof_idx[0]], muvec[dof_idx[6]],
+                              muvec[dof_idx[3]]};
+      // Evaluate the integral; can be done exactly, because the integrand is
+      // polynomial
+      const double loc_diss = locflag * length * p_ldof.dot(M * vx_ldof);
+      if (print) {
+        std::cout << "DPB: Edge with midpoint [" << mp.transpose()
+                  << "] : lf = " << locflag
+                  << ", * pvals = " << p_ldof.transpose()
+                  << ", vx_ldof = " << vx_ldof.transpose()
+                  << ", loc_diss = " << loc_diss << std::endl;
+      }
+      p_diss += loc_diss;
+    }
+  }
+
+//  ********************************************************************** */
   return p_diss;
 }
 /* SAM_LISTING_END_9 */
@@ -233,10 +374,21 @@ double allPipeFlow(PowerFlag powerflag, bool producevtk, const char* meshfile,
                                           {lf::base::RefEl::kTria(), 0},
                                           {lf::base::RefEl::kQuad(), 0}});
 // We define function providing the boundary values for the velocity
-  /* **********************************************************************
-     Replace this placeholder code
-     ********************************************************************** */
-  auto g = [](Eigen::Vector2d /*x*/) -> Eigen::Vector2d { return {1.0, 1.0}; };
+  //* **********************************************************************
+  auto g = [](Eigen::Vector2d x) -> Eigen::Vector2d {
+    if ((x[0] < 1E-8) and (x[1] >= 0.5) and (x[1] <= 1.0)) {
+      // Left boundary: inlet, parabolic velocity profile
+      return {(1.0 - x[1]) * (x[1] - 0.5), 0.0};
+    }
+    if ((x[0] > 0.99999) and (x[1] >= 0.0) and (x[1] <= 0.5)) {
+      // Right boundary: outlet
+      return {(0.5 - x[1]) * x[1], 0.0};
+    }
+    return {0.0, 0.0};
+  };
+
+  //********************************************************************** */
+
   // Solve the system
   Eigen::VectorXd res = StokesPipeFlow::solvePipeFlow(dofh, g);
 
@@ -432,10 +584,44 @@ void testCvgTaylorHood(unsigned int refsteps) {
     }
     // Variables for storing the error norms
     double L2err_u1, L2err_u2, H1err_u1, H1err_u2, L2err_p;
-    /* **********************************************************************
-       Your code here
-       **********************************************************************
-     */
+    // **********************************************************************
+
+    // Define finite-element mesh functions
+    const lf::fe::MeshFunctionFE mf_o2_u1(fes_o2_ptr, coeff_vec_u1);
+    const lf::fe::MeshFunctionFE mf_o2_u2(fes_o2_ptr, coeff_vec_u2);
+    const lf::fe::MeshFunctionFE mf_o1_p(fes_o1_ptr, coeff_vec_p);
+    const lf::fe::MeshFunctionGradFE mf_o2_grad_u1(fes_o2_ptr, coeff_vec_u1);
+    const lf::fe::MeshFunctionGradFE mf_o2_grad_u2(fes_o2_ptr, coeff_vec_u2);
+
+    // Exact solution for the first component of the velocity
+    auto u1 = [&v_ex](Eigen::Vector2d x) -> double { return v_ex(x)[0]; };
+    const lf::mesh::utils::MeshFunctionGlobal mf_u1{u1};
+    // Exact solution for the gradient of $v_1$
+    const lf::mesh::utils::MeshFunctionGlobal mf_grad_u1{grad_v1};
+    // Exact solution second component of  the velocity
+    auto u2 = [&v_ex](Eigen::Vector2d x) -> double { return v_ex(x)[1]; };
+    const lf::mesh::utils::MeshFunctionGlobal mf_u2{u2};
+    // Exact solution for the gradient of $v_2$
+    const lf::mesh::utils::MeshFunctionGlobal mf_grad_u2{grad_v2};
+    // Mesh function for exact solution pressure
+    const lf::mesh::utils::MeshFunctionGlobal mf_p{p_ex};
+    // compute errors with 5th order quadrature rules
+    L2err_u1 = std::sqrt(lf::fe::IntegrateMeshFunction(
+        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o2_u1 - mf_u1), 4));
+    L2err_u2 = std::sqrt(lf::fe::IntegrateMeshFunction(
+        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o2_u2 - mf_u2), 4));
+    H1err_u1 = std::sqrt(lf::fe::IntegrateMeshFunction(
+        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o2_grad_u1 - mf_grad_u1),
+        4));
+    H1err_u2 = std::sqrt(lf::fe::IntegrateMeshFunction(
+        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o2_grad_u2 - mf_grad_u2),
+        4));
+    L2err_p = std::sqrt(lf::fe::IntegrateMeshFunction(
+        *lev_mesh_p, lf::mesh::utils::squaredNorm(mf_o1_p - mf_p), 4));
+
+
+    //  **********************************************************************
+
     errs.emplace_back(dofh.NumDofs(), L2err_u1, L2err_u2, H1err_u1, H1err_u2,
                       L2err_p);
   }

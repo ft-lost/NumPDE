@@ -88,9 +88,58 @@ Eigen::VectorXd solvePipeFlow(const lf::assemble::DofHandler &dofh,
   Eigen::VectorXd phi(A.cols());
   phi.setZero();
   // Impose Dirichlet boundary conditions
-  /* **********************************************************************
-     Your code here
-     ********************************************************************** */
+  // **********************************************************************
+  const std::shared_ptr<const lf::mesh::Mesh> mesh_p = dofh.Mesh();
+  // Flag \cor{any} entity located on the boundary
+  auto bd_flags{lf::mesh::utils::flagEntitiesOnBoundary(mesh_p)};
+  // Flag vector for d.o.f. on the boundary
+  std::vector<std::pair<bool, double>> ess_dof_select(n + 1, {false, 0.0});
+  // Visit nodes on the boundary
+  for (const lf::mesh::Entity *node : mesh_p->Entities(2)) {
+    if (bd_flags(*node)) {
+      // Indices of global shape functions sitting at node
+      std::span<const lf::assemble::gdof_idx_t> dof_idx{
+          dofh.InteriorGlobalDofIndices(*node)};
+      LF_ASSERT_MSG(dof_idx.size() == 3, "Node must carry 3 dofs!");
+      // Position of node
+      const Eigen::Vector2d pos{Corners(*(node->Geometry())).col(0)};
+      // Dirichlet data
+      const Eigen::Vector2d g_val{g(pos)};
+      // x-component of the velocity
+      ess_dof_select[dof_idx[0]] = {true, g_val[0]};
+      // y-component of the velocity
+      ess_dof_select[dof_idx[1]] = {true, g_val[1]};
+    }
+  }
+  // Visit edges on the boundasry
+  for (const lf::mesh::Entity *edge : mesh_p->Entities(1)) {
+    if (bd_flags(*edge)) {
+      // Indices of global shape functions associated with the edge
+      std::span<const lf::assemble::gdof_idx_t> dof_idx{
+          dofh.InteriorGlobalDofIndices(*edge)};
+      LF_ASSERT_MSG(dof_idx.size() == 2, "Edge must carry 2 dofs!");
+      // Midpoint of edge
+      const Eigen::MatrixXd endpoints{Corners(*(edge->Geometry()))};
+      const Eigen::Vector2d pos{0.5 * (endpoints.col(0) + endpoints.col(1))};
+      // Dirichlet data
+      const Eigen::Vector2d g_val{g(pos)};
+      // x-component of the velocity
+      ess_dof_select[dof_idx[0]] = {true, g_val[0]};
+      // y-component of the velocity
+      ess_dof_select[dof_idx[1]] = {true, g_val[1]};
+    }
+  }
+  // modify linear system of equations
+  lf::assemble::FixFlaggedSolutionComponents<double>(
+      [&ess_dof_select](lf::assemble::glb_idx_t dof_idx)
+          -> std::pair<bool, double> { return ess_dof_select[dof_idx]; },
+      A, phi);
+
+
+
+
+
+  //   ********************************************************************** */
   // Assembly completed: Convert COO matrix A into CRS format using Eigen's
   // internal conversion routines.
   if (print) std::cout << "done. Solving ..... " << std::flush;
