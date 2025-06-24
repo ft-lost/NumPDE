@@ -30,7 +30,7 @@ namespace StokesMINIElement {  // namespace StokesMINIElement
 /* SAM_LISTING_BEGIN_1 */
 class SimpleFEMElementMatrixProvider {
  public:
-  using ElemMat = Eigen::Matrix<double, 9, 9>;
+  using ElemMat = Eigen::Matrix<double, 9,9>;
   SimpleFEMElementMatrixProvider(const SimpleFEMElementMatrixProvider &) =
       delete;
   SimpleFEMElementMatrixProvider(SimpleFEMElementMatrixProvider &&) noexcept =
@@ -53,7 +53,7 @@ class SimpleFEMElementMatrixProvider {
  */
 class MINIElementMatrixProvider {
  public:
-  using ElemMat = Eigen::Matrix<double, 9, 9>;
+  using ElemMat = Eigen::Matrix<double, 11, 11>;
   MINIElementMatrixProvider(const MINIElementMatrixProvider &) = delete;
   MINIElementMatrixProvider(MINIElementMatrixProvider &&) noexcept = default;
   MINIElementMatrixProvider &operator=(const MINIElementMatrixProvider &) =

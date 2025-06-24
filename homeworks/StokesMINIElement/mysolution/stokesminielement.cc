@@ -42,6 +42,7 @@ SimpleFEMElementMatrixProvider::ElemMat SimpleFEMElementMatrixProvider::Eval(
     for (int j = 0; j < 3; ++j) {
       AK(vx_idx_[i], vx_idx_[j]) = L(i, j);
       AK(vy_idx_[i], vy_idx_[j]) = L(i, j);
+
     }
   }
   // Insert contributions to "pressure parts" of element matrix
@@ -49,6 +50,8 @@ SimpleFEMElementMatrixProvider::ElemMat SimpleFEMElementMatrixProvider::Eval(
     for (int j = 0; j < 3; ++j) {
       AK(vx_idx_[j], p_idx_[i]) = AK(p_idx_[i], vx_idx_[j]) = G(0, j) / 3.0;
       AK(vy_idx_[j], p_idx_[i]) = AK(p_idx_[i], vy_idx_[j]) = G(1, j) / 3.0;
+
+
     }
   }
   // Finally scale with the area of the triangle
@@ -79,23 +82,32 @@ MINIElementMatrixProvider::ElemMat MINIElementMatrixProvider::Eval(
   ElemMat AK;
   AK.setZero();
   // indices of local shape  function for various solution components
-  constexpr std::array<Eigen::Index, 3> vx_idx_{0, 3, 6};
-  constexpr std::array<Eigen::Index, 3> vy_idx_{1, 4, 7};
+  constexpr std::array<Eigen::Index, 4> vx_idx_{0, 3, 6, 9};
+  constexpr std::array<Eigen::Index, 4> vy_idx_{1, 4, 7, 10};
   constexpr std::array<Eigen::Index, 3> p_idx_{2, 5, 8};
   // Place the element matrix for $-\Delta$ in the element matrix
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
-      AK(vx_idx_[i], vx_idx_[j]) = L(i, j);
-      AK(vy_idx_[i], vy_idx_[j]) = L(i, j);
+        AK(vx_idx_[i], vx_idx_[j]) = L(i, j);
+        AK(vy_idx_[i], vy_idx_[j]) = L(i, j);
     }
   }
   // Insert contributions to "pressure parts" of element matrix
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
-      AK(vx_idx_[j], p_idx_[i]) = AK(p_idx_[i], vx_idx_[j]) = G(0, j) / 3.0;
-      AK(vy_idx_[j], p_idx_[i]) = AK(p_idx_[i], vy_idx_[j]) = G(1, j) / 3.0;
+        AK(vy_idx_[j], p_idx_[i]) = AK(p_idx_[i], vy_idx_[j]) = G(1, j) / 3.0;
+        AK(vx_idx_[j], p_idx_[i]) = AK(p_idx_[i], vx_idx_[j]) = G(0, j) / 3.0;
     }
   }
+
+ for (int i = 0; i < 3; ++i) {
+    AK.block<2, 1>(9, 3 * i + 2) = -G.col(i) / 60.0;
+    AK.block<1, 2>(3 * i + 2, 9) = AK.block<2, 1>(9, 3 * i + 2).transpose();
+  }
+  // Second: Contribution of cubic bubbles to A-parts
+  const double int_gbgb =
+      (L(0, 0) + L(1, 1) + L(2, 2) + L(0, 1) + L(0, 2) + L(1, 2)) / 90;
+  AK(9, 9) = AK(10, 10) = int_gbgb;
   // Finally scale with the area of the triangle
   AK *= area;
   return AK;
@@ -409,7 +421,7 @@ void testCvgMINIFEM(unsigned int refsteps) {
     lf::assemble::UniformFEDofHandler dofh(lev_mesh_p,
                                            {{lf::base::RefEl::kPoint(), 3},
                                             {lf::base::RefEl::kSegment(), 0},
-                                            {lf::base::RefEl::kTria(), 0},
+                                            {lf::base::RefEl::kTria(), 2},
                                             {lf::base::RefEl::kQuad(), 0}});
     // Build and solve the linear system with trace of the exact velocity
     // solution as Dirichlet data.
@@ -422,7 +434,7 @@ void testCvgMINIFEM(unsigned int refsteps) {
     // constraint on the pressure.
     lf::assemble::COOMatrix<double> A(n + 1, n + 1);
     // Set up computation of element matrix
-    SimpleFEMElementMatrixProvider themp{};
+    MINIElementMatrixProvider themp{};
     // Assemble \cor{full} Galerkin matrix for simple Stokes  FEM
     lf::assemble::AssembleMatrixLocally(0, dofh, dofh, themp, A);
 
