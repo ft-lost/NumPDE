@@ -70,7 +70,26 @@ Eigen::SparseMatrix<int> computeEdgeVertexIncidenceMatrix(
   Eigen::SparseMatrix<int, Eigen::RowMajor> G;
 
   //====================
-  // Your code goes here
+  const lf::mesh::Mesh::size_type numE = mesh.NumEntities(1);
+  const lf::mesh::Mesh::size_type numN = mesh.NumEntities(2);
+
+  G = Eigen::SparseMatrix<int, Eigen::RowMajor>(numE, numN);
+  G.reserve(Eigen::VectorXi::Constant(numE, 2));
+
+
+  for(const lf::mesh::Entity * e : mesh.Entities(1)){
+    lf::mesh::Mesh::size_type edgeIdx = mesh.Index(*e);
+
+    auto nodes = e->SubEntities(1);
+    lf::mesh::Mesh::size_type firstNidx = mesh.Index(*nodes[0]);
+    lf::mesh::Mesh::size_type lastNidx = mesh.Index(*nodes[1]);
+
+    G.coeffRef(edgeIdx, firstNidx) += 1;
+    G.coeffRef(edgeIdx, lastNidx) -= 1;
+
+  }
+
+
   //====================
 
   return G;
