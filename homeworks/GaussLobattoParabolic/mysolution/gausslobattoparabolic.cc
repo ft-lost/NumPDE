@@ -32,29 +32,20 @@ lf::assemble::COOMatrix<double> initMbig(
   // Replace this dummy assignment for M:
   //
   auto mesh_p = dofh.Mesh();
-  int N = dofh.NumDofs();
-  lf::assemble::COOMatrix<double> M(N, N);
+  unsigned int N = dofh.NumDofs();
+  Eigen::SparseMatrix<double> M(N,N);
+  lf::mesh::utils::MeshFunctionConstant<double> mf_one(1.);
 
-  auto gamma = [](const Eigen::Vector2d& x)->double{
-    return 1;
+  lf::fe::MassElemenetMatrixProvider<double, decltype<mf_one>> Elem_M(fe_space,mf_one);
+  lf::assemble::AssembleMatrixLocally(0, dofh, dofh, Elem_M, M);
+
+  lf::mesh::utils::CodimMeshDataSet<bool> bd_flags =
+    lf::mesh::utils::flagEntitiesOnBoundary(mesh_p,2);
+
+  auto selector = [&bd_flags, &dofh](int i, int j)->bool{
+    return bd_flags(dofh.Entity(i));
   };
-  auto alpha = [](const Eigen::Vector2d& x)->double{
-    return 0;
-  };
-  lf::mesh::utils::MeshFunctionGlobal mf_gamma{gamma};
-  lf::mesh::utils::MeshFunctionGlobal mf_alpha{alpha};
-
-  lf::uscalfe::ReactionDiffusionElementMatrixProvider<double,decltype(mf_alpha),decltype(mf_gamma)> M_elem(fe_space, mf_alpha, mf_gamma);
-  lf::assemble::AssembleMatrixLocally<lf::assemble::COOMatrix<double>>(0, dofh, dofh, M_elem, M);
-
-  auto bd_flag = lf::mesh::utils::flagEntitiesOnBoundary(mesh_p,2);
-
-  auto set = [&bd_flag, &dofh](int i, int j){
-    return bd_flag(dofh.Entity(i));
-  };
-  M.setZero(set);
-
-
+  M.setZero(selector);
 
 
   //====================
@@ -71,31 +62,26 @@ lf::assemble::COOMatrix<double> initAbig(
   // Your code goes here
   // Replace this dummy assignment for A:
   auto mesh_p = dofh.Mesh();
-  int N = dofh.NumDofs();
-  lf::assemble::COOMatrix<double> A(N, N);
+  unsigned int N = dofh.NumDofs();
+  Eigen::SparseMatrix<double> A(N,N);
+  lf::mesh::utils::MeshFunctionConstant<double> mf_one(1.);
+  lf::mesh::utils::MeshFunctionConstant<double> mf_zero(0.);
 
-  auto gamma = [](const Eigen::Vector2d& x)->double{
-    return 0;
+  lf::fe::ReactionDiffusionElemenetMatrixProvider<double, decltype<mf_one>, decltype<mf_zero>> Elem_A(fe_space,mf_one, mf_zero);
+  lf::assemble::AssembleMatrixLocally(0, dofh, dofh, Elem_M, A);
+
+  lf::mesh::utils::CodimMeshDataSet<bool> bd_flags =
+    lf::mesh::utils::flagEntitiesOnBoundary(mesh_p,2);
+
+  auto selector = [&bd_flags, &dofh](int i, int j)->bool{
+    return bd_flags(dofh.Entity(i));
   };
-  auto alpha = [](const Eigen::Vector2d& x)->double{
-    return 1;
-  };
-  lf::mesh::utils::MeshFunctionGlobal mf_gamma{gamma};
-  lf::mesh::utils::MeshFunctionGlobal mf_alpha{alpha};
-
-  lf::uscalfe::ReactionDiffusionElementMatrixProvider<double,decltype(mf_alpha),decltype(mf_gamma)> A_elem(fe_space, mf_alpha, mf_gamma);
-  lf::assemble::AssembleMatrixLocally<lf::assemble::COOMatrix<double>>(0, dofh, dofh, A_elem, A);
-
-  auto bd_flag = lf::mesh::utils::flagEntitiesOnBoundary(mesh_p,2);
-
-  auto set = [&bd_flag, &dofh](int i, int j){
-    return bd_flag(dofh.Entity(i));
-  };
-  A.setZero(set);
-  for (int i = 0; i < dofh.NumDofs(); ++i) {
-    if (bd_flag(dofh.Entity(i))) A.AddToEntry(i, i, 1.0);
+  A.setZero(selector);
+  for(int i = 0; i < N; ++i){
+    if(bd_flags(dofh.Entity(i))){
+      A.AddToEntry(i,i,1.0);
+    }
   }
-
 
   //====================
 
@@ -108,13 +94,16 @@ RHSProvider::RHSProvider(const lf::assemble::DofHandler &dofh,
                          std::function<double(double)> g)
     : g_(std::move(g)) {
   //====================
-  auto N = dofh.NumDofs();
-  auto bd_flag = lf::mesh::utils::flagEntitiesOnBoundary(dofh.Mesh(),2);
-  zero_one = Eigen::VectorXd::Zero(N);
-  for(int i = 0; i < N; ++i){
-    if(bd_flag(dofh.Entity(i))) zero_one(i) += 1;
-  }
-
+  int N = dofh.NumDofs();
+   lf::mesh::utils::CodimMeshDataSet<bool> bd_flags =
+    lf::mesh::utils::flagEntitiesOnBoundary(dofh.mesh,2);
+   zero_one = Eigen::VectorXd::Zero(N);
+   for(int i = 0; i < N; ++i){
+     if(bd_flag(dofh.Entity(i))){
+       zero_one(i) = 1;
+     }
+   }
+   g_ = g;
 
   //====================
 }
@@ -123,7 +112,7 @@ Eigen::VectorXd RHSProvider::operator()(double t) const {
   //====================
   // Your code goes here
   // Replace this dummy return value:
-  return  g_(t)*zero_one;
+  return g_(t) * zero_one;
 
   //====================
 }
